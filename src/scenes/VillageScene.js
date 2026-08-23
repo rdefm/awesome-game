@@ -7,7 +7,10 @@ const GAME_HEIGHT = 600;
 const TRAY_HEIGHT = 110;
 const TRAY_SLOT_SPACING = 80;
 const TRAY_SLOT_X_START = 60;
+const TRAY_TOP_Y = GAME_HEIGHT - TRAY_HEIGHT;
 const TRAY_SLOT_Y = GAME_HEIGHT - TRAY_HEIGHT / 2;
+// Small buffer so a shaky tablet tap isn't misread as a drag.
+const DRAG_DISTANCE_THRESHOLD = 10;
 
 export class VillageScene extends Phaser.Scene {
   constructor() {
@@ -18,23 +21,30 @@ export class VillageScene extends Phaser.Scene {
   }
 
   create() {
+    this.input.dragDistanceThreshold = DRAG_DISTANCE_THRESHOLD;
+
     this.add
-      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT - TRAY_HEIGHT, 0x4a7c3f)
+      .rectangle(0, 0, GAME_WIDTH, TRAY_TOP_Y, 0x4a7c3f)
       .setOrigin(0, 0)
       .setInteractive()
       .on('pointerdown', (pointer) => this.handleBackgroundTap(pointer));
 
-    this.add
-      .rectangle(0, GAME_HEIGHT - TRAY_HEIGHT, GAME_WIDTH, TRAY_HEIGHT, 0x2f2f2f)
-      .setOrigin(0, 0);
+    this.add.rectangle(0, TRAY_TOP_Y, GAME_WIDTH, TRAY_HEIGHT, 0x2f2f2f).setOrigin(0, 0);
 
     this.add
-      .text(12, GAME_HEIGHT - TRAY_HEIGHT + 8, 'Inventory', {
+      .text(12, TRAY_TOP_Y + 8, 'Inventory', {
         fontFamily: 'sans-serif',
         fontSize: '14px',
         color: '#ffffff',
       })
       .setOrigin(0, 0);
+
+    this.input.on('dragstart', (pointer, view) => view.setData('dragged', true));
+    this.input.on('drag', (pointer, view, dragX, dragY) => {
+      view.x = dragX;
+      view.y = dragY;
+    });
+    this.input.on('dragend', (pointer, view) => this.handleDragEnd(pointer, view));
 
     this.render();
   }
@@ -43,8 +53,7 @@ export class VillageScene extends Phaser.Scene {
     if (!this.selectedInventoryId) {
       return;
     }
-    this.applyState(place(this.state, this.selectedInventoryId, pointer.x, pointer.y));
-    this.selectedInventoryId = null;
+    this.placeEntity(this.selectedInventoryId, pointer.x, pointer.y);
   }
 
   handleSceneEntityTap(entityId) {
@@ -54,6 +63,44 @@ export class VillageScene extends Phaser.Scene {
 
   handleInventoryEntityTap(entityId) {
     this.selectedInventoryId = this.selectedInventoryId === entityId ? null : entityId;
+    this.render();
+  }
+
+  placeEntity(entityId, x, y) {
+    this.applyState(place(this.state, entityId, x, y));
+    this.selectedInventoryId = null;
+  }
+
+  handleEntityPointerUp(entityId, view) {
+    if (view.getData('dragged')) {
+      view.setData('dragged', false);
+      return;
+    }
+
+    const entity = this.state.entities[entityId];
+    if (entity.location === 'scene') {
+      this.handleSceneEntityTap(entityId);
+    } else {
+      this.handleInventoryEntityTap(entityId);
+    }
+  }
+
+  handleDragEnd(pointer, view) {
+    const entityId = view.getData('entityId');
+    const entity = this.state.entities[entityId];
+    const droppedInTray = pointer.y >= TRAY_TOP_Y;
+
+    if (entity.location === 'scene' && droppedInTray) {
+      this.handleSceneEntityTap(entityId);
+      return;
+    }
+
+    if (entity.location === 'inventory' && !droppedInTray) {
+      this.placeEntity(entityId, pointer.x, pointer.y);
+      return;
+    }
+
+    // Dropped back into the zone it started in - snap the view back to its real position.
     this.render();
   }
 
@@ -82,16 +129,14 @@ export class VillageScene extends Phaser.Scene {
 
   renderSceneEntity(entity, runtime) {
     const view = this.createShape(entity, runtime.x, runtime.y);
-    view.setInteractive({ useHandCursor: true });
-    view.on('pointerdown', () => this.handleSceneEntityTap(entity.id));
+    view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     this.entityViews.set(entity.id, view);
   }
 
   renderInventoryEntity(entity, trayIndex) {
     const x = TRAY_SLOT_X_START + trayIndex * TRAY_SLOT_SPACING;
     const view = this.createShape(entity, x, TRAY_SLOT_Y);
-    view.setInteractive({ useHandCursor: true });
-    view.on('pointerdown', () => this.handleInventoryEntityTap(entity.id));
+    view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     if (this.selectedInventoryId === entity.id) {
       view.setStrokeStyle(4, 0xffffff);
     }
@@ -99,10 +144,14 @@ export class VillageScene extends Phaser.Scene {
   }
 
   createShape(entity, x, y) {
-    if (entity.shape === 'circle') {
-      return this.add.circle(x, y, entity.radius, entity.color);
-    }
-    return this.add.rectangle(x, y, entity.size, entity.size, entity.color);
+    const view =
+      entity.shape === 'circle'
+        ? this.add.circle(x, y, entity.radius, entity.color)
+        : this.add.rectangle(x, y, entity.size, entity.size, entity.color);
+
+    view.setData('entityId', entity.id);
+    view.setInteractive({ useHandCursor: true, draggable: true });
+    return view;
   }
 }
 
