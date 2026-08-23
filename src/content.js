@@ -1,7 +1,11 @@
-// Placeholder cast for the v1 scaffold — plain colored shapes standing in
-// for real art (see .scratch/village-v1/issues/03-real-content-and-art.md).
+// v1 village cast — see public/assets/README.md for the art-generation
+// prompts and expected image files backing each spriteKey.
 export const manifest = [
-  { id: 'cat', name: 'Cat', shape: 'circle', color: 0xff8844, radius: 28, x: 180, y: 220 },
-  { id: 'dog', name: 'Dog', shape: 'circle', color: 0x8866ff, radius: 28, x: 420, y: 260 },
-  { id: 'ball', name: 'Ball', shape: 'rect', color: 0x44cc88, size: 48, x: 300, y: 400 },
+  { id: 'cat', name: 'Cat', type: 'character', spriteKey: 'cat', x: 150, y: 200 },
+  { id: 'dog', name: 'Dog', type: 'character', spriteKey: 'dog', x: 420, y: 220 },
+  { id: 'rabbit', name: 'Rabbit', type: 'character', spriteKey: 'rabbit', x: 650, y: 180 },
+  { id: 'ball', name: 'Ball', type: 'item', spriteKey: 'ball', x: 250, y: 380 },
+  { id: 'bone', name: 'Bone', type: 'item', spriteKey: 'bone', x: 500, y: 400 },
+  { id: 'flower', name: 'Flower', type: 'item', spriteKey: 'flower', x: 100, y: 400 },
+  { id: 'basket', name: 'Basket', type: 'item', spriteKey: 'basket', x: 680, y: 380 },
 ];

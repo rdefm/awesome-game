@@ -11,6 +11,8 @@ const TRAY_TOP_Y = GAME_HEIGHT - TRAY_HEIGHT;
 const TRAY_SLOT_Y = GAME_HEIGHT - TRAY_HEIGHT / 2;
 // Small buffer so a shaky tablet tap isn't misread as a drag.
 const DRAG_DISTANCE_THRESHOLD = 10;
+const ENTITY_DISPLAY_SIZE = 64;
+const SELECTION_HIGHLIGHT_PADDING = 12;
 
 export class VillageScene extends Phaser.Scene {
   constructor() {
@@ -20,12 +22,20 @@ export class VillageScene extends Phaser.Scene {
     this.entityViews = new Map();
   }
 
+  preload() {
+    this.load.image('background', 'assets/background.png');
+    for (const entity of manifest) {
+      this.load.image(entity.spriteKey, `assets/${entity.spriteKey}.png`);
+    }
+  }
+
   create() {
     this.input.dragDistanceThreshold = DRAG_DISTANCE_THRESHOLD;
 
     this.add
-      .rectangle(0, 0, GAME_WIDTH, TRAY_TOP_Y, 0x4a7c3f)
+      .image(0, 0, 'background')
       .setOrigin(0, 0)
+      .setDisplaySize(GAME_WIDTH, TRAY_TOP_Y)
       .setInteractive()
       .on('pointerdown', (pointer) => this.handleBackgroundTap(pointer));
 
@@ -128,26 +138,31 @@ export class VillageScene extends Phaser.Scene {
   }
 
   renderSceneEntity(entity, runtime) {
-    const view = this.createShape(entity, runtime.x, runtime.y);
+    const view = this.createEntitySprite(entity, runtime.x, runtime.y);
     view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     this.entityViews.set(entity.id, view);
   }
 
   renderInventoryEntity(entity, trayIndex) {
     const x = TRAY_SLOT_X_START + trayIndex * TRAY_SLOT_SPACING;
-    const view = this.createShape(entity, x, TRAY_SLOT_Y);
-    view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
+
     if (this.selectedInventoryId === entity.id) {
-      view.setStrokeStyle(4, 0xffffff);
+      const highlightSize = ENTITY_DISPLAY_SIZE + SELECTION_HIGHLIGHT_PADDING;
+      const highlight = this.add
+        .rectangle(x, TRAY_SLOT_Y, highlightSize, highlightSize)
+        .setStrokeStyle(4, 0xffffff);
+      this.entityViews.set(`${entity.id}-highlight`, highlight);
     }
+
+    const view = this.createEntitySprite(entity, x, TRAY_SLOT_Y);
+    view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     this.entityViews.set(entity.id, view);
   }
 
-  createShape(entity, x, y) {
-    const view =
-      entity.shape === 'circle'
-        ? this.add.circle(x, y, entity.radius, entity.color)
-        : this.add.rectangle(x, y, entity.size, entity.size, entity.color);
+  createEntitySprite(entity, x, y) {
+    const view = this.add
+      .image(x, y, entity.spriteKey)
+      .setDisplaySize(ENTITY_DISPLAY_SIZE, ENTITY_DISPLAY_SIZE);
 
     view.setData('entityId', entity.id);
     view.setInteractive({ useHandCursor: true, draggable: true });
