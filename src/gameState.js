@@ -40,3 +40,18 @@ export function place(state, entityId, x, y) {
     inventory: state.inventory.filter((id) => id !== entityId),
   };
 }
+
+export function moveWithinScene(state, entityId, x, y) {
+  const entity = state.entities[entityId];
+  if (!entity || entity.location !== 'scene') {
+    return state;
+  }
+
+  return {
+    ...state,
+    entities: {
+      ...state.entities,
+      [entityId]: { id: entityId, location: 'scene', x, y },
+    },
+  };
+}

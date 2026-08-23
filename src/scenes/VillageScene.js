@@ -1,18 +1,19 @@
 import Phaser from 'phaser';
-import { createGameState, pickUp, place } from '../gameState.js';
+import { createGameState, pickUp, place, moveWithinScene } from '../gameState.js';
 import { manifest } from '../content.js';
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 const TRAY_HEIGHT = 110;
-const TRAY_SLOT_SPACING = 80;
-const TRAY_SLOT_X_START = 60;
+const TRAY_SLOT_SPACING = 110;
+const TRAY_SLOT_X_START = 70;
 const TRAY_TOP_Y = GAME_HEIGHT - TRAY_HEIGHT;
 const TRAY_SLOT_Y = GAME_HEIGHT - TRAY_HEIGHT / 2;
 // Small buffer so a shaky tablet tap isn't misread as a drag.
 const DRAG_DISTANCE_THRESHOLD = 10;
-const ENTITY_DISPLAY_SIZE = 64;
-const SELECTION_HIGHLIGHT_PADDING = 12;
+// Sized for reliable touch targets on a tablet, not just visibility.
+const ENTITY_DISPLAY_SIZE = 90;
+const SELECTION_HIGHLIGHT_PADDING = 14;
 
 export class VillageScene extends Phaser.Scene {
   constructor() {
@@ -107,6 +108,11 @@ export class VillageScene extends Phaser.Scene {
 
     if (entity.location === 'inventory' && !droppedInTray) {
       this.placeEntity(entityId, pointer.x, pointer.y);
+      return;
+    }
+
+    if (entity.location === 'scene' && !droppedInTray) {
+      this.applyState(moveWithinScene(this.state, entityId, pointer.x, pointer.y));
       return;
     }
 

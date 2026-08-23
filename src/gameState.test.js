@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createGameState, pickUp, place } from './gameState.js';
+import { createGameState, pickUp, place, moveWithinScene } from './gameState.js';
 
 const manifest = [
   { id: 'cat', name: 'Cat', shape: 'circle', color: 0xff8800, x: 100, y: 150 },
@@ -78,6 +78,34 @@ describe('place', () => {
     const state = createGameState(manifest);
 
     const next = place(state, 'nope', 400, 500);
+
+    expect(next).toEqual(state);
+  });
+});
+
+describe('moveWithinScene', () => {
+  it('updates the position of an entity already placed in the scene', () => {
+    const state = createGameState(manifest);
+
+    const next = moveWithinScene(state, 'cat', 400, 500);
+
+    expect(next.entities.cat).toEqual({ id: 'cat', location: 'scene', x: 400, y: 500 });
+    expect(next.inventory).toEqual([]);
+  });
+
+  it('is a no-op when the entity is in the inventory', () => {
+    const state = createGameState(manifest);
+    const held = pickUp(state, 'cat');
+
+    const next = moveWithinScene(held, 'cat', 400, 500);
+
+    expect(next).toEqual(held);
+  });
+
+  it('is a no-op for an unknown entity id', () => {
+    const state = createGameState(manifest);
+
+    const next = moveWithinScene(state, 'nope', 400, 500);
 
     expect(next).toEqual(state);
   });
