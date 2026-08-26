@@ -16,11 +16,11 @@ describe('manifest', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('includes the v1 cast: 3 characters and 4 items', () => {
+  it('includes the v1 cast plus monkey and broom: 4 characters and 5 items', () => {
     const characters = manifest.filter((entity) => entity.type === 'character');
     const items = manifest.filter((entity) => entity.type === 'item');
 
-    expect(characters).toHaveLength(3);
-    expect(items).toHaveLength(4);
+    expect(characters).toHaveLength(4);
+    expect(items).toHaveLength(5);
   });
 });

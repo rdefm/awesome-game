@@ -29,6 +29,7 @@ prompt so the set feels consistent:
 | `bone.png` | A light tan dog bone / chew toy, classic double-knot bone shape. |
 | `flower.png` | A single pink daisy-style flower with a green stem and two leaves. |
 | `basket.png` | A small round wicker basket, empty, brown woven texture, simple handle. |
+| `broom.png` | A wooden broom standing upright, tan wood handle, yellow straw bristles fanned at the base — matches the broom Manny holds in `assets/Manny-sweeping.png`. |
 
 ## Background (1600x980, opaque PNG)
 
@@ -55,3 +56,4 @@ This matches the aspect ratio of the scene area above the inventory tray
 - [ ] `bone.png`
 - [ ] `flower.png`
 - [ ] `basket.png`
+- [ ] `broom.png`

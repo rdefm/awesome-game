@@ -14,6 +14,14 @@ const DRAG_DISTANCE_THRESHOLD = 10;
 // Sized for reliable touch targets on a tablet, not just visibility.
 const ENTITY_DISPLAY_SIZE = 90;
 const SELECTION_HIGHLIGHT_PADDING = 14;
+const MONKEY_FRAME_SIZE = 82;
+const MONKEY_IDLE_ANIM = 'monkey-idle';
+const MONKEY_SWEEP_FRAME_SIZE = 256;
+const MONKEY_SWEEP_ANIM = 'monkey-sweep';
+const MONKEY_ID = 'monkey';
+const BROOM_ID = 'broom';
+// Two entities count as "brought together" once their centers are this close.
+const PROXIMITY_THRESHOLD = ENTITY_DISPLAY_SIZE;
 
 export class VillageScene extends Phaser.Scene {
   constructor() {
@@ -26,12 +34,37 @@ export class VillageScene extends Phaser.Scene {
   preload() {
     this.load.image('background', 'assets/background.png');
     for (const entity of manifest) {
-      this.load.image(entity.spriteKey, `assets/${entity.spriteKey}.png`);
+      if (entity.spriteKey === 'monkey') {
+        this.load.spritesheet('monkey', 'assets/monkey-idle.png', {
+          frameWidth: MONKEY_FRAME_SIZE,
+          frameHeight: MONKEY_FRAME_SIZE,
+        });
+        this.load.spritesheet('monkey-sweep', 'assets/monkey-sweep.png', {
+          frameWidth: MONKEY_SWEEP_FRAME_SIZE,
+          frameHeight: MONKEY_SWEEP_FRAME_SIZE,
+        });
+      } else {
+        this.load.image(entity.spriteKey, `assets/${entity.spriteKey}.png`);
+      }
     }
   }
 
   create() {
     this.input.dragDistanceThreshold = DRAG_DISTANCE_THRESHOLD;
+
+    this.anims.create({
+      key: MONKEY_IDLE_ANIM,
+      frames: this.anims.generateFrameNumbers('monkey'),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: MONKEY_SWEEP_ANIM,
+      frames: this.anims.generateFrameNumbers('monkey-sweep'),
+      frameRate: 10,
+      repeat: 0,
+    });
 
     this.add
       .image(0, 0, 'background')
@@ -121,8 +154,41 @@ export class VillageScene extends Phaser.Scene {
   }
 
   applyState(nextState) {
+    const wasNear = this.isBroomNearMonkey(this.state);
     this.state = nextState;
     this.render();
+
+    if (!wasNear && this.isBroomNearMonkey(this.state)) {
+      this.playMonkeySweep();
+    }
+  }
+
+  isBroomNearMonkey(state) {
+    const broom = state.entities[BROOM_ID];
+    const monkey = state.entities[MONKEY_ID];
+    if (!broom || !monkey || broom.location !== 'scene' || monkey.location !== 'scene') {
+      return false;
+    }
+    return Phaser.Math.Distance.Between(broom.x, broom.y, monkey.x, monkey.y) <= PROXIMITY_THRESHOLD;
+  }
+
+  playMonkeySweep() {
+    const monkeyView = this.entityViews.get(MONKEY_ID);
+    if (!monkeyView) {
+      return;
+    }
+    // The sweep spritesheet's frames are a different native size than the idle
+    // spritesheet's, so displaySize has to be re-applied after each switch —
+    // otherwise the sprite's scale (fixed to whichever frame size was current
+    // when setDisplaySize was last called) makes it balloon or shrink.
+    monkeyView.play(MONKEY_SWEEP_ANIM);
+    monkeyView.setDisplaySize(ENTITY_DISPLAY_SIZE, ENTITY_DISPLAY_SIZE);
+    monkeyView.once(`animationcomplete-${MONKEY_SWEEP_ANIM}`, () => {
+      if (monkeyView.active) {
+        monkeyView.play(MONKEY_IDLE_ANIM);
+        monkeyView.setDisplaySize(ENTITY_DISPLAY_SIZE, ENTITY_DISPLAY_SIZE);
+      }
+    });
   }
 
   render() {
@@ -147,6 +213,7 @@ export class VillageScene extends Phaser.Scene {
     const view = this.createEntitySprite(entity, runtime.x, runtime.y);
     view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     this.entityViews.set(entity.id, view);
+    this.renderPlaceholderLabel(entity, runtime.x, runtime.y);
   }
 
   renderInventoryEntity(entity, trayIndex) {
@@ -163,12 +230,35 @@ export class VillageScene extends Phaser.Scene {
     const view = this.createEntitySprite(entity, x, TRAY_SLOT_Y);
     view.on('pointerup', () => this.handleEntityPointerUp(entity.id, view));
     this.entityViews.set(entity.id, view);
+    this.renderPlaceholderLabel(entity, x, TRAY_SLOT_Y);
+  }
+
+  // Missing art renders as Phaser's generic checkerboard texture, which looks
+  // identical for every entity — label it with its name so it's identifiable
+  // until real art lands in public/assets/.
+  renderPlaceholderLabel(entity, x, y) {
+    if (this.textures.exists(entity.spriteKey)) {
+      return;
+    }
+
+    const label = this.add
+      .text(x, y, entity.name, {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        color: '#ffffff',
+        backgroundColor: '#000000cc',
+        padding: { x: 4, y: 2 },
+      })
+      .setOrigin(0.5, 0.5);
+    this.entityViews.set(`${entity.id}-label`, label);
   }
 
   createEntitySprite(entity, x, y) {
-    const view = this.add
-      .image(x, y, entity.spriteKey)
-      .setDisplaySize(ENTITY_DISPLAY_SIZE, ENTITY_DISPLAY_SIZE);
+    const view =
+      entity.spriteKey === 'monkey'
+        ? this.add.sprite(x, y, 'monkey').play(MONKEY_IDLE_ANIM)
+        : this.add.image(x, y, entity.spriteKey);
+    view.setDisplaySize(ENTITY_DISPLAY_SIZE, ENTITY_DISPLAY_SIZE);
 
     view.setData('entityId', entity.id);
     view.setInteractive({ useHandCursor: true, draggable: true });

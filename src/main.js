@@ -7,5 +7,9 @@ new Phaser.Game({
   width: VILLAGE_SCENE_DIMENSIONS.width,
   height: VILLAGE_SCENE_DIMENSIONS.height,
   backgroundColor: '#1c1c1c',
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   scene: [VillageScene],
 });
