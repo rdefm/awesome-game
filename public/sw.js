@@ -1,11 +1,18 @@
-const CACHE_NAME = 'awesome-game-v1';
+const CACHE_NAME = 'awesome-game-v2';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
+// Drop caches from older versions so a tablet that played the village build
+// doesn't keep serving it after the switch to the spaceship.
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
 
 // Stale-while-revalidate: serve from cache instantly, refresh in the

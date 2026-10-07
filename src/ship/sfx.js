@@ -1,0 +1,56 @@
+// Every sound in the ship, as a synth recipe. `t` is the audio-clock start time.
+export function defineSfx(audio) {
+  audio.define('tap', (s, t) => s.tone({ at: t, freq: 880, to: 1250, dur: 0.06, vol: 0.08 }));
+  audio.define('pickup', (s, t) => s.tone({ at: t, freq: 380, to: 900, dur: 0.14, type: 'sine', vol: 0.25 }));
+  audio.define('land', (s, t) => {
+    s.noise({ at: t, dur: 0.15, freq: 500, to: 150, vol: 0.25 });
+    s.tone({ at: t, freq: 140, to: 60, dur: 0.12, type: 'sine', vol: 0.3 });
+  });
+  audio.define('giggle', (s, t) => {
+    [1000, 1200, 1100, 1400].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, to: f * 1.1, dur: 0.06, type: 'triangle', vol: 0.15 }));
+  });
+  audio.define('beep', (s, t) => s.tone({ at: t, freq: 660, dur: 0.18, vol: 0.12 }));
+  audio.define('go', (s, t) => s.tone({ at: t, freq: 990, dur: 0.35, vol: 0.12 }));
+  audio.define('blast', (s, t) => {
+    s.noise({ at: t, dur: 2.6, freq: 150, to: 1400, vol: 0.4, attack: 0.3 });
+    s.tone({ at: t, freq: 50, to: 140, dur: 2.6, type: 'sawtooth', vol: 0.12, attack: 0.3 });
+  });
+  audio.define('settle', (s, t) => s.noise({ at: t, dur: 1.4, freq: 1200, to: 120, vol: 0.2 }));
+  audio.define('warp', (s, t) => {
+    s.tone({ at: t, freq: 180, to: 1800, dur: 1.1, type: 'sine', vol: 0.18, attack: 0.2 });
+    s.noise({ at: t, dur: 1.1, filter: 'bandpass', freq: 300, to: 4000, vol: 0.25, q: 3, attack: 0.2 });
+  });
+  audio.define('arrive', (s, t) => {
+    s.tone({ at: t, freq: 1800, to: 260, dur: 0.9, type: 'sine', vol: 0.15 });
+    [523, 659, 784, 1046].forEach((f, i) => s.tone({ at: t + 0.6 + i * 0.09, freq: f, dur: 0.15, type: 'triangle', vol: 0.12 }));
+  });
+  audio.define('boop', (s, t) => {
+    s.tone({ at: t, freq: 520, to: 820, dur: 0.12, type: 'sine', vol: 0.25 });
+    s.tone({ at: t + 0.16, freq: 820, to: 420, dur: 0.14, type: 'sine', vol: 0.25 });
+    s.tone({ at: t + 0.34, freq: 640, to: 1100, dur: 0.1, type: 'sine', vol: 0.2 });
+  });
+  audio.define('peek', (s, t) => s.tone({ at: t, freq: 300, to: 700, dur: 0.18, type: 'triangle', vol: 0.15 }));
+  audio.define('hide', (s, t) => s.tone({ at: t, freq: 700, to: 250, dur: 0.2, type: 'triangle', vol: 0.15 }));
+  audio.define('wheee', (s, t) => {
+    s.tone({ at: t, freq: 500, to: 1300, dur: 0.7, type: 'triangle', vol: 0.15 });
+    s.tone({ at: t + 0.7, freq: 1300, to: 350, dur: 1.0, type: 'triangle', vol: 0.12 });
+    s.noise({ at: t, dur: 1.6, filter: 'bandpass', freq: 800, to: 300, vol: 0.12, q: 2 });
+  });
+  audio.define('boing', (s, t) => {
+    s.tone({ at: t, freq: 180, to: 620, dur: 0.15, type: 'sine', vol: 0.3 });
+    s.tone({ at: t + 0.15, freq: 620, to: 300, dur: 0.25, type: 'sine', vol: 0.2 });
+  });
+  audio.define('chime', (s, t) => {
+    [1318, 1568, 2093].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.3, type: 'sine', vol: 0.1 }));
+  });
+  audio.define('open', (s, t) => {
+    [523, 659, 784].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.08, vol: 0.08 }));
+  });
+  audio.define('close', (s, t) => {
+    [784, 523].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.08, vol: 0.08 }));
+  });
+  audio.define('select', (s, t) => {
+    s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
+    s.tone({ at: t + 0.08, freq: 1568, dur: 0.12, vol: 0.1 });
+  });
+}

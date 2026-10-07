@@ -21,9 +21,10 @@ between locations. Not published — built for one player, not the app store.
   tactile interaction; tap is the fallback/reliable path.
 - **Inventory**: items and characters can be picked up in one scene, carried
   in an inventory, and placed down in a different scene.
-- **Theme/setting**: generic cozy sandbox village for now — houses, a park,
-  some animals/people to interact with. No strong IP or story. Can sharpen
-  or change later.
+- **Theme/setting**: a cosy spaceship. The hero is a small girl with red
+  hair; the first area is the ship's interior (porthole alien, spinning pilot
+  chair, star map to fly between planets, blast-off poster, space plant).
+  Planets are natural future scenes to visit.
 - **Persistence**: progress (inventory contents, where things were placed)
   saves locally on the tablet (browser storage) so it survives closing the
   app and coming back later.
@@ -31,19 +32,18 @@ between locations. Not published — built for one player, not the app store.
   music yet.
 
 ## Tech stack
-- **Engine**: [Phaser](https://phaser.io/) (JavaScript 2D game framework).
-  Chosen because it has built-in support for sprites, touch/drag input, and
-  scene management — a strong fit for this genre — and because the
-  developer (me, Claude) writes the code directly with no visual editor or
-  engine installation required from the user.
+- **Engine**: a small custom engine written from scratch in plain JavaScript
+  (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
+  sound effects, pixel font). Replaced the earlier Phaser prototype (still
+  reachable at `village.html`) so the game can have a tight, crisp pixel-art
+  feel with no framework overhead.
 - **Deployment**: hosted as a static web app (e.g. GitHub Pages), opened via
   URL in the tablet's browser. "Add to Home Screen" gives it an app-like
   icon. Works identically on iPad and Android — no app store submission, no
   native build tooling (Xcode/Android Studio) required.
-- **Art pipeline**: AI-generated images. The user generates character/item/
-  scene art in a separate tool (e.g. ChatGPT image generation), then hands
-  the files over to be wired into the game as code. Claude does not have a
-  built-in image generation tool in this environment.
+- **Art pipeline**: pixel art (256x160 internal resolution, scaled up with
+  crisp pixels), drawn entirely in code under `src/ship/art/` — sprites as
+  character grids plus procedural painting. No image files to load.
 - **Save system**: browser `localStorage`. No account, no backend, no login.
 
 ## v1 scope (deliberately small — prove the core feel first)

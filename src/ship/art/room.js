@@ -1,0 +1,229 @@
+import { Pixmap, fractalNoise, seededRandom, bayer } from '../../engine/pixmap.js';
+import { drawText } from '../../engine/font.js';
+import { C } from './palette.js';
+import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, WINDSHIELD, CONSOLE, SCREEN } from '../layout.js';
+
+function rivet(pm, x, y) {
+  pm.set(x, y, C.wallHi);
+  pm.set(x + 1, y + 1, C.wallDark);
+}
+
+function drawCeiling(pm) {
+  pm.rect(0, 0, W, 12, C.ceiling);
+  // A chunky coolant pipe running the length of the ship.
+  pm.rect(0, 3, W, 4, C.metalDark);
+  pm.hline(0, W - 1, 3, C.metal);
+  pm.hline(0, W - 1, 6, C.wallDark);
+  for (let x = 14; x < W; x += 44) {
+    pm.rect(x, 2, 3, 6, C.metal);
+    pm.vline(x + 2, 2, 7, C.metalDark);
+  }
+  pm.hline(0, W - 1, 11, C.wallDark);
+  // Warm light strips with a soft dithered glow spilling down the wall.
+  for (const x of [20, 112, 150]) {
+    pm.rect(x, 9, 18, 2, C.yellow);
+    pm.hline(x + 1, x + 16, 9, C.white);
+    for (let i = 0; i < 10; i++) {
+      pm.dither(x - 6 + i, 12 + i, 30 - i * 2, 1, C.wallLight, 0.5 - i * 0.05);
+    }
+  }
+}
+
+function drawWall(pm) {
+  pm.rect(0, 12, W, FLOOR_TOP - 12, C.wall);
+  // Darker toward the ceiling.
+  for (let y = 12; y < 26; y++) {
+    pm.dither(0, y, W, 1, C.wallDark, 0.6 - (y - 12) * 0.045);
+  }
+  for (const x of [52, 96, 160]) {
+    pm.vline(x, 12, 93, C.wallDark);
+    pm.vline(x + 1, 12, 93, C.wallLight);
+  }
+  pm.hline(0, 175, 62, C.wallDark);
+  pm.hline(0, 175, 63, C.wallLight);
+  for (const x of [4, 47, 56, 91, 100, 155, 164]) {
+    rivet(pm, x, 16);
+    rivet(pm, x, 58);
+    rivet(pm, x, 67);
+    rivet(pm, x, 89);
+  }
+  // Wainscot band with a teal trim and a hazard stripe at floor level.
+  pm.rect(0, 94, W, 18, C.wallDark);
+  pm.hline(0, W - 1, 94, C.wallLight);
+  pm.hline(0, W - 1, 97, C.tealDark);
+  pm.hline(0, W - 1, 98, C.teal);
+  for (let x = 0; x < W; x++) {
+    for (let y = 106; y < 111; y++) {
+      pm.set(x, y, (x + y) % 8 < 4 ? C.yellow : C.outline);
+    }
+  }
+  pm.hline(0, W - 1, 105, C.outline);
+  pm.hline(0, W - 1, 111, C.outline);
+  // Vents in the wainscot.
+  for (const x of [8, 60, 140]) {
+    pm.rect(x, 100, 18, 4, C.outline);
+    for (let i = 0; i < 18; i += 3) {
+      pm.vline(x + i + 1, 100, 103, C.metalDark);
+    }
+  }
+}
+
+function drawFloor(pm) {
+  pm.rect(0, FLOOR_TOP, W, H - FLOOR_TOP, C.floor);
+  for (let y = FLOOR_TOP; y < FLOOR_TOP + 8; y++) {
+    pm.dither(0, y, W, 1, C.floorLight, 0.6 - (y - FLOOR_TOP) * 0.07);
+  }
+  for (let y = H - 14; y < H; y++) {
+    pm.dither(0, y, W, 1, C.floorDark, (y - (H - 14)) * 0.05);
+  }
+  // Floor plates: horizontal seams bunch up toward the back wall (fake perspective),
+  // vertical seams fan out from a vanishing point.
+  for (const y of [117, 124, 134, 148]) {
+    pm.hline(0, W - 1, y, C.floorDark);
+    pm.hline(0, W - 1, y + 1, C.floorLight);
+  }
+  for (let xt = -64; xt <= W + 64; xt += 36) {
+    pm.line(xt, FLOOR_TOP, 128 + (xt - 128) * 1.8, H - 1, C.floorDark);
+  }
+  pm.hline(0, W - 1, FLOOR_TOP, C.metalDark);
+}
+
+function drawPorthole(pm) {
+  const { x, y, r } = PORTHOLE;
+  pm.circle(x + 1, y + 2, r + 5, C.wallDark); // drop shadow
+  pm.ring(x, y, r + 5, r, C.metalDark);
+  pm.ring(x, y, r + 4, r + 1, C.metal);
+  pm.ring(x, y, r + 3, r + 2, C.metalLight);
+  for (let a = 0; a < 8; a++) {
+    const ang = (a / 8) * Math.PI * 2 + Math.PI / 8;
+    pm.set(Math.round(x + Math.cos(ang) * (r + 3)), Math.round(y + Math.sin(ang) * (r + 3)), C.metalDark);
+  }
+  // Cut the glass out so the starfield behind shows through.
+  for (let yy = y - r; yy <= y + r; yy++) {
+    for (let xx = x - r; xx <= x + r; xx++) {
+      if (Math.hypot(xx - x, yy - y) <= r + 0.5) {
+        pm.clear(xx, yy);
+      }
+    }
+  }
+}
+
+function windshieldLeft(y) {
+  const { top, bottom, leftTop, leftBottom } = WINDSHIELD;
+  return Math.round(leftTop + ((leftBottom - leftTop) * (y - top)) / (bottom - top));
+}
+
+function drawWindshield(pm) {
+  const { top, bottom, right, strut } = WINDSHIELD;
+  // Thick frame.
+  for (let y = top - 4; y <= bottom + 4; y++) {
+    const l = windshieldLeft(Math.max(top, Math.min(bottom, y))) - 4;
+    pm.hline(l, Math.min(W - 1, right + 4), y, C.metalDark);
+  }
+  for (let y = top - 3; y <= bottom + 3; y++) {
+    const l = windshieldLeft(Math.max(top, Math.min(bottom, y))) - 3;
+    pm.hline(l, Math.min(W - 1, right + 3), y, C.metal);
+  }
+  pm.hline(windshieldLeft(top) - 3, W - 1, top - 3, C.metalLight);
+  for (let y = top; y <= bottom; y++) {
+    for (let x = windshieldLeft(y); x <= right; x++) {
+      pm.clear(x, y);
+    }
+  }
+  // Centre strut.
+  pm.rect(strut - 1, top, 3, bottom - top + 1, C.metal);
+  pm.vline(strut - 1, top, bottom, C.metalLight);
+  pm.vline(strut + 1, top, bottom, C.metalDark);
+  for (const yy of [top + 4, bottom - 4]) {
+    pm.set(strut, yy, C.metalDark);
+  }
+}
+
+function drawLockers(pm) {
+  const { x, y, w, h } = LOCKERS;
+  const half = w / 2;
+  for (let i = 0; i < 2; i++) {
+    const lx = x + i * half;
+    pm.rect(lx, y, half - 1, h, C.metalDark);
+    pm.rect(lx + 1, y + 1, half - 3, h - 2, C.metal);
+    pm.vline(lx + 1, y + 1, y + h - 2, C.metalLight);
+    for (let v = 0; v < 4; v++) {
+      pm.hline(lx + 5, lx + half - 7, y + 6 + v * 2, C.metalDark);
+    }
+    pm.rect(lx + (i === 0 ? half - 5 : 3), y + 30, 2, 8, C.outline);
+    pm.set(lx + (i === 0 ? half - 5 : 3), y + 30, C.metalHi);
+  }
+  // Name tag sticker and a kid's star sticker.
+  pm.rect(x + 4, y + 50, 12, 7, C.white);
+  drawText(pm, 'ME', x + 6, y + 51, C.redDark);
+  pm.set(x + 27, y + 48, C.yellow);
+  pm.hline(x + 26, x + 28, y + 49, C.yellow);
+  pm.set(x + 27, y + 50, C.yellow);
+  pm.set(x + 26, y + 51, C.yellow);
+  pm.set(x + 28, y + 51, C.yellow);
+}
+
+function drawConsole(pm) {
+  const { x, y, w, h } = CONSOLE;
+  // Sloped top surface.
+  for (let i = 0; i < 6; i++) {
+    pm.hline(x + 6 - i, x + w - 1, y + i, i < 2 ? C.metalLight : C.metal);
+  }
+  pm.rect(x, y + 6, w, h - 6, C.metalDark);
+  pm.hline(x, x + w - 1, y + 6, C.metal);
+  pm.rect(x, y + h - 3, w, 3, C.wallDark);
+  // Screen bezel; the screen itself is drawn live.
+  pm.rect(SCREEN.x - 2, SCREEN.y - 2, SCREEN.w + 4, SCREEN.h + 4, C.outline);
+  pm.rect(SCREEN.x, SCREEN.y, SCREEN.w, SCREEN.h, C.screen);
+  // Knobs and a throttle lever.
+  for (const kx of [186, 191]) {
+    pm.circle(kx, 88, 2, C.outline);
+    pm.circle(kx, 88, 1, C.metalLight);
+  }
+  pm.rect(243, 84, 4, 12, C.outline);
+  pm.rect(244, 80, 2, 10, C.metalLight);
+  pm.rect(243, 78, 4, 3, C.red);
+}
+
+function drawShadows(pm) {
+  // Contact shadow under the console so it sits on the floor.
+  pm.dither(CONSOLE.x - 2, FLOOR_TOP, CONSOLE.w + 2, 3, C.floorDark, 0.7);
+}
+
+export function drawRoom() {
+  const pm = new Pixmap(W, H);
+  drawWall(pm);
+  drawCeiling(pm);
+  drawFloor(pm);
+  drawPorthole(pm);
+  drawLockers(pm);
+  drawWindshield(pm);
+  drawConsole(pm);
+  drawShadows(pm);
+  return pm;
+}
+
+// Deep space behind the windows: base colour, a dithered nebula and faint fixed
+// stars. Moving stars are drawn live on top of this.
+export function drawSpace() {
+  const pm = new Pixmap(W, H);
+  const rand = seededRandom(7);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const n = fractalNoise(x / 40, y / 30, 3, 4);
+      let color = C.space;
+      if (n > 0.62 - bayer(x, y) * 0.08) {
+        color = C.nebula2;
+      } else if (n > 0.52 - bayer(x, y) * 0.1) {
+        color = C.nebula;
+      } else if (n > 0.45 - bayer(x, y) * 0.1) {
+        color = C.spaceMid;
+      }
+      pm.set(x, y, color);
+    }
+  }
+  for (let i = 0; i < 90; i++) {
+    pm.set(Math.floor(rand() * W), Math.floor(rand() * H), rand() < 0.5 ? '#4a4f80' : '#6e6fa6');
+  }
+  return pm;
+}

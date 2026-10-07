@@ -3,10 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Awesome Game</title>
+    <title>Awesome Game — Village</title>
+
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#0a0a1c" />
+    <meta name="theme-color" content="#1c1c1c" />
     <link rel="icon" href="icons/icon-192.png" />
+
+    <!-- iOS: Safari ignores the manifest for home-screen install, so it needs its own tags. -->
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -15,12 +18,8 @@
       html, body {
         margin: 0;
         padding: 0;
-        background: #0a0a1c;
+        background: #1c1c1c;
         overflow: hidden;
-        overscroll-behavior: none;
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
       }
       #game {
         display: flex;
@@ -29,15 +28,11 @@
         width: 100vw;
         height: 100vh;
       }
-      canvas {
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-      }
     </style>
   </head>
   <body>
     <div id="game"></div>
-    <script type="module" src="/src/ship/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
