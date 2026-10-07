@@ -1,4 +1,4 @@
-import { Butterfly, ParkedShip } from './entities/bluebell.js';
+import { Bush, Butterfly, MoleHole, ParkedShip, Rock } from './entities/bluebell.js';
 import { Girl, clampToFloor } from './entities/girl.js';
 import { PARKED_SHIP, W } from './layout.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
@@ -6,7 +6,8 @@ import { loadSave, writeSave } from './save.js';
 import { ShipScene } from './shipScene.js';
 
 // Planet Bluebell: a sunny meadow of giant ringing bluebells, a hopping
-// puffball, butterflies and a friendly local, with our ship parked on the left.
+// puffball, butterflies and a friendly local, with our ship parked on the left
+// (and a few secrets: a rock, a bush and a molehill).
 export class BluebellScene extends PlayScene {
   // `fromShip`: she's just walked out of the door (rather than a reload).
   constructor(assets, { fromShip = true } = {}) {
@@ -18,6 +19,9 @@ export class BluebellScene extends PlayScene {
     const start = fromShip ? PARKED_SHIP.spot : clampToFloor(save.bx ?? 90, save.by ?? 134);
 
     this.ship = this.add(new ParkedShip(assets));
+    this.add(new Rock(assets));
+    this.add(new Bush(assets));
+    this.add(new MoleHole(assets));
     this.addPlaced();
     for (let i = 0; i < 3; i++) {
       this.add(new Butterfly(assets, i));

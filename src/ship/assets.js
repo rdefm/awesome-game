@@ -3,8 +3,9 @@ import { textPixmap } from '../engine/font.js';
 import { girlFrames } from './art/girl.js';
 import { drawRoom, drawSpace } from './art/room.js';
 import {
-  BUTTERFLY_COLORS, drawBell, drawBluebellStem, drawButterfly, drawCloud, drawCritter, drawFlame, drawLocal,
-  drawMeadow, drawShipExterior,
+  BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
+  drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawRock,
+  drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
 import { drawBag, drawBall, drawBoxIcon, drawCrystal, drawHeartIcon, drawTeddy } from './art/items.js';
 import { MEADOW_HORIZON } from './layout.js';
@@ -73,6 +74,14 @@ export function loadAssets() {
     bluebellIcons: stems.map((stem) => bluebellIcon(stem, bell)),
     critter: bake({ idle: drawCritter('idle'), squish: drawCritter('squish'), jump: drawCritter('jump') }),
     butterflies: BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // The meadow's secrets.
+    rock: bake({ top: drawRock(), under: drawRock(true), soil: drawSoilPatch() }),
+    bugs: BUG_KINDS.map((kind) => bake([drawBug(kind, 0), drawBug(kind, 1)])),
+    bush: bake([drawBush(), drawBush(true)]),
+    birds: BIRD_COLORS.map((c) => bake([drawBird(c, 0), drawBird(c, 1)])),
+    hole: bake(drawHole()),
+    // [eyes open / shut][rows showing above the hole] (0 is never drawn)
+    mole: [drawMole(), drawMole(true)].map((m) => bake(Array.from({ length: m.height + 1 }, (_, k) => cropTop(m, k)))),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),

@@ -1,6 +1,8 @@
 import { ease } from '../../engine/tween.js';
-import { PARKED_SHIP, WALK } from '../layout.js';
+import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
+import { MEADOW_SECRETS, PARKED_SHIP, WALK } from '../layout.js';
 import { Carryable } from './carryable.js';
+import { Secret } from './secret.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -274,6 +276,206 @@ export class Critter extends Carryable {
     r.image(this.imgs[frame], this.x, this.y + 1 - this.lift, {
       flipX: this.facing < 0, scaleX: this.bounce, scaleY: 2 - this.bounce,
     });
+  }
+}
+
+// ------------------------------------------------------------------ secrets
+// A rock that rolls over to show something wriggly living underneath.
+export class Rock extends Secret {
+  constructor(assets) {
+    const { x, y } = MEADOW_SECRETS.rock;
+    super(x, y, { w: 18, h: 11, reach: 18 });
+    this.imgs = assets.rock;
+    this.bugImgs = assets.bugs;
+    this.flip = 0; // 0 = sitting on its patch, 1 = rolled over beside it
+    this.side = 1; // which way it rolls (away from her)
+    this.bug = null; // { kind, dx } while one's showing
+  }
+
+  async reveal(n) {
+    const { scene } = this;
+    const { engine } = scene;
+    this.side = scene.girl.x < this.x ? 1 : -1;
+    engine.audio.play('scrape');
+    await engine.tweens.to(this, { flip: 1 }, 0.4, ease.inOutSine);
+    scene.dust(this.x + this.side * 14, this.y);
+    // A different little creature each time.
+    this.bug = { i: n % this.bugImgs.length, dx: 0 }; // index into BUG_KINDS
+    engine.audio.play('wriggle');
+    this.react('surprised', 'bang');
+    if (BUG_KINDS[this.bug.i] !== 'worm') {
+      // Beetles scurry about; the worm just wriggles where it is.
+      await engine.tweens.to(this.bug, { dx: -4 * this.side }, 0.6, ease.inOutSine);
+      engine.audio.play('wriggle');
+      await engine.tweens.to(this.bug, { dx: 3 * this.side }, 0.6, ease.inOutSine);
+    } else {
+      await engine.wait(0.6);
+      engine.audio.play('wriggle');
+      await engine.wait(0.6);
+    }
+    this.react('cheer', 'heart');
+    await engine.wait(0.5);
+    engine.audio.play('scrape');
+    await engine.tweens.to(this, { flip: 0 }, 0.4, ease.inOutSine);
+    this.bug = null;
+  }
+
+  draw(r) {
+    const t = this.scene.engine.time;
+    const { x, y, flip, side } = this;
+    if (flip > 0) {
+      r.image(this.imgs.soil, x, y + 1);
+    }
+    if (this.bug) {
+      const frames = this.bugImgs[this.bug.i];
+      r.image(frames[Math.floor(t * 6) % 2], x + this.bug.dx, y, { flipX: side < 0 });
+    }
+    // Rolling over: it narrows to an edge, then widens again upside down.
+    const roll = flip < 0.5 ? 1 - flip * 2 : flip * 2 - 1;
+    const img = flip < 0.5 ? this.imgs.top : this.imgs.under;
+    if (flip === 0) {
+      r.rect(x - 8, y - 1, 16, 2, '#000000', 0.18);
+    }
+    r.image(img, x + flip * side * 14, y - Math.sin(Math.PI * flip) * 6, {
+      scaleX: Math.max(0.1, roll) * this.bounce, scaleY: 2 - this.bounce,
+    });
+  }
+}
+
+// A bush that rustles, then a little bird flutters out, loops about and
+// dives back in (and sometimes it's two birds).
+export class Bush extends Secret {
+  constructor(assets) {
+    const { x, y } = MEADOW_SECRETS.bush;
+    super(x, y, { w: 26, h: 18, reach: 18 });
+    this.imgs = assets.bush;
+    this.birdImgs = assets.birds;
+    this.rustle = 0;
+    this.birds = [];
+  }
+
+  async reveal(n) {
+    const { scene } = this;
+    const { engine } = scene;
+    engine.audio.play('rustle');
+    this.rustle = 1;
+    scene.bits(this.x, this.y - 12, 6, BB.grassLight);
+    await engine.wait(0.5);
+    const count = n % 3 === 2 ? 2 : 1;
+    const flights = [];
+    for (let i = 0; i < count; i++) {
+      flights.push(this.fly((n + i) % this.birdImgs.length, i ? -1 : 1, i * 0.25));
+    }
+    this.react('surprised', 'bang');
+    await Promise.all(flights);
+    engine.audio.play('rustle');
+    this.rustle = 0.6;
+    scene.bits(this.x, this.y - 12, 3, BB.grassLight);
+    this.react('cheer', 'heart');
+  }
+
+  // One bird's trip: out of the bush, a loop through the air, back in.
+  async fly(color, dir, delay) {
+    const { engine } = this.scene;
+    await engine.wait(delay);
+    const bird = { color, x: this.x, y: this.y - 10, facing: dir };
+    this.birds.push(bird);
+    engine.audio.play('flutter');
+    engine.audio.play('tweet');
+    await engine.tweens.to(bird, { x: this.x + dir * 30, y: this.y - 50 }, 0.6, ease.outQuad);
+    await engine.tweens.to(bird, { x: this.x + dir * 55, y: this.y - 62 }, 0.5, ease.inOutSine);
+    bird.facing = -dir;
+    engine.audio.play('tweet');
+    await engine.tweens.to(bird, { x: this.x - dir * 10, y: this.y - 70 }, 0.9, ease.inOutSine);
+    bird.facing = dir;
+    await engine.tweens.to(bird, { x: this.x, y: this.y - 10 }, 0.6, ease.inQuad);
+    this.birds = this.birds.filter((b) => b !== bird);
+  }
+
+  update(dt) {
+    this.rustle = Math.max(0, this.rustle - dt * 1.5);
+  }
+
+  draw(r) {
+    const t = this.scene.engine.time;
+    const shake = this.rustle > 0 ? Math.round(Math.sin(t * 40) * this.rustle * 1.5) : 0;
+    const img = this.imgs[this.rustle > 0 && Math.floor(t * 12) % 2 ? 1 : 0];
+    r.rect(this.x - 12, this.y - 1, 24, 2, '#000000', 0.18);
+    r.image(img, this.x + shake, this.y + 1, { scaleX: this.bounce, scaleY: 2 - this.bounce });
+  }
+
+  // Birds fly above everything else in the meadow.
+  drawOver(r) {
+    const t = this.scene.engine.time;
+    for (const b of this.birds) {
+      const frames = this.birdImgs[b.color];
+      r.image(frames[Math.floor(t * 12) % 2], b.x, b.y, { ay: 0.5, flipX: b.facing < 0 });
+    }
+  }
+}
+
+// A molehill: a little mole pops up out of it to see who's there.
+export class MoleHole extends Secret {
+  constructor(assets) {
+    const { x, y } = MEADOW_SECRETS.hole;
+    super(x, y, { w: 18, h: 10, reach: 18 });
+    this.imgs = assets.hole;
+    this.moleImgs = assets.mole;
+    this.rise = 0; // how many rows of mole show above the hole
+    this.blink = false;
+    this.facing = 1;
+  }
+
+  async reveal(n) {
+    const { scene } = this;
+    const { engine } = scene;
+    const big = n % 3 === 2; // every third time it pops right out
+    this.facing = scene.girl.x < this.x ? -1 : 1;
+    engine.audio.play('pop');
+    scene.bits(this.x, this.y - 4, big ? 8 : 5, STONE.dirt);
+    await engine.tweens.to(this, { rise: big ? this.moleImgs[0].length - 1 : 9 }, 0.25, ease.outBack);
+    this.react('surprised', 'bang');
+    if (big) {
+      engine.audio.play('squeak');
+      scene.sparkles(this.x, this.y - 14, 6);
+      scene.hearts(this.x, this.y - 18, 2);
+      await engine.wait(0.8);
+    } else if (n % 3 === 1) {
+      // Looks one way, then the other.
+      for (const dir of [-1, 1]) {
+        this.facing = dir;
+        engine.audio.play('sniff');
+        await engine.wait(0.5);
+      }
+    } else {
+      engine.audio.play('sniff');
+      for (let i = 0; i < 2; i++) {
+        await engine.wait(0.35);
+        this.blink = true;
+        await engine.wait(0.12);
+        this.blink = false;
+      }
+    }
+    this.react('cheer', 'heart');
+    await engine.wait(0.3);
+    engine.audio.play('hide');
+    await engine.tweens.to(this, { rise: 0 }, 0.25, ease.inQuad);
+  }
+
+  // Tapping the mole while it's up counts too.
+  hitTest(px, py) {
+    return super.hitTest(px, py) || (Math.abs(px - this.x) <= 7 && py >= this.y - 2 - this.rise && py <= this.y);
+  }
+
+  draw(r) {
+    const { x, y } = this;
+    const opts = { scaleX: this.bounce, scaleY: 2 - this.bounce };
+    r.image(this.imgs.back, x, y + 1, opts);
+    const rows = Math.round(this.rise);
+    if (rows > 0) {
+      r.image(this.moleImgs[this.blink ? 1 : 0][rows], x, y - 2, { ...opts, flipX: this.facing < 0 });
+    }
+    r.image(this.imgs.front, x, y + 1, opts);
   }
 }
 

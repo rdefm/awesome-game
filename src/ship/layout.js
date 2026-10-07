@@ -21,3 +21,5 @@ export const DOOR = { x: 3, y: 66, w: 20, h: 46, spot: { x: 14, y: 124 } };
 // Planet Bluebell's meadow (same 256x160 screen and walkable band as the ship).
 export const MEADOW_HORIZON = 100;
 export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };
+// Its secrets (bottom-centres), placed in the gaps between the giant bluebells.
+export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119 }, hole: { x: 192, y: 151 } };

@@ -326,6 +326,148 @@ export function drawCritter(frame = 'idle') {
   return pm.outline(C.outline);
 }
 
+// --------------------------------------------------------------------- secrets
+// Bits of scenery that hide a surprise (see entities/secret.js).
+
+export const STONE = { dark: '#6f6a80', mid: '#9a96aa', light: '#c9c6d6', moss: '#5f9e4a', under: '#5a4a46', soil: '#4a3426', damp: '#6a4a32', dirt: '#7a5636' };
+
+// A smooth grey rock. `under` shows its damp, mossy underside (rolled over).
+export function drawRock(under = false) {
+  const pm = new Pixmap(18, 10);
+  pm.ellipse(9, 6, 8, 4, under ? STONE.under : STONE.mid);
+  if (under) {
+    for (const [x, y] of [[4, 5], [7, 7], [11, 4], [13, 7], [9, 5]]) {
+      pm.set(x, y, STONE.moss);
+    }
+    pm.hline(5, 12, 9, STONE.soil);
+  } else {
+    pm.dither(1, 7, 16, 3, STONE.dark, 0.6);
+    pm.hline(6, 10, 3, STONE.light);
+    pm.set(5, 4, STONE.light);
+    pm.set(13, 4, STONE.moss);
+    pm.set(14, 5, STONE.moss);
+  }
+  return pm.outline(C.outline);
+}
+
+// The damp dark patch of soil a rock was hiding.
+export function drawSoilPatch() {
+  const pm = new Pixmap(16, 5);
+  pm.ellipse(8, 2, 7, 2, STONE.soil);
+  pm.dither(0, 0, 16, 2, STONE.damp, 0.4);
+  return pm;
+}
+
+export const BUG_KINDS = ['worm', 'ladybird', 'beetle'];
+
+// Something wriggly from under the rock, in two wriggle frames.
+export function drawBug(kind, frame = 0) {
+  const pm = new Pixmap(12, 7);
+  if (kind === 'worm') {
+    const ys = frame ? [4, 3, 3, 4, 5, 5, 4] : [3, 4, 5, 5, 4, 3, 3];
+    ys.forEach((y, i) => pm.rect(2 + i, y, 1, 2, i % 2 ? '#ff9fb8' : '#ffb8cc'));
+    pm.set(8, ys[6], C.outline);
+  } else {
+    const shell = kind === 'ladybird' ? '#e8403a' : '#4bbfa0';
+    const spot = kind === 'ladybird' ? C.outline : '#bff6e0';
+    // Legs scurrying.
+    for (const x of [4, 6, 8]) {
+      pm.set(x + (frame ? 1 : 0), 6, C.outline);
+    }
+    pm.ellipse(6, 4, 3, 2, shell);
+    pm.vline(6, 2, 5, C.outline);
+    pm.set(5, 3, spot);
+    pm.set(7, 4, spot);
+    pm.rect(9, 3, 2, 2, C.outline); // head
+  }
+  return pm.outline(C.outline);
+}
+
+// A round leafy bush dotted with tiny bluebells. `rustle` ruffles its leaves.
+export function drawBush(rustle = false) {
+  const pm = new Pixmap(28, 18);
+  for (const [x, y, r] of [[8, 11, 6], [14, 8, 7], [21, 11, 6]]) {
+    pm.circle(x, y, r, BB.grassDark);
+  }
+  pm.rect(3, 12, 23, 5, BB.grassDark);
+  const rand = seededRandom(rustle ? 9 : 7);
+  for (let i = 0; i < 34; i++) {
+    const x = 3 + Math.floor(rand() * 22);
+    const y = 3 + Math.floor(rand() * 12);
+    if (pm.isSet(x, y)) {
+      pm.set(x, y, rand() < 0.6 ? BB.grass : BB.grassLight);
+    }
+  }
+  for (const [x, y] of [[7, 8], [16, 5], [20, 10], [11, 12]]) {
+    pm.set(x, y, BB.bellLight);
+  }
+  return pm.outline(C.outline);
+}
+
+export const BIRD_COLORS = [
+  ['#ffe066', '#ff9d3c'],
+  ['#ff8fc8', '#c04f9a'],
+  ['#6fb2ff', '#2f6fd0'],
+];
+
+// A little round bird, wings up or down, facing right.
+export function drawBird(colors, frame = 0) {
+  const rows = frame
+    ? ['.ww....', '..ww.k.', '.bbbbbo', 'bbbbbb.', '.bbbb..']
+    : ['.......', '.....k.', '.bbbbbo', 'bwwwbb.', '.bbbb..'];
+  return Pixmap.fromGrid(rows, { b: colors[0], w: colors[1], k: C.outline, o: C.orange }).outline(C.outline);
+}
+
+// A molehill-rimmed hole: the dark back (drawn behind the mole) and the dirt
+// rim in front (drawn over it, so the mole seems to rise out of the ground).
+export function drawHole() {
+  const back = new Pixmap(18, 7);
+  back.ellipse(9, 4, 8, 3, STONE.soil);
+  back.ellipse(9, 4, 6, 2, '#1e140e');
+  // The front lip: the near half of a ring of dug-up earth.
+  const front = new Pixmap(18, 7);
+  for (let y = 0; y < 7; y++) {
+    for (let x = 0; x < 18; x++) {
+      const outer = ((x - 9) / 8.5) ** 2 + ((y - 4.5) / 2.5) ** 2 <= 1;
+      const inner = ((x - 9) / 6.5) ** 2 + ((y - 3.5) / 2) ** 2 <= 1;
+      if (outer && !inner) {
+        front.set(x, y, y > 5 && bayer(x, y) < 0.5 ? STONE.soil : STONE.dirt);
+      }
+    }
+  }
+  return { back, front: front.outline(C.outline) };
+}
+
+// A little mole, whole (eyes open or shut). Pass to moleRising to crop it.
+export function drawMole(blink = false) {
+  const pm = new Pixmap(14, 13);
+  const fur = '#6a5a7a';
+  pm.ellipse(7, 7, 5, 6, fur);
+  pm.dither(2, 1, 10, 4, '#8a7aa0', 0.3);
+  pm.rect(5, 8, 4, 3, '#a898b8'); // pale tummy
+  if (blink) {
+    pm.hline(4, 5, 5, C.outline);
+    pm.hline(9, 10, 5, C.outline);
+  } else {
+    pm.set(5, 5, C.outline);
+    pm.set(9, 5, C.outline);
+  }
+  pm.rect(6, 6, 3, 2, '#ff8fc8'); // nose
+  pm.set(3, 7, C.cheek);
+  pm.set(11, 7, C.cheek);
+  // Big digging paws.
+  pm.rect(1, 9, 3, 2, '#ffc0d0');
+  pm.rect(10, 9, 3, 2, '#ffc0d0');
+  return pm.outline(C.outline);
+}
+
+// The top `rows` rows of a sprite: how much of the mole shows above the hole.
+export function cropTop(src, rows) {
+  const pm = new Pixmap(src.width, Math.max(1, rows));
+  pm.blit(src, 0, 0);
+  return pm;
+}
+
 export function drawButterfly(colors, frame = 0) {
   const rows = frame ? ['.wkw.', '.wkw.', '..k..'] : ['ww.ww', 'wWkWw', '.wkw.', '..k..'];
   return Pixmap.fromGrid(rows, { w: colors[0], W: colors[1], k: C.outline });

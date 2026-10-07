@@ -103,6 +103,31 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 1400, to: 2200, dur: 0.08, type: 'sine', vol: 0.15 });
     s.tone({ at: t + 0.1, freq: 1800, to: 2600, dur: 0.07, type: 'sine', vol: 0.12 });
   });
+  // The meadow's secrets: a rock heaved over, a rustling bush and the bird
+  // inside it, and a mole popping up out of its hole.
+  audio.define('scrape', (s, t) => {
+    s.noise({ at: t, dur: 0.25, filter: 'bandpass', freq: 600, to: 300, vol: 0.2, q: 2 });
+    s.tone({ at: t + 0.22, freq: 150, to: 80, dur: 0.12, type: 'sine', vol: 0.3 });
+  });
+  audio.define('wriggle', (s, t) => {
+    [0, 0.09, 0.18].forEach((d, i) => s.tone({ at: t + d, freq: 900 + i * 150, to: 1300 + i * 150, dur: 0.06, type: 'triangle', vol: 0.12 }));
+  });
+  audio.define('rustle', (s, t) => {
+    for (let i = 0; i < 6; i++) {
+      s.noise({ at: t + i * 0.06, dur: 0.07, filter: 'bandpass', freq: 1800 + (i % 2) * 900, vol: 0.12, q: 1.5 });
+    }
+  });
+  audio.define('tweet', (s, t) => {
+    [0, 0.14, 0.24].forEach((d) => s.tone({ at: t + d, freq: 2200, to: 3200, dur: 0.07, type: 'sine', vol: 0.12 }));
+    s.tone({ at: t + 0.36, freq: 3000, to: 2000, dur: 0.15, type: 'sine', vol: 0.1 });
+  });
+  audio.define('pop', (s, t) => {
+    s.tone({ at: t, freq: 200, to: 900, dur: 0.1, type: 'sine', vol: 0.28 });
+    s.noise({ at: t, dur: 0.12, freq: 900, to: 200, vol: 0.12 });
+  });
+  audio.define('sniff', (s, t) => {
+    [0, 0.12].forEach((d) => s.noise({ at: t + d, dur: 0.06, filter: 'bandpass', freq: 3500, vol: 0.1, q: 3 }));
+  });
   audio.define('flutter', (s, t) => {
     for (let i = 0; i < 5; i++) {
       s.noise({ at: t + i * 0.05, dur: 0.04, filter: 'bandpass', freq: 3000, vol: 0.08, q: 2 });

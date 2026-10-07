@@ -198,6 +198,16 @@ export class PlayScene extends Scene {
     }
   }
 
+  // A little burst of flying bits (leaves, dirt) that fall back down.
+  bits(x, y, n, color) {
+    for (let i = 0; i < n; i++) {
+      this.particles.push({
+        x: x + (Math.random() - 0.5) * 10, y, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 25,
+        life: 0.6 + Math.random() * 0.3, age: 0, color, size: 1 + Math.round(Math.random()), gravity: 90,
+      });
+    }
+  }
+
   sparkles(x, y, n) {
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
