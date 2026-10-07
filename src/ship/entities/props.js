@@ -4,6 +4,7 @@ import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
 import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER, WARDROBE } from '../layout.js';
 import { WardrobePicker } from '../wardrobePicker.js';
 import { Carryable } from './carryable.js';
+import { isFriendItem } from './friends.js';
 import { SNACKS } from './items.js';
 
 const HEADROOM = 16;
@@ -60,7 +61,7 @@ export class Chair extends Prop {
 
   // A friend dropped on the empty chair sits in it.
   accepts(item) {
-    return Boolean(item.seatFrame) && !this.occupant;
+    return isFriendItem(item) && !this.occupant;
   }
 
   receive(friend) {

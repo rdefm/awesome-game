@@ -144,11 +144,12 @@ export class PlayScene extends Scene {
   }
 
   // Drops a carryable onto the floor at (or near) (x, y) and remembers it there.
+  // Resolves once it's landed.
   putDown(item, x, y) {
     const floor = clampToFloor(x, y);
     this.world = place(this.world, item.id, this.where, floor.x, floor.y);
     this.saveWorld();
-    item.fall(floor);
+    return item.fall(floor);
   }
 
   stashItem(item) {

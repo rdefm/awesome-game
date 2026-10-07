@@ -21,6 +21,7 @@ export class Carryable {
     this.grab = { x: 0, y: 0 };
     this.reach = 16; // how far to the side the girl stands to use it
     this.seat = null; // the chair it's sitting in, if any (friends only)
+    this.turn = 0; // how far round a twirl it is, 0..1 (friends only)
   }
 
   // Lifted things float above everything else.
@@ -35,6 +36,12 @@ export class Carryable {
 
   get bounce() {
     return 1 + this.squash * 0.12;
+  }
+
+  // Horizontal scale partway through a twirl: it narrows to an edge, turns
+  // its back, and comes round again.
+  get twirl() {
+    return Math.cos(this.turn * Math.PI * 2);
   }
 
   boing(amount = 1) {

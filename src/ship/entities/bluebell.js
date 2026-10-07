@@ -2,6 +2,7 @@ import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
 import { MEADOW_SECRETS, PARKED_SHIP, WALK } from '../layout.js';
 import { Carryable } from './carryable.js';
+import { isFriendItem, play } from './friends.js';
 import { feed, isSnack } from './items.js';
 import { Secret } from './secret.js';
 
@@ -123,6 +124,7 @@ export class Critter extends Carryable {
     this.priority = 5;
     this.chase = null; // { ball, nudges, time } while chasing a ball about
     this.eating = false;
+    this.busy = false; // saying hello to her, or playing with another friend
   }
 
   hitTest(px, py) {
@@ -131,20 +133,36 @@ export class Critter extends Carryable {
   }
 
   onPickUp() {
-    this.hop = null;
-    this.hopsLeft = 0;
-    this.lift = 0;
+    this.stayPut();
     this.chase = null;
     this.scene.engine.audio.play('squeak');
   }
 
+  // Stops wherever it is, back down on the floor (cutting short any hop).
+  stayPut() {
+    this.hop = null;
+    this.hopsLeft = 0;
+    this.lift = 0;
+  }
+
+  // Waving hello (while greeting her): it's all paws-less, so a happy squish.
+  pose(frame) {
+    if (frame.startsWith('wave')) {
+      this.boing(0.7);
+    }
+  }
+
   // Drop a ball on it and it chases it about, nudging it along a few times.
-  // Drop a snack on it and it gobbles it up.
+  // Drop a snack on it and it gobbles it up. Drop a friend on it and they play.
   accepts(item) {
-    return (item.kind === 'ball' || isSnack(item)) && !this.chase && !this.eating && !this.held && !this.falling && !this.seat;
+    const free = !this.chase && !this.eating && !this.busy && !this.held && !this.falling && !this.seat;
+    return free && (item.kind === 'ball' || isSnack(item) || isFriendItem(item));
   }
 
   receive(item) {
+    if (isFriendItem(item)) {
+      return play(item, this);
+    }
     if (isSnack(item)) {
       this.eat(item);
     } else {
@@ -155,9 +173,7 @@ export class Critter extends Carryable {
   async eat(snack) {
     this.eating = true;
     this.draggable = false; // stay put until it's finished
-    this.hop = null;
-    this.hopsLeft = 0;
-    this.lift = 0;
+    this.stayPut();
     await feed(this, snack);
     this.eating = false;
     this.draggable = true;
@@ -175,9 +191,7 @@ export class Critter extends Carryable {
     scene.putDown(ball, this.x + side * 12, this.y);
     scene.engine.audio.play('squeak');
     scene.sparkles(this.x, this.y - 16, 4);
-    this.hop = null;
-    this.hopsLeft = 0;
-    this.lift = 0;
+    this.stayPut();
     this.restIn = 0.4; // a beat to notice it
     this.chase = { ball, nudges: 3, time: 0 };
   }
@@ -240,6 +254,9 @@ export class Critter extends Carryable {
       this.seat.spin();
       return;
     }
+    if (this.busy) {
+      return;
+    }
     scene.engine.audio.play('squeak');
     this.hop = { fromX: this.x, fromY: this.y, toX: this.x, toY: this.y, p: 0, dur: 0.6, height: 20 };
     scene.sparkles(this.x, this.y - 16, 6);
@@ -251,7 +268,7 @@ export class Critter extends Carryable {
     if (this.held || this.falling) {
       return;
     }
-    if (this.eating || this.seat) {
+    if (this.eating || this.busy || this.seat) {
       this.landed = Math.max(0, this.landed - dt);
       return;
     }
@@ -322,7 +339,7 @@ export class Critter extends Carryable {
     }
     this.shadow(r, 10);
     r.image(this.currentFrame(), this.x, this.y + 1 - this.lift, {
-      flipX: this.facing < 0, scaleX: this.bounce, scaleY: 2 - this.bounce,
+      flipX: this.facing < 0, scaleX: this.bounce * this.twirl, scaleY: 2 - this.bounce,
     });
   }
 }
@@ -640,12 +657,16 @@ export class Local extends Carryable {
   }
 
   // It loves shiny crystals: drop one on it and it keeps it beside it. Drop
-  // a snack on it and it eats it.
+  // a snack on it and it eats it. Drop a friend on it and they play.
   accepts(item) {
-    return (item.kind === 'crystal' || isSnack(item)) && !this.busy && !this.held && !this.falling && !this.seat;
+    const free = !this.busy && !this.held && !this.falling && !this.seat;
+    return free && (item.kind === 'crystal' || isSnack(item) || isFriendItem(item));
   }
 
   async receive(item) {
+    if (isFriendItem(item)) {
+      return play(item, this);
+    }
     if (isSnack(item)) {
       this.busy = true;
       this.draggable = false;
@@ -692,6 +713,11 @@ export class Local extends Carryable {
     }
   }
 
+  // Shows one of its pictures (while greeting or playing).
+  pose(frame) {
+    this.frame = frame;
+  }
+
   // How it looks sitting in the pilot chair (which draws it, so it spins too).
   seatFrame() {
     return this.imgs[this.frame];
@@ -704,7 +730,7 @@ export class Local extends Carryable {
     const bob = this.frame === 'idle' ? Math.round(Math.sin(this.scene.engine.time * 3) * 0.6) : 0;
     this.shadow(r, 12);
     r.image(this.imgs[this.frame], this.x, this.y + 1 - this.lift + bob, {
-      scaleX: this.bounce, scaleY: 2 - this.bounce,
+      scaleX: this.bounce * this.twirl, scaleY: 2 - this.bounce,
     });
   }
 }

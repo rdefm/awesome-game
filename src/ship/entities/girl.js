@@ -1,6 +1,7 @@
 import { ease } from '../../engine/tween.js';
 import { hatHeight } from '../art/girl.js';
 import { WALK } from '../layout.js';
+import { greet, isFriendItem } from './friends.js';
 
 const WALK_SPEED = 72; // game px per second
 const HOLD_OFFSET = 16; // when carried, the finger holds her by the shoulders
@@ -34,6 +35,7 @@ export class Girl {
     this.dizzy = 0;
     this.priority = 10;
     this.hugging = false;
+    this.greeting = false; // saying hello to a friend dropped on her
     this.draggable = true;
   }
 
@@ -176,6 +178,11 @@ export class Girl {
     return hatHeight(this.look?.hat);
   }
 
+  // Up and about (not being carried or sitting in the chair).
+  get onFeet() {
+    return ['idle', 'walk', 'act'].includes(this.mode);
+  }
+
   hitTest(px, py) {
     const top = (this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift) - this.hatHeight;
     const bottom = this.mode === 'seated' ? this.y - 12 : this.y + 2;
@@ -211,12 +218,18 @@ export class Girl {
     this.y = clamp(p.y + HOLD_OFFSET, 30, 158);
   }
 
-  // Drop the teddy on her and she gives it a big hug, then sets it down beside her.
+  // Drop the teddy on her and she gives it a big hug, then sets it down
+  // beside her. Drop a friend on her and they say hello.
   accepts(item) {
-    return item.kind === 'teddy' && !this.hugging && ['idle', 'walk', 'act'].includes(this.mode) && !this.scene.busy;
+    const free = !this.hugging && !this.greeting && this.onFeet && !this.scene.busy;
+    return free && (item.kind === 'teddy' || isFriendItem(item));
   }
 
-  async receive(teddy) {
+  receive(item) {
+    return isFriendItem(item) ? greet(this, item) : this.hug(item);
+  }
+
+  async hug(teddy) {
     const { scene } = this;
     const { engine } = scene;
     this.hugging = true;
