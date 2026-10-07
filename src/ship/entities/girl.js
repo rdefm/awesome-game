@@ -1,4 +1,5 @@
 import { ease } from '../../engine/tween.js';
+import { hatHeight } from '../art/girl.js';
 import { WALK } from '../layout.js';
 
 const WALK_SPEED = 72; // game px per second
@@ -170,8 +171,13 @@ export class Girl {
     }
   }
 
+  // How far her hat (if any) pokes up above her hair.
+  get hatHeight() {
+    return hatHeight(this.look?.hat);
+  }
+
   hitTest(px, py) {
-    const top = this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift;
+    const top = (this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift) - this.hatHeight;
     const bottom = this.mode === 'seated' ? this.y - 12 : this.y + 2;
     return px >= this.x - 11 && px <= this.x + 11 && py >= top && py <= bottom;
   }
@@ -270,7 +276,7 @@ export class Girl {
 
   // Drawn after everything else so bubbles are never hidden behind props.
   drawOver(r) {
-    const headY = this.mode === 'seated' ? this.y - 38 : this.y - 27 - this.lift;
+    const headY = (this.mode === 'seated' ? this.y - 38 : this.y - 27 - this.lift) - this.hatHeight;
     if (this.emote) {
       const e = this.emote;
       const pop = Math.min(1, e.t / 0.15);

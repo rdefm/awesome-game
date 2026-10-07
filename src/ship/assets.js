@@ -1,6 +1,6 @@
 import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
-import { girlFrames } from './art/girl.js';
+import { drawHairSwatch, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
@@ -11,6 +11,7 @@ import {
   drawBag, drawBall, drawBoxIcon, drawCookie, drawCrystal, drawHeartIcon, drawJuice, drawStarFruit, drawTeddy,
 } from './art/items.js';
 import { MEADOW_HORIZON } from './layout.js';
+import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
   drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle,
@@ -108,6 +109,15 @@ export function loadAssets() {
     snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice() }),
     lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
     wardrobeDoor: bake({ front: drawWardrobeDoor(), back: drawWardrobeDoor(true) }),
+    // The wardrobe picker's buttons. Hats are shown on top of each hair colour,
+    // so the hat row always matches her hair.
+    swatches: bake({
+      hair: Object.fromEntries(LOOK_OPTIONS.hair.map((h) => [h, drawHairSwatch(h)])),
+      suit: Object.fromEntries(LOOK_OPTIONS.suit.map((s) => [s, drawSuitSwatch(s)])),
+      hat: Object.fromEntries(LOOK_OPTIONS.hair.map((h) => [
+        h, Object.fromEntries(LOOK_OPTIONS.hat.map((hat) => [hat, drawHatSwatch(hat, h)])),
+      ])),
+    }),
     bag: bake({ shut: drawBag(), open: drawBag(true) }),
     boxIcon: bake(drawBoxIcon()),
     heartIcon: bake(drawHeartIcon()),

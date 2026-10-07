@@ -1,13 +1,16 @@
 import { Pixmap } from '../../engine/pixmap.js';
 import { TEDDY_PALETTE } from './items.js';
-import { C, HAIR_COLORS } from './palette.js';
+import { C, HAIR_COLORS, SUIT_COLORS } from './palette.js';
 
-// Our hero: a small girl with red pigtails in a blue flight suit.
+// Our hero: a small girl with pigtails in a flight suit (red and blue to
+// start with; her wardrobe changes hair, suit and hat).
 // Built like a paper doll (head grid + procedural body/arms/legs) so each pose
 // is just a different combination of parts, then auto-outlined.
 
 export const GIRL_W = 22;
-export const GIRL_H = 28;
+// Clear space above her head for the tallest hat.
+export const HAT_ROOM = 6;
+export const GIRL_H = 28 + HAT_ROOM;
 const CX = 10.5; // horizontal centre of the body within the sprite
 
 const HEAD = [
@@ -30,6 +33,72 @@ const HEAD = [
 function headPalette(hair) {
   const { hair: R, dark: r, light: h } = HAIR_COLORS[hair] ?? HAIR_COLORS.red;
   return { R, r, h, Y: C.belt, S: C.skin, e: C.outline, c: C.cheek, m: C.redDark };
+}
+
+// Her hats, each a grid laid over the head grid: `x`/`y` place its top-left
+// corner relative to the head's (negative `y` pokes up above her hair).
+// Listed in the order the wardrobe shows them; "none" is how she starts out.
+export const HATS = {
+  none: null,
+  helmet: {
+    x: 0,
+    y: -3,
+    rows: [
+      '.....wWWWWW.....',
+      '...wWWWRRWWWW...',
+      '..wWWWWRRWWWWs..',
+      '.wWWWWWRRWWWWWs.',
+      '.WWWWWWRRWWWWWs.',
+      '.TTTTTTTTTTTTTT.',
+    ],
+    palette: { W: C.metalHi, w: C.white, s: C.metalLight, R: C.red, T: C.teal },
+  },
+  bow: {
+    x: 9,
+    y: -2,
+    rows: [
+      'PP...PP',
+      'PPPkPPP',
+      'pPPkPPp',
+      'pp...pp',
+    ],
+    palette: { P: C.pink, p: '#d65a9c', k: C.redDark },
+  },
+  crown: {
+    x: 4,
+    y: -4,
+    rows: [
+      'Y..YY..Y',
+      'YY.YY.YY',
+      'YYYYYYYY',
+      'YRYYYYTY',
+      'yyyyyyyy',
+    ],
+    palette: { Y: C.yellow, y: C.orange, R: C.red, T: C.teal },
+  },
+  party: {
+    x: 5,
+    y: -5,
+    rows: [
+      '..YY..',
+      '..PP..',
+      '.TTTT.',
+      '.PPPP.',
+      'TTTTTT',
+      'PPPPPP',
+    ],
+    palette: { Y: C.yellow, P: C.purple, T: C.teal },
+  },
+};
+
+// How many px a hat pokes up above the top of her hair.
+export const hatHeight = (hat) => Math.max(0, -(HATS[hat]?.y ?? 0));
+
+function drawHat(pm, ox, oy, hat) {
+  const spec = HATS[hat];
+  if (spec) {
+    pm.grid(spec.rows, spec.palette, ox + spec.x, oy + spec.y);
+  }
 }
 
 // Eyes live at rows 7-8, columns 5 and 10 of the head grid.
@@ -69,11 +138,13 @@ function drawHead(pm, ox, oy, { eyes = 'open', look = 0, mouth = 'smile' }, pale
   }
 }
 
-function drawTorso(pm, top) {
-  const x0 = Math.round(CX - 4);
-  pm.rect(x0, top, 8, 6, C.suit);
-  pm.vline(x0 + 7, top, top + 5, C.suitDark);
-  pm.vline(x0, top + 1, top + 5, C.suitLight);
+// The suit's colours for a suit colour (a key of SUIT_COLORS).
+const suitColors = (suit) => SUIT_COLORS[suit] ?? SUIT_COLORS.blue;
+
+function drawTorso(pm, top, suit, x0 = Math.round(CX - 4)) {
+  pm.rect(x0, top, 8, 6, suit.suit);
+  pm.vline(x0 + 7, top, top + 5, suit.dark);
+  pm.vline(x0, top + 1, top + 5, suit.light);
   pm.hline(x0 + 3, x0 + 4, top, C.white); // collar
   pm.set(x0 + 2, top + 2, C.belt); // star badge
   pm.hline(x0, x0 + 7, top + 3, C.belt);
@@ -82,20 +153,20 @@ function drawTorso(pm, top) {
 
 // Legs: each entry is the lift (in px) of the left and right foot.
 // Feet stay planted at FOOT_Y while the body bobs above them.
-const FOOT_Y = 24;
+const FOOT_Y = 24 + HAT_ROOM;
 
-function drawLegs(pm, hip, { left = 0, right = 0 }) {
+function drawLegs(pm, hip, { left = 0, right = 0 }, suit) {
   for (const [x, lift] of [[Math.round(CX - 3), left], [Math.round(CX + 1), right]]) {
     const bottom = FOOT_Y - lift;
-    pm.rect(x, hip, 2, bottom - hip, C.suitDark);
+    pm.rect(x, hip, 2, bottom - hip, suit.dark);
     const outward = x < CX ? -1 : 0;
     pm.rect(x + outward, bottom, 3, 2, C.boot);
     pm.hline(x + outward, x + outward + 2, bottom + 1, C.bootDark);
   }
 }
 
-function drawArm(pm, sx, sy, hx, hy) {
-  pm.line(sx, sy, hx, hy, C.suitDark, 2);
+function drawArm(pm, sx, sy, hx, hy, suit) {
+  pm.line(sx, sy, hx, hy, suit.dark, 2);
   pm.rect(hx, hy, 2, 2, C.skin);
 }
 
@@ -125,7 +196,7 @@ const HUG_TEDDY = [
   '.BB.BB.',
 ];
 
-// `outfit` is her look (see ../look.js): which hair colour to paint.
+// `outfit` is her look (see ../look.js): hair colour, suit colour and hat.
 export function drawGirl(pose = {}, outfit = {}) {
   const {
     eyes = 'open',
@@ -139,27 +210,29 @@ export function drawGirl(pose = {}, outfit = {}) {
   } = pose;
   const pm = new Pixmap(GIRL_W, GIRL_H);
   const sink = seated ? 2 : 0;
-  const headTop = 1 + bob + sink;
+  const suit = suitColors(outfit.suit);
+  const headTop = 1 + HAT_ROOM + bob + sink;
   const torsoTop = headTop + 13;
   const hip = torsoTop + 6;
 
-  drawLegs(pm, hip, legs);
-  drawTorso(pm, torsoTop);
+  drawLegs(pm, hip, legs, suit);
+  drawTorso(pm, torsoTop, suit);
   if (hug) {
     pm.grid(HUG_TEDDY, TEDDY_PALETTE, Math.round(CX - 3.5), torsoTop);
   }
   const [[lx, ly], [rx, ry]] = ARMS[arms];
   const sxL = Math.round(CX - 5);
   const sxR = Math.round(CX + 3);
-  drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly);
-  drawArm(pm, sxR, torsoTop + 1, Math.round(CX + rx), torsoTop + ry);
+  drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly, suit);
+  drawArm(pm, sxR, torsoTop + 1, Math.round(CX + rx), torsoTop + ry, suit);
   drawHead(pm, Math.round(CX - 8), headTop, { eyes, look, mouth }, headPalette(outfit.hair));
+  drawHat(pm, Math.round(CX - 8), headTop, outfit.hat);
   // Raised arms go in front of the pigtails.
   if (ly < 0) {
-    drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly);
+    drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly, suit);
   }
   if (ry < 0) {
-    drawArm(pm, sxR, torsoTop + 1, Math.round(CX + rx), torsoTop + ry);
+    drawArm(pm, sxR, torsoTop + 1, Math.round(CX + rx), torsoTop + ry, suit);
   }
   return pm.outline(C.outline);
 }
@@ -195,4 +268,35 @@ export function girlFrames(outfit = {}) {
     dizzy: f({ eyes: 'dizzy', mouth: 'o' }),
     sitDizzy: f({ seated: true, arms: 'lap', eyes: 'dizzy', mouth: 'o' }),
   };
+}
+
+// ---------------------------------------------------------- wardrobe swatches
+// Little pictures for the wardrobe picker's buttons.
+
+// Her head, with this hair colour.
+export function drawHairSwatch(hair) {
+  const pm = new Pixmap(18, 15);
+  drawHead(pm, 1, 1, {}, headPalette(hair));
+  return pm.outline(C.outline);
+}
+
+// A tiny flight suit in this colour.
+export function drawSuitSwatch(suitName) {
+  const suit = suitColors(suitName);
+  const pm = new Pixmap(16, 15);
+  pm.rect(5, 8, 2, 5, suit.dark);
+  pm.rect(9, 8, 2, 5, suit.dark);
+  drawArm(pm, 4, 3, 2, 7, suit);
+  drawArm(pm, 11, 3, 12, 7, suit);
+  drawTorso(pm, 2, suit, 4);
+  return pm.outline(C.outline);
+}
+
+// This hat on the top of her head (just her hair, for "none").
+export function drawHatSwatch(hat, hair) {
+  const pm = new Pixmap(18, HAT_ROOM + 7);
+  const hairTop = HEAD.slice(0, 5);
+  pm.grid(hairTop, headPalette(hair), 1, HAT_ROOM);
+  drawHat(pm, 1, HAT_ROOM, hat);
+  return pm.outline(C.outline);
 }

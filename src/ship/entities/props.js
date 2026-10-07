@@ -1,7 +1,8 @@
 import { ease } from '../../engine/tween.js';
+import { HAT_ROOM } from '../art/girl.js';
 import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
 import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER, WARDROBE } from '../layout.js';
-import { nextLook } from '../look.js';
+import { WardrobePicker } from '../wardrobePicker.js';
 import { Carryable } from './carryable.js';
 import { SNACKS } from './items.js';
 
@@ -113,7 +114,7 @@ export class Chair extends Prop {
     } else {
       c.drawImage(this.img.back, 0, HEADROOM);
       if (this.occupied) {
-        c.drawImage(this.scene.girl.currentFrame(), 3, HEADROOM - 3 - Math.round(this.scene.girl.lift));
+        c.drawImage(this.scene.girl.currentFrame(), 3, HEADROOM - 3 - HAT_ROOM - Math.round(this.scene.girl.lift));
       }
       c.drawImage(this.img.front, 0, HEADROOM);
     }
@@ -354,8 +355,8 @@ export class SnackLocker extends Prop {
 
 // ----------------------------------------------------------------- wardrobe
 // The left-hand locker, with her name tag. Tap it and she walks over, swings
-// the door open, pops behind it for a rummage and comes back out with the
-// next hair colour along.
+// the door open and the wardrobe picker slides up; closing the picker shuts
+// the door again.
 export class Wardrobe extends Prop {
   constructor(assets) {
     super();
@@ -384,23 +385,12 @@ export class Wardrobe extends Prop {
     girl.faceToward(WARDROBE.x + WARDROBE.w / 2);
     girl.act('reach', 0.4);
     await this.swing(true);
-    // Behind the door she goes...
-    engine.audio.play('hide');
-    await engine.tweens.to(girl, { alpha: 0, lift: 4 }, 0.2, ease.inQuad);
-    for (let i = 0; i < 3; i++) {
-      engine.audio.play('rustle');
-      this.wobble();
-      await engine.wait(0.3);
-    }
-    // ...and out she pops in her new look.
-    scene.saveLook(nextLook(scene.look));
-    engine.audio.play('peek');
-    scene.sparkles(girl.x, girl.y - 16, 8);
-    await engine.tweens.to(girl, { alpha: 1, lift: 0 }, 0.25, ease.outBack);
+    engine.audio.play('rustle');
+    this.wobble();
+    this.picker ??= new WardrobePicker(scene);
+    await this.picker.open();
     engine.audio.play('giggle');
     girl.say('star', 1.2);
-    girl.act('cheer', 0.8);
-    await engine.wait(0.5);
     await this.swing(false);
   }
 

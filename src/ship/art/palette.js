@@ -48,7 +48,7 @@ export const C = {
   nebula2: '#3a2063',
 };
 
-// Hair colours from her wardrobe, in the order she cycles through them.
+// Hair colours from her wardrobe, in the order the picker shows them.
 // Red (the first) is how she starts out.
 export const HAIR_COLORS = {
   red: { hair: C.hair, dark: C.hairDark, light: C.hairLight },
@@ -56,4 +56,13 @@ export const HAIR_COLORS = {
   brown: { hair: '#8a5432', dark: '#5e3420', light: '#b67a4a' },
   pink: { hair: '#ff7bbf', dark: '#c74a8e', light: '#ffb3dc' },
   blue: { hair: '#4fa8f0', dark: '#2f68b8', light: '#8fd2ff' },
+};
+
+// Flight-suit colours from her wardrobe. Blue (the first) is how she starts out.
+export const SUIT_COLORS = {
+  blue: { suit: C.suit, dark: C.suitDark, light: C.suitLight },
+  pink: { suit: '#f278b4', dark: '#c24e8c', light: '#ffa8d4' },
+  green: { suit: '#4fbf6a', dark: '#2f8a4c', light: '#84e29a' },
+  purple: { suit: '#9068e0', dark: '#6244b0', light: '#b99cf6' },
+  orange: { suit: '#f08a3a', dark: '#c05e22', light: '#ffb878' },
 };
