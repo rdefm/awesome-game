@@ -1,4 +1,4 @@
-import { Scene } from '../engine/scene.js';
+import { findReceiver, Scene } from '../engine/scene.js';
 import { Bag } from './bag.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
@@ -76,13 +76,24 @@ export class PlayScene extends Scene {
     }
   }
 
-  // A dragged carryable was let go: into the bag, or down onto the floor.
+  // A dragged carryable was let go: into the bag, onto something that wants
+  // it, or down onto the floor.
   dropCarryable(item, p) {
     if (this.bag.isDropTarget(p)) {
       this.stashItem(item);
       return;
     }
-    const floor = clampToFloor(item.x, item.y);
+    const receiver = findReceiver(this.entities, item, p.x, p.y);
+    if (receiver) {
+      receiver.receive(item);
+      return;
+    }
+    this.putDown(item, item.x, item.y);
+  }
+
+  // Drops a carryable onto the floor at (or near) (x, y) and remembers it there.
+  putDown(item, x, y) {
+    const floor = clampToFloor(x, y);
     this.world = place(this.world, item.id, this.where, floor.x, floor.y);
     this.saveWorld();
     item.fall(floor);
@@ -186,6 +197,15 @@ export class PlayScene extends Scene {
       const a = (i / n) * Math.PI * 2;
       this.particles.push({
         x, y, vx: Math.cos(a) * 30, vy: Math.sin(a) * 30 - 10, life: 0.7, age: 0, img: this.assets.sparkle, gravity: 30,
+      });
+    }
+  }
+
+  hearts(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      this.particles.push({
+        x: x + (i - (n - 1) / 2) * 6, y, vx: (Math.random() - 0.5) * 14, vy: -24 - Math.random() * 12,
+        life: 1, age: 0, img: this.assets.emotes.heart, gravity: 0,
       });
     }
   }

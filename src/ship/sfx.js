@@ -29,6 +29,11 @@ export function defineSfx(audio) {
     s.tone({ at: t + 0.16, freq: 820, to: 420, dur: 0.14, type: 'sine', vol: 0.25 });
     s.tone({ at: t + 0.34, freq: 640, to: 1100, dur: 0.1, type: 'sine', vol: 0.2 });
   });
+  // The local cheering over a present.
+  audio.define('cheer', (s, t) => {
+    [659, 784, 988, 1318].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, to: f * 1.05, dur: 0.12, type: 'triangle', vol: 0.14 }));
+    [1200, 1500, 1350, 1700].forEach((f, i) => s.tone({ at: t + 0.32 + i * 0.07, freq: f, to: f * 1.1, dur: 0.06, type: 'triangle', vol: 0.12 }));
+  });
   audio.define('peek', (s, t) => s.tone({ at: t, freq: 300, to: 700, dur: 0.18, type: 'triangle', vol: 0.15 }));
   audio.define('hide', (s, t) => s.tone({ at: t, freq: 700, to: 250, dur: 0.2, type: 'triangle', vol: 0.15 }));
   audio.define('wheee', (s, t) => {

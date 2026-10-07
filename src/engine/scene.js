@@ -2,9 +2,23 @@
 // kids' taps wobble.
 const DRAG_THRESHOLD = 4;
 
+const byDepth = (a, b) => (a.depth ?? a.y) - (b.depth ?? b.y);
+
+// Everything under the point, frontmost first.
+function hitsAt(entities, x, y) {
+  return [...entities].sort(byDepth).reverse().filter((e) => e.hitTest?.(x, y));
+}
+
+// The frontmost entity under (x, y) willing to take `item` when it's dropped
+// there (entities opt in with `accepts(item)` and `receive(item)`), or null.
+export function findReceiver(entities, item, x, y) {
+  return hitsAt(entities, x, y).find((e) => e !== item && e.accepts?.(item)) ?? null;
+}
+
 // Base scene: a list of entities with depth-sorted drawing and a unified
 // tap / drag gesture model. Entities opt in by implementing any of:
-//   hitTest(x, y) -> bool, onTap(p), draggable, onDragStart(p), onDrag(p), onDrop(p)
+//   hitTest(x, y) -> bool, onTap(p), draggable, onDragStart(p), onDrag(p), onDrop(p),
+//   accepts(item) / receive(item) (to have dragged things dropped onto them)
 // and optionally `depth` (draw order; defaults to y, so lower = in front).
 export class Scene {
   constructor() {
@@ -24,15 +38,13 @@ export class Scene {
   }
 
   sorted() {
-    return [...this.entities].sort((a, b) => (a.depth ?? a.y) - (b.depth ?? b.y));
+    return [...this.entities].sort(byDepth);
   }
 
   // Topmost entity under the point. `priority` lets important things (the
   // player character) win over big background props they overlap.
   pick(x, y) {
-    const hits = this.sorted()
-      .reverse()
-      .filter((e) => e.hitTest?.(x, y));
+    const hits = hitsAt(this.entities, x, y);
     hits.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     return hits[0] ?? null;
   }

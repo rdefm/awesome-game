@@ -48,7 +48,7 @@ store.
   carryable thing lies in each place, and what's in the bag. No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, world).
+  tweens, world, drop receivers).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -69,6 +69,10 @@ store.
   scrolls sideways, no size limit. Drag a slot upward to pull it out under
   your finger, or tap it to pop it out beside the girl, in any place. Kinds
   are registered in `src/ship/kinds.js`.
+- **Drop-on reactions**: anything can opt in to having a dragged thing
+  dropped on it (`accepts(item)` / `receive(item)`; the bag still wins).
+  Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
+  the crystal beside it.
 
 ## Planned later
 - Scenes for the other four planets

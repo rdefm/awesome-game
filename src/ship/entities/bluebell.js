@@ -308,6 +308,33 @@ export class Local extends Carryable {
     this.busy = false;
   }
 
+  // It loves shiny crystals: drop one on it and it keeps it beside it.
+  accepts(item) {
+    return item.kind === 'crystal' && !this.busy && !this.held && !this.falling;
+  }
+
+  async receive(item) {
+    this.busy = true;
+    this.draggable = false; // stay put until the cheering's done
+    const { scene } = this;
+    const { engine, girl } = scene;
+    const side = item.x < this.x ? -1 : 1;
+    scene.putDown(item, this.x + side * 13, this.y + 1);
+    engine.audio.play('cheer');
+    girl.faceToward(this.x);
+    for (let i = 0; i < 2; i++) {
+      this.frame = 'hop';
+      await engine.tweens.to(this, { lift: 10 }, 0.16, ease.outQuad);
+      scene.hearts(this.x, this.y - 26, i ? 2 : 3);
+      scene.sparkles(this.x, this.y - 18, 6);
+      await engine.tweens.to(this, { lift: 0 }, 0.2, ease.inQuad);
+    }
+    this.frame = 'idle';
+    girl.say('heart', 1.4);
+    this.busy = false;
+    this.draggable = true;
+  }
+
   update(dt) {
     if (this.frame !== 'idle' && this.frame !== 'blink') {
       return;
