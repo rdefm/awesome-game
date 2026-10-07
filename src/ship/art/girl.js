@@ -1,4 +1,5 @@
 import { Pixmap } from '../../engine/pixmap.js';
+import { TEDDY_PALETTE } from './items.js';
 import { C } from './palette.js';
 
 // Our hero: a small girl with red pigtails in a blue flight suit.
@@ -108,7 +109,20 @@ const ARMS = {
   reach: [[-6, 4], [8, -3]],
   held: [[-8, -5], [7, -5]],
   lap: [[-4, 5], [3, 5]],
+  hug: [[-4, 4], [3, 4]],
 };
+
+// A small teddy squeezed to her chest, for the hug pose.
+const HUG_TEDDY = [
+  'bB...Bb',
+  'BBBBBBB',
+  'BkBBBkB',
+  'BBmkmBB',
+  '.BBBBB.',
+  'BBBBBBB',
+  'BBBBBBB',
+  '.BB.BB.',
+];
 
 export function drawGirl(pose = {}) {
   const {
@@ -119,6 +133,7 @@ export function drawGirl(pose = {}) {
     legs = {},
     bob = 0,
     seated = false,
+    hug = false,
   } = pose;
   const pm = new Pixmap(GIRL_W, GIRL_H);
   const sink = seated ? 2 : 0;
@@ -128,6 +143,9 @@ export function drawGirl(pose = {}) {
 
   drawLegs(pm, hip, legs);
   drawTorso(pm, torsoTop);
+  if (hug) {
+    pm.grid(HUG_TEDDY, TEDDY_PALETTE, Math.round(CX - 3.5), torsoTop);
+  }
   const [[lx, ly], [rx, ry]] = ARMS[arms];
   const sxL = Math.round(CX - 5);
   const sxR = Math.round(CX + 3);
@@ -163,6 +181,10 @@ export function girlFrames() {
     held: [
       f({ eyes: 'happy', arms: 'held', mouth: 'open', legs: { left: 1 } }),
       f({ eyes: 'happy', arms: 'held', mouth: 'open', legs: { right: 1 } }),
+    ],
+    hug: [
+      f({ eyes: 'closed', arms: 'hug', hug: true }),
+      f({ eyes: 'closed', arms: 'hug', hug: true, bob: 1 }),
     ],
     sit: f({ seated: true, arms: 'lap' }),
     sitBlink: f({ seated: true, arms: 'lap', eyes: 'closed' }),

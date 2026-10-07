@@ -118,6 +118,7 @@ export class Critter extends Carryable {
     this.hop = null;
     this.landed = 0;
     this.priority = 5;
+    this.chase = null; // { ball, nudges, time } while chasing a ball about
   }
 
   hitTest(px, py) {
@@ -128,7 +129,73 @@ export class Critter extends Carryable {
     this.hop = null;
     this.hopsLeft = 0;
     this.lift = 0;
+    this.chase = null;
     this.scene.engine.audio.play('squeak');
+  }
+
+  // Drop a ball on it and it chases it about, nudging it along a few times.
+  accepts(item) {
+    return item.kind === 'ball' && !this.chase && !this.held && !this.falling;
+  }
+
+  receive(ball) {
+    const { scene } = this;
+    const side = ball.x < this.x ? -1 : 1;
+    scene.putDown(ball, this.x + side * 12, this.y);
+    scene.engine.audio.play('squeak');
+    scene.sparkles(this.x, this.y - 16, 4);
+    this.hop = null;
+    this.hopsLeft = 0;
+    this.lift = 0;
+    this.restIn = 0.4; // a beat to notice it
+    this.chase = { ball, nudges: 3, time: 0 };
+  }
+
+  // One step of a ball chase: nudge the ball when right beside it (once it's
+  // stopped rolling), otherwise hop after it.
+  chaseStep() {
+    const { scene } = this;
+    const c = this.chase;
+    const { ball } = c;
+    if (!scene.entities.includes(ball) || ball.held || c.time > 10) {
+      this.endChase();
+      return;
+    }
+    if (ball.falling) {
+      return;
+    }
+    const dx = ball.x - this.x;
+    const dy = ball.y - this.y;
+    const dir = dx < 0 ? -1 : 1;
+    this.facing = dir;
+    if (Math.abs(dx) < 15 && Math.abs(dy) < 8) {
+      if (ball.roll) {
+        return;
+      }
+      if (c.nudges <= 0) {
+        this.endChase();
+        return;
+      }
+      c.nudges -= 1;
+      ball.kick(dir);
+      ball.boing(1);
+      this.hop = { fromX: this.x, fromY: this.y, toX: this.x, toY: this.y, p: 0, dur: 0.3, height: 7 };
+      return;
+    }
+    this.hop = {
+      fromX: this.x, fromY: this.y,
+      toX: this.x + clamp(dx - dir * 11, -14, 14), toY: this.y + clamp(dy, -4, 4),
+      p: 0, dur: 0.26, height: 6,
+    };
+  }
+
+  endChase() {
+    const { scene } = this;
+    this.chase = null;
+    this.restIn = 2 + Math.random() * 2;
+    scene.engine.audio.play('squeak');
+    scene.hearts(this.x, this.y - 22, 2);
+    scene.settle(this);
   }
 
   onLand() {
@@ -149,6 +216,9 @@ export class Critter extends Carryable {
     if (this.held || this.falling) {
       return;
     }
+    if (this.chase) {
+      this.chase.time += dt;
+    }
     if (this.hop) {
       const h = this.hop;
       h.p = Math.min(1, h.p + dt / h.dur);
@@ -159,6 +229,10 @@ export class Critter extends Carryable {
         this.hop = null;
         this.lift = 0;
         this.landed = 0.12;
+        if (this.chase) {
+          this.restIn = 0.05;
+          return;
+        }
         this.hopsLeft = (this.hopsLeft ?? 1) - 1;
         this.restIn = this.hopsLeft > 0 ? 0.12 : 1.5 + Math.random() * 3;
         if (this.hopsLeft <= 0) {
@@ -169,7 +243,9 @@ export class Critter extends Carryable {
     }
     this.landed = Math.max(0, this.landed - dt);
     this.restIn -= dt;
-    if (this.restIn <= 0) {
+    if (this.restIn <= 0 && this.chase) {
+      this.chaseStep();
+    } else if (this.restIn <= 0) {
       // Where it likes to roam (the meadow keeps it away from the ship).
       const { minX, maxX } = this.scene.roam ?? WALK;
       if (!(this.hopsLeft > 0)) {

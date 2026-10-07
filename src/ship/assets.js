@@ -9,7 +9,7 @@ import {
 import { drawBag, drawBall, drawBoxIcon, drawCrystal, drawHeartIcon, drawTeddy } from './art/items.js';
 import { MEADOW_HORIZON } from './layout.js';
 import {
-  ALIEN_COLORS, PLANETS, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
+  ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
   drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle,
 } from './art/props.js';
 
@@ -52,7 +52,8 @@ export function loadAssets() {
     room: bake(drawRoom()),
     space: bake(drawSpace()),
     poster: bake([drawPoster(0), drawPoster(1)]),
-    plant: bake([drawPlant(0), drawPlant(1)]),
+    // [stage][glow]
+    plant: bake(Array.from({ length: PLANT_STAGES }, (_, stage) => [drawPlant(0, stage), drawPlant(1, stage)])),
     chair: bake({ back: chairBackLayer(), front: chairFrontLayer(), rear: chairRearView() }),
     aliens: ALIEN_COLORS.map((c) => bake({
       idle: drawAlien(c, 'idle'), blink: drawAlien(c, 'blink'), wave1: drawAlien(c, 'wave1'), wave2: drawAlien(c, 'wave2'),

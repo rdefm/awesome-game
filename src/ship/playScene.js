@@ -4,7 +4,7 @@ import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { FLOOR_TOP, WALK, W, H } from './layout.js';
 import { loadSave, writeSave } from './save.js';
-import { normalizeWorld, place, placedIn, stash } from './world.js';
+import { normalizeWorld, place, placedIn, setStage, stash } from './world.js';
 
 // Swallows all input (and draws nothing) while a scripted sequence plays.
 export const BLOCK_INPUT = { draw() {} };
@@ -74,6 +74,12 @@ export class PlayScene extends Scene {
       this.world = place(this.world, item.id, this.where, item.x, item.y);
       this.saveWorld();
     }
+  }
+
+  // Remembers that a carryable has grown to `stage`.
+  saveStage(item, stage) {
+    this.world = setStage(this.world, item.id, stage);
+    this.saveWorld();
   }
 
   // A dragged carryable was let go: into the bag, onto something that wants

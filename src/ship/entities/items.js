@@ -23,13 +23,17 @@ export class Ball extends Carryable {
     if (this.roll) {
       return;
     }
-    const { engine, girl } = this.scene;
-    const dir = girl.x < this.x ? 1 : -1;
-    const to = clampToFloor(this.x + dir * (30 + Math.random() * 20), this.y + (Math.random() - 0.5) * 10);
-    this.roll = { dir, dx: to.x - this.x, dy: to.y - this.y, sx: this.x, sy: this.y, bounce: 0, p: 0 };
-    engine.audio.play('boing');
+    const { girl } = this.scene;
+    this.kick(girl.x < this.x ? 1 : -1);
     girl.faceToward(this.x);
     girl.say('star', 1);
+  }
+
+  // Bounces away across the floor: right for `dir` 1, left for -1.
+  kick(dir) {
+    const to = clampToFloor(this.x + dir * (30 + Math.random() * 20), this.y + (Math.random() - 0.5) * 10);
+    this.roll = { dir, dx: to.x - this.x, dy: to.y - this.y, sx: this.x, sy: this.y, bounce: 0, p: 0 };
+    this.scene.engine.audio.play('boing');
   }
 
   onPickUp() {

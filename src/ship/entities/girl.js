@@ -30,6 +30,7 @@ export class Girl {
     this.emote = null;
     this.dizzy = 0;
     this.priority = 10;
+    this.hugging = false;
     this.draggable = true;
   }
 
@@ -195,6 +196,36 @@ export class Girl {
     this.faceToward(p.x);
     this.x = clamp(p.x, 8, 248);
     this.y = clamp(p.y + HOLD_OFFSET, 30, 158);
+  }
+
+  // Drop the teddy on her and she gives it a big hug, then sets it down beside her.
+  accepts(item) {
+    return item.kind === 'teddy' && !this.hugging && ['idle', 'walk', 'act'].includes(this.mode) && !this.scene.busy;
+  }
+
+  async receive(teddy) {
+    const { scene } = this;
+    const { engine } = scene;
+    this.hugging = true;
+    this.cancelWalk();
+    scene.remove(teddy); // she's holding it now (it's part of the hug pose)
+    engine.tweens.cancel(teddy);
+    engine.audio.play('squeak');
+    scene.hearts(this.x, this.y - 30, 3);
+    const hug = this.act('hug', 1.6);
+    await engine.wait(0.7);
+    engine.audio.play('squeak');
+    scene.sparkles(this.x, this.y - 14, 5);
+    await hug;
+    this.hugging = false;
+    if (engine.scene !== scene) {
+      return; // she left mid-hug; the teddy stays where it last was
+    }
+    const x = this.x + this.facing * 14;
+    scene.add(teddy);
+    teddy.x = x;
+    teddy.y = this.y - 6;
+    scene.putDown(teddy, x, this.y + 2);
   }
 
   async onDrop() {

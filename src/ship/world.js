@@ -2,10 +2,11 @@
 // visit, or tucked away in her bag. Plain JSON-able data; every operation
 // returns a new world so callers can save it straight away.
 //
-//   { placed: { ship: [{ id, kind, x, y, v? }], bluebell: [...] }, bag: [{ id, kind, v? }] }
+//   { placed: { ship: [{ id, kind, x, y, v?, stage? }], bluebell: [...] }, bag: [{ id, kind, v?, stage? }] }
 //
 // `id` is unique across the whole world, `kind` picks the art and behaviour,
-// and `v` is an optional variant (e.g. which of the giant bluebells it is).
+// `v` is an optional variant (e.g. which of the giant bluebells it is), and
+// `stage` is how far it has grown (the space plant).
 
 export function defaultWorld() {
   return {
@@ -78,9 +79,23 @@ function without(world, id) {
   };
 }
 
-// Just the identity of a thing, not where it is.
-function identity({ id, kind, v }) {
-  return v === undefined ? { id, kind } : { id, kind, v };
+// Just the identity of a thing (and how grown it is), not where it is.
+function identity({ id, kind, v, stage }) {
+  return {
+    id, kind, ...(v === undefined ? {} : { v }), ...(stage === undefined ? {} : { stage }),
+  };
+}
+
+// The same thing, now grown to `stage`, wherever it is.
+export function setStage(world, id, stage) {
+  if (!find(world, id)) {
+    return world;
+  }
+  const regrow = (e) => (e.id === id ? { ...e, stage } : e);
+  return {
+    placed: Object.fromEntries(Object.entries(world.placed).map(([where, list]) => [where, list.map(regrow)])),
+    bag: world.bag.map(regrow),
+  };
 }
 
 // Into the bag (from wherever it was), at the front.

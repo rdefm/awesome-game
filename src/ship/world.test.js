@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bagContents, defaultWorld, find, normalizeWorld, place, placedIn, stash } from './world.js';
+import { bagContents, defaultWorld, find, normalizeWorld, place, placedIn, setStage, stash } from './world.js';
 
 const isFriend = (kind) => kind === 'critter';
 
@@ -32,6 +32,25 @@ describe('world', () => {
     expect(w.bag[0]).toEqual({ id: 'bluebell2', kind: 'bluebell', v: 2 });
     w = place(w, 'bluebell2', 'ship', 90, 130);
     expect(find(w, 'bluebell2')).toEqual({ id: 'bluebell2', kind: 'bluebell', v: 2, x: 90, y: 130 });
+  });
+
+  it('sets a growth stage on a thing wherever it is', () => {
+    let w = setStage(defaultWorld(), 'plant', 1);
+    expect(find(w, 'plant')).toEqual({ id: 'plant', kind: 'plant', stage: 1, x: 152, y: 120 });
+    w = setStage(stash(w, 'plant'), 'plant', 2);
+    expect(w.bag[0]).toEqual({ id: 'plant', kind: 'plant', stage: 2 });
+    expect(setStage(w, 'nope', 1)).toBe(w);
+  });
+
+  it('keeps the growth stage through bag trips and reloads', () => {
+    let w = setStage(defaultWorld(), 'plant', 2);
+    w = stash(w, 'plant');
+    expect(w.bag[0]).toEqual({ id: 'plant', kind: 'plant', stage: 2 });
+    w = place(w, 'plant', 'bluebell', 80, 140);
+    expect(find(w, 'plant')).toEqual({ id: 'plant', kind: 'plant', stage: 2, x: 80, y: 140 });
+    w = normalizeWorld(JSON.parse(JSON.stringify(w)));
+    expect(find(w, 'plant')).toMatchObject({ stage: 2 });
+    expect(placedIn(w, 'ship').some((e) => e.id === 'plant')).toBe(false);
   });
 
   it('splits the bag into items and friends', () => {

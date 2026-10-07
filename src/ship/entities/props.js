@@ -1,5 +1,5 @@
 import { ease } from '../../engine/tween.js';
-import { CHAIR_H, CHAIR_W } from '../art/props.js';
+import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
 import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
 import { Carryable } from './carryable.js';
 
@@ -218,15 +218,27 @@ export class Poster extends Prop {
 }
 
 // ---------------------------------------------------------------- space plant
+// How grown a plant's world entry says it is (0 = just a sprout in a pot).
+export function plantStage(state) {
+  return Math.max(0, Math.min(PLANT_STAGES - 1, Math.floor(state.stage) || 0));
+}
+
 export class Plant extends Carryable {
   constructor(assets, state) {
     super(state);
-    this.imgs = assets.plant;
+    this.stages = assets.plant;
+    this.stage = plantStage(state);
     this.glow = 0;
+    this.busy = false;
+  }
+
+  get imgs() {
+    return this.stages[this.stage];
   }
 
   hitTest(px, py) {
-    return inRect(px, py, this.x - 9, this.y - 28, 18, 28);
+    const { width, height } = this.imgs[0];
+    return inRect(px, py, this.x - width / 2, this.y - height, width, height);
   }
 
   async use() {
@@ -240,6 +252,36 @@ export class Plant extends Carryable {
     girl.faceToward(this.x);
     girl.say('star');
     await girl.act('cheer', 0.8);
+  }
+
+  // A giant bluebell dropped on it makes it grow (until it's in full flower).
+  accepts(item) {
+    return item.kind === 'bluebell' && this.stage < PLANT_STAGES - 1 && !this.busy && !this.held && !this.falling;
+  }
+
+  async receive(item) {
+    this.busy = true;
+    this.draggable = false; // stay put until it's done growing
+    const { scene } = this;
+    const { engine, girl } = scene;
+    // The bluebell gets planted beside it.
+    const side = item.x < this.x ? -1 : 1;
+    scene.putDown(item, this.x + side * 18, this.y + 1);
+    girl.faceToward(this.x);
+    engine.audio.play('grow');
+    // Remembered straight away, in case she leaves before it's done.
+    const stage = this.stage + 1;
+    scene.saveStage(this, stage);
+    // Stretch up tall, pop out a size bigger, and wobble.
+    await engine.tweens.to(this, { squash: -2 }, 0.3, ease.inQuad);
+    this.stage = stage;
+    this.glow = 2.5;
+    scene.sparkles(this.x, this.y - this.imgs[0].height + 4, 10);
+    this.squash = 1.6;
+    await engine.tweens.to(this, { squash: 0 }, 0.8, ease.outElastic);
+    girl.say('star');
+    this.busy = false;
+    this.draggable = true;
   }
 
   update(dt) {

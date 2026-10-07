@@ -49,8 +49,10 @@ const TEDDY = [
   '.bbb...bbb.',
 ];
 
+export const TEDDY_PALETTE = { B: '#c98a52', b: '#9a6235', m: '#f0c79a', p: '#f2a0a0', k: C.outline, r: C.red };
+
 export function drawTeddy() {
-  return outlinedGrid(TEDDY, { B: '#c98a52', b: '#9a6235', m: '#f0c79a', p: '#f2a0a0', k: C.outline, r: C.red });
+  return outlinedGrid(TEDDY, TEDDY_PALETTE);
 }
 
 // ---------------------------------------------------------------- crystal

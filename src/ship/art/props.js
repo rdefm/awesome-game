@@ -96,30 +96,58 @@ export function drawPoster(flame = 0) {
 }
 
 // ---------------------------------------------------------------------- plant
-export function drawPlant(glow = 0) {
-  const pm = new Pixmap(18, 28);
-  // Curly stems.
+// It grows when given a giant bluebell: taller with more bulbs, then flowering.
+export const PLANT_STAGES = 3;
+
+export function drawPlant(glow = 0, stage = 0) {
+  // Each stage is a little wider and taller; the stage-0 plant sits in the
+  // bottom-centre, shifted by (dx, dy), with new growth above it.
+  const dx = stage * 2;
+  const dy = stage * 5;
+  const pm = new Pixmap(18 + dx * 2, 28 + dy);
+  const cx = 9 + dx;
   const leaf = C.greenDark;
-  pm.line(9, 19, 9, 6, leaf);
-  pm.line(9, 14, 4, 9, leaf);
-  pm.line(9, 12, 14, 7, leaf);
-  pm.line(9, 17, 3, 15, leaf);
-  pm.line(9, 16, 15, 13, leaf);
+  const bulb = glow ? C.yellow : C.pink;
+  const bulbs = [[3, 8], [15, 6], [2, 14], [16, 12]].map(([x, y]) => [x + dx, y + dy]);
+  // Curly stems.
+  const full = stage === PLANT_STAGES - 1;
+  pm.line(cx, 19 + dy, cx, stage ? 4 : 6, leaf);
+  pm.line(cx, 14 + dy, 4 + dx, 9 + dy, leaf);
+  pm.line(cx, 12 + dy, 14 + dx, 7 + dy, leaf);
+  pm.line(cx, 17 + dy, 3 + dx, 15 + dy, leaf);
+  pm.line(cx, 16 + dy, 15 + dx, 13 + dy, leaf);
   for (const [lx, ly] of [[6, 11], [12, 9], [5, 16], [13, 14], [10, 9]]) {
-    pm.rect(lx, ly, 2, 1, C.green);
+    pm.rect(lx + dx, ly + dy, 2, 1, C.green);
+  }
+  if (stage) {
+    // New shoots curling out of the top.
+    pm.line(cx, 10, cx - 6, 5, leaf);
+    pm.line(cx, 8, cx + 6, 3, leaf);
+    pm.rect(cx - 4, 8, 2, 1, C.green);
+    pm.rect(cx + 2, 6, 2, 1, C.green);
+    bulbs.push([cx - 7, 4], [cx + 7, 2]);
+  }
+  if (!full) {
+    bulbs.push([cx, stage ? 3 : 4]);
   }
   // Glowing bulbs.
-  const bulb = glow ? C.yellow : C.pink;
-  for (const [bx, by] of [[9, 4], [3, 8], [15, 6], [2, 14], [16, 12]]) {
+  for (const [bx, by] of bulbs) {
     pm.circle(bx, by, 1, bulb);
     if (glow) {
       pm.set(bx, by, C.white);
     }
   }
+  if (full) {
+    // A big flower on top.
+    for (const [px, py] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) {
+      pm.circle(cx + px, 4 + py, 1.5, bulb);
+    }
+    pm.circle(cx, 4, 1, glow ? C.white : C.yellow);
+  }
   // Pot.
-  pm.rect(4, 19, 10, 2, C.orange);
-  pm.rect(5, 21, 8, 6, '#d06a2a');
-  pm.vline(6, 21, 26, C.orange);
+  pm.rect(4 + dx, 19 + dy, 10, 2, C.orange);
+  pm.rect(5 + dx, 21 + dy, 8, 6, '#d06a2a');
+  pm.vline(6 + dx, 21 + dy, 26 + dy, C.orange);
   return pm.outline(C.outline);
 }
 

@@ -34,6 +34,10 @@ export function defineSfx(audio) {
     [659, 784, 988, 1318].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, to: f * 1.05, dur: 0.12, type: 'triangle', vol: 0.14 }));
     [1200, 1500, 1350, 1700].forEach((f, i) => s.tone({ at: t + 0.32 + i * 0.07, freq: f, to: f * 1.1, dur: 0.06, type: 'triangle', vol: 0.12 }));
   });
+  // The space plant shooting up a size.
+  audio.define('grow', (s, t) => {
+    [392, 494, 587, 784, 988].forEach((f, i) => s.tone({ at: t + i * 0.09, freq: f, to: f * 1.02, dur: 0.16, type: 'sine', vol: 0.18 }));
+  });
   audio.define('peek', (s, t) => s.tone({ at: t, freq: 300, to: 700, dur: 0.18, type: 'triangle', vol: 0.15 }));
   audio.define('hide', (s, t) => s.tone({ at: t, freq: 700, to: 250, dur: 0.2, type: 'triangle', vol: 0.15 }));
   audio.define('wheee', (s, t) => {
