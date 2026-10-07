@@ -1,7 +1,7 @@
 import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
 import { girlFrames } from './art/girl.js';
-import { drawLockerDoor, drawRoom, drawSpace } from './art/room.js';
+import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
   drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawRock,
@@ -48,10 +48,18 @@ function bluebellIcon(stem, bell) {
 // generated from code in ./art.
 export function loadAssets() {
   const textCache = new Map();
+  const girlCache = new Map();
   const bell = bake(drawBell());
   const stems = [[40, 3], [52, 3], [34, 2], [44, 3]].map(([h, n]) => bake(drawBluebellStem(h, n)));
   return {
-    girl: bake(girlFrames()),
+    // Her frames for a look (see look.js), baked the first time she wears it.
+    girl(look) {
+      const key = JSON.stringify(look);
+      if (!girlCache.has(key)) {
+        girlCache.set(key, bake(girlFrames(look)));
+      }
+      return girlCache.get(key);
+    },
     room: bake(drawRoom()),
     space: bake(drawSpace()),
     poster: bake([drawPoster(0), drawPoster(1)]),
@@ -99,6 +107,7 @@ export function loadAssets() {
     crystal: bake([drawCrystal(), drawCrystal(true)]),
     snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice() }),
     lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
+    wardrobeDoor: bake({ front: drawWardrobeDoor(), back: drawWardrobeDoor(true) }),
     bag: bake({ shut: drawBag(), open: drawBag(true) }),
     boxIcon: bake(drawBoxIcon()),
     heartIcon: bake(drawHeartIcon()),

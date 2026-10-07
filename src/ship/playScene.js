@@ -3,6 +3,7 @@ import { Bag } from './bag.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { FLOOR_TOP, WALK, W, H } from './layout.js';
+import { normalizeLook } from './look.js';
 import { loadSave, writeSave } from './save.js';
 import { add, discard, freshId, normalizeWorld, place, placedIn, setStage, stash } from './world.js';
 
@@ -18,7 +19,9 @@ export class PlayScene extends Scene {
     super();
     this.assets = assets;
     this.where = where;
-    this.world = normalizeWorld(loadSave().world);
+    const save = loadSave();
+    this.world = normalizeWorld(save.world);
+    this.look = normalizeLook(save.look); // how she looks, wherever she goes
     this.bag = new Bag(this);
     this.carried = null; // the carryable being dragged, if any
     this.uiPress = false; // true while the bag owns the current press
@@ -38,6 +41,20 @@ export class PlayScene extends Scene {
     this.modal = BLOCK_INPUT;
     await this.engine.tweens.to(this, { fade: 1 }, 0.45);
     this.engine.setScene(makeScene());
+  }
+
+  // Plays a scripted sequence with all input held off until it's done.
+  async scripted(run) {
+    this.busy = true;
+    this.modal = BLOCK_INPUT;
+    try {
+      await run();
+    } finally {
+      if (this.modal === BLOCK_INPUT) {
+        this.modal = null;
+      }
+      this.busy = false;
+    }
   }
 
   // Tap on a prop: walk over to it, then use it (unless interrupted on the
@@ -66,6 +83,13 @@ export class PlayScene extends Scene {
 
   saveWorld() {
     writeSave({ ...loadSave(), world: this.world });
+  }
+
+  // She's changed how she looks: show it and remember it.
+  saveLook(look) {
+    this.look = look;
+    this.girl.wear(look);
+    writeSave({ ...loadSave(), look });
   }
 
   // Remembers where a carryable now is (after it moved about by itself).

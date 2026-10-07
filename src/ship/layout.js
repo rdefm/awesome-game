@@ -10,6 +10,15 @@ export const WALK = { minX: 12, maxX: 244, minY: 122, maxY: 154 };
 export const PORTHOLE = { x: 34, y: 50, r: 13, spot: { x: 46, y: 126 } };
 export const POSTER = { x: 64, y: 26, w: 24, h: 32, spot: { x: 76, y: 124 } };
 export const LOCKERS = { x: 100, y: 26, w: 38, h: 68 };
+// The left-hand locker (with her name tag) is her wardrobe; its door is
+// hinged on its left edge.
+export const WARDROBE = {
+  x: LOCKERS.x,
+  y: LOCKERS.y,
+  w: LOCKERS.w / 2 - 1,
+  h: LOCKERS.h,
+  spot: { x: 109, y: 124 },
+};
 // The right-hand locker is the snack cupboard: its door (hinged on its right
 // edge) and the bottom-centre of each of its three shelves.
 export const SNACK_LOCKER = {

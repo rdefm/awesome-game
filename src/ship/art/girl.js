@@ -1,6 +1,6 @@
 import { Pixmap } from '../../engine/pixmap.js';
 import { TEDDY_PALETTE } from './items.js';
-import { C } from './palette.js';
+import { C, HAIR_COLORS } from './palette.js';
 
 // Our hero: a small girl with red pigtails in a blue flight suit.
 // Built like a paper doll (head grid + procedural body/arms/legs) so each pose
@@ -26,15 +26,16 @@ const HEAD = [
   '......SSSS......',
 ];
 
-const HEAD_PALETTE = {
-  R: C.hair, r: C.hairDark, h: C.hairLight, Y: C.belt,
-  S: C.skin, e: C.outline, c: C.cheek, m: C.redDark,
-};
+// The head's colours for a given hair colour (a key of HAIR_COLORS).
+function headPalette(hair) {
+  const { hair: R, dark: r, light: h } = HAIR_COLORS[hair] ?? HAIR_COLORS.red;
+  return { R, r, h, Y: C.belt, S: C.skin, e: C.outline, c: C.cheek, m: C.redDark };
+}
 
 // Eyes live at rows 7-8, columns 5 and 10 of the head grid.
-function drawHead(pm, ox, oy, { eyes = 'open', look = 0, mouth = 'smile' }) {
+function drawHead(pm, ox, oy, { eyes = 'open', look = 0, mouth = 'smile' }, palette) {
   const rows = HEAD.map((row) => row.replace(/e/g, 'S').replace(/m/g, 'S'));
-  pm.grid(rows, HEAD_PALETTE, ox, oy);
+  pm.grid(rows, palette, ox, oy);
   const ex = [5 + look, 10 + look];
   for (const x of ex) {
     if (eyes === 'open') {
@@ -124,7 +125,8 @@ const HUG_TEDDY = [
   '.BB.BB.',
 ];
 
-export function drawGirl(pose = {}) {
+// `outfit` is her look (see ../look.js): which hair colour to paint.
+export function drawGirl(pose = {}, outfit = {}) {
   const {
     eyes = 'open',
     look = 0,
@@ -151,7 +153,7 @@ export function drawGirl(pose = {}) {
   const sxR = Math.round(CX + 3);
   drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly);
   drawArm(pm, sxR, torsoTop + 1, Math.round(CX + rx), torsoTop + ry);
-  drawHead(pm, Math.round(CX - 8), headTop, { eyes, look, mouth });
+  drawHead(pm, Math.round(CX - 8), headTop, { eyes, look, mouth }, headPalette(outfit.hair));
   // Raised arms go in front of the pigtails.
   if (ly < 0) {
     drawArm(pm, sxL, torsoTop + 1, Math.round(CX + lx), torsoTop + ly);
@@ -162,9 +164,10 @@ export function drawGirl(pose = {}) {
   return pm.outline(C.outline);
 }
 
-// Every named frame the game uses. Facing left is done by flipping at draw time.
-export function girlFrames() {
-  const f = (pose) => drawGirl(pose);
+// Every named frame the game uses, for one look. Facing left is done by
+// flipping at draw time.
+export function girlFrames(outfit = {}) {
+  const f = (pose) => drawGirl(pose, outfit);
   return {
     idle: [f({ look: 1 }), f({ look: 1, bob: 1 })],
     blink: f({ eyes: 'closed', look: 1 }),

@@ -13,8 +13,10 @@ export function clampToFloor(x, y) {
 // The player character. Mostly a small state machine:
 //   idle -> walk -> idle, act (a timed pose), held (being dragged), seated (in the chair).
 export class Girl {
-  constructor(assets, x, y) {
-    this.frames = assets.girl;
+  // `look` is how she looks (see ../look.js).
+  constructor(assets, x, y, look) {
+    this.assets = assets;
+    this.wear(look);
     this.emotes = assets.emotes;
     this.x = x;
     this.y = y;
@@ -32,6 +34,11 @@ export class Girl {
     this.priority = 10;
     this.hugging = false;
     this.draggable = true;
+  }
+
+  wear(look) {
+    this.look = look;
+    this.frames = this.assets.girl(look);
   }
 
   get depth() {

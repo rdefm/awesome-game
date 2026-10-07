@@ -26,7 +26,7 @@ export class BluebellScene extends PlayScene {
     for (let i = 0; i < 3; i++) {
       this.add(new Butterfly(assets, i));
     }
-    this.girl = this.add(new Girl(assets, start.x, start.y));
+    this.girl = this.add(new Girl(assets, start.x, start.y, this.look));
   }
 
   enter() {

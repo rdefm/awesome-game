@@ -1,7 +1,7 @@
 import { Pixmap, fractalNoise, seededRandom, bayer } from '../../engine/pixmap.js';
 import { drawText } from '../../engine/font.js';
 import { C } from './palette.js';
-import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, SNACK_LOCKER, WINDSHIELD, CONSOLE, SCREEN, DOOR } from '../layout.js';
+import { W, H, FLOOR_TOP, PORTHOLE, SNACK_LOCKER, WARDROBE, WINDSHIELD, CONSOLE, SCREEN, DOOR } from '../layout.js';
 
 function rivet(pm, x, y) {
   pm.set(x, y, C.wallHi);
@@ -151,19 +151,40 @@ function lockerDoor(pm, lx, y, w, h, handleX) {
   pm.set(lx + handleX, y + 30, C.metalHi);
 }
 
-// The left locker, with her name tag on it. The right one is the snack
-// cupboard: only its inside (dark, with three shelves) is painted here; its
-// door swings open live (see drawLockerDoor).
+// A locker's dark inside, ready for its door to swing open over it.
+function lockerInside(pm, { x, y, w, h }) {
+  pm.rect(x, y, w, h, C.metalDark);
+  pm.rect(x + 1, y + 1, w - 2, h - 2, C.ceiling);
+  pm.dither(x + 1, y + 1, w - 2, 4, C.outline, 0.5);
+}
+
+// A little flight suit on a hanger, hanging from the rail at (cx, y).
+function hangingSuit(pm, cx, y, color, dark) {
+  pm.set(cx, y + 1, C.metalLight);
+  pm.hline(cx - 3, cx + 3, y + 2, C.metalLight);
+  pm.rect(cx - 3, y + 3, 7, 9, color);
+  pm.vline(cx + 3, y + 3, y + 11, dark);
+  pm.rect(cx - 2, y + 12, 2, 6, dark);
+  pm.rect(cx + 1, y + 12, 2, 6, dark);
+  pm.hline(cx - 3, cx + 3, y + 7, C.belt);
+}
+
+// Both lockers' insides: the left one is her wardrobe (a rail of spare
+// suits and some boots), the right one the snack cupboard (three shelves).
+// Their doors swing open live (see drawWardrobeDoor and drawLockerDoor).
 function drawLockers(pm) {
-  const { x, y, w, h } = LOCKERS;
-  lockerDoor(pm, x, y, w / 2 - 1, h, w / 2 - 5);
-  pm.rect(x + 4, y + 50, 12, 7, C.white);
-  drawText(pm, 'ME', x + 6, y + 51, C.redDark);
+  const wardrobe = WARDROBE;
+  lockerInside(pm, wardrobe);
+  pm.hline(wardrobe.x + 1, wardrobe.x + wardrobe.w - 2, wardrobe.y + 7, C.metalLight);
+  hangingSuit(pm, wardrobe.x + 6, wardrobe.y + 6, C.pink, C.redDark);
+  hangingSuit(pm, wardrobe.x + 12, wardrobe.y + 6, C.suit, C.suitDark);
+  for (const bx of [wardrobe.x + 3, wardrobe.x + 10]) {
+    pm.rect(bx, wardrobe.y + wardrobe.h - 5, 5, 3, C.boot);
+    pm.hline(bx, bx + 4, wardrobe.y + wardrobe.h - 3, C.bootDark);
+  }
 
   const snack = SNACK_LOCKER;
-  pm.rect(snack.x, snack.y, snack.w, snack.h, C.metalDark);
-  pm.rect(snack.x + 1, snack.y + 1, snack.w - 2, snack.h - 2, C.ceiling);
-  pm.dither(snack.x + 1, snack.y + 1, snack.w - 2, 4, C.outline, 0.5);
+  lockerInside(pm, snack);
   for (const shelf of snack.shelves) {
     pm.hline(snack.x + 1, snack.x + snack.w - 2, shelf.y, C.metalLight);
     pm.hline(snack.x + 1, snack.x + snack.w - 2, shelf.y + 1, C.metalDark);
@@ -188,6 +209,28 @@ export function drawLockerDoor(back = false) {
   pm.set(8, 50, C.yellow);
   pm.set(7, 51, C.yellow);
   pm.set(9, 51, C.yellow);
+  return pm;
+}
+
+// Her wardrobe's door, with her name tag, hinged on its left edge. `back` is
+// its inside face (with a little mirror), seen once it has swung past wide
+// open; its hinge side is on the right.
+export function drawWardrobeDoor(back = false) {
+  const { w, h } = WARDROBE;
+  const pm = new Pixmap(w, h);
+  if (back) {
+    pm.rect(0, 0, w, h, C.metalDark);
+    pm.rect(1, 1, w - 2, h - 2, C.wallLight);
+    pm.vline(1, 1, h - 2, C.metal);
+    pm.rect(4, 14, w - 8, 18, C.metalDark);
+    pm.rect(5, 15, w - 10, 16, C.tealDeep);
+    pm.line(6, 22, 10, 18, C.teal);
+    pm.line(7, 27, 12, 22, C.teal);
+    return pm;
+  }
+  lockerDoor(pm, 0, 0, w, h, w - 4);
+  pm.rect(4, 50, 12, 7, C.white);
+  drawText(pm, 'ME', 6, 51, C.redDark);
   return pm;
 }
 

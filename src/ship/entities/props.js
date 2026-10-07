@@ -1,6 +1,7 @@
 import { ease } from '../../engine/tween.js';
 import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
-import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER } from '../layout.js';
+import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER, WARDROBE } from '../layout.js';
+import { nextLook } from '../look.js';
 import { Carryable } from './carryable.js';
 import { SNACKS } from './items.js';
 
@@ -347,6 +348,81 @@ export class SnackLocker extends Prop {
       r.image(door.front, x + w, y, { ax: 1, ay: 0, scaleX: turn });
     } else {
       r.image(door.back, x + w, y, { ax: 0, ay: 0, scaleX: -turn });
+    }
+  }
+}
+
+// ----------------------------------------------------------------- wardrobe
+// The left-hand locker, with her name tag. Tap it and she walks over, swings
+// the door open, pops behind it for a rummage and comes back out with the
+// next hair colour along.
+export class Wardrobe extends Prop {
+  constructor(assets) {
+    super();
+    this.door = assets.wardrobeDoor;
+    this.spot = WARDROBE.spot;
+    this.depth = -10;
+    this.open = 0; // 0 = shut, 1 = swung wide
+  }
+
+  hitTest(px, py) {
+    const { x, y, w, h } = WARDROBE;
+    return inRect(px, py, x, y, w, h);
+  }
+
+  use() {
+    const { scene } = this;
+    if (scene.busy) {
+      return;
+    }
+    scene.scripted(() => this.change());
+  }
+
+  async change() {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    girl.faceToward(WARDROBE.x + WARDROBE.w / 2);
+    girl.act('reach', 0.4);
+    await this.swing(true);
+    // Behind the door she goes...
+    engine.audio.play('hide');
+    await engine.tweens.to(girl, { alpha: 0, lift: 4 }, 0.2, ease.inQuad);
+    for (let i = 0; i < 3; i++) {
+      engine.audio.play('rustle');
+      this.wobble();
+      await engine.wait(0.3);
+    }
+    // ...and out she pops in her new look.
+    scene.saveLook(nextLook(scene.look));
+    engine.audio.play('peek');
+    scene.sparkles(girl.x, girl.y - 16, 8);
+    await engine.tweens.to(girl, { alpha: 1, lift: 0 }, 0.25, ease.outBack);
+    engine.audio.play('giggle');
+    girl.say('star', 1.2);
+    girl.act('cheer', 0.8);
+    await engine.wait(0.5);
+    await this.swing(false);
+  }
+
+  wobble() {
+    this.squash = 1;
+    this.scene.engine.tweens.to(this, { squash: 0 }, 0.3, ease.outElastic);
+  }
+
+  async swing(open) {
+    const { engine } = this.scene;
+    engine.audio.play(open ? 'lockerOpen' : 'lockerShut');
+    await engine.tweens.to(this, { open: open ? 1 : 0 }, open ? 0.45 : 0.3, open ? ease.outBack : ease.inQuad);
+  }
+
+  draw(r) {
+    const { x, y } = WARDROBE;
+    // The same fake 3D swing as the snack locker's, mirrored: hinged on the left.
+    const turn = Math.cos(this.open * SWING) * (2 - this.bounce);
+    if (turn > 0) {
+      r.image(this.door.front, x, y, { ax: 0, ay: 0, scaleX: turn });
+    } else {
+      r.image(this.door.back, x, y, { ax: 1, ay: 0, scaleX: -turn });
     }
   }
 }

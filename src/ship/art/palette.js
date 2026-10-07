@@ -47,3 +47,13 @@ export const C = {
   nebula: '#2b1f52',
   nebula2: '#3a2063',
 };
+
+// Hair colours from her wardrobe, in the order she cycles through them.
+// Red (the first) is how she starts out.
+export const HAIR_COLORS = {
+  red: { hair: C.hair, dark: C.hairDark, light: C.hairLight },
+  gold: { hair: '#f2b632', dark: '#c07a1e', light: '#ffe27a' },
+  brown: { hair: '#8a5432', dark: '#5e3420', light: '#b67a4a' },
+  pink: { hair: '#ff7bbf', dark: '#c74a8e', light: '#ffb3dc' },
+  blue: { hair: '#4fa8f0', dark: '#2f68b8', light: '#8fd2ff' },
+};

@@ -2,7 +2,7 @@ import { ease } from '../engine/tween.js';
 import { PLANETS } from './art/props.js';
 import { BluebellScene } from './bluebellScene.js';
 import { Girl, clampToFloor } from './entities/girl.js';
-import { Chair, ConsoleScreen, Door, Porthole, Poster, SnackLocker, WindowPlanet } from './entities/props.js';
+import { Chair, ConsoleScreen, Door, Porthole, Poster, SnackLocker, Wardrobe, WindowPlanet } from './entities/props.js';
 import { DOOR, PLANET_SPOT, W, H } from './layout.js';
 import { LandingCutscene } from './landingCutscene.js';
 import { PlanetMap } from './planetMap.js';
@@ -32,13 +32,14 @@ export class ShipScene extends PlayScene {
 
     this.porthole = this.add(new Porthole(assets));
     this.poster = this.add(new Poster(assets));
+    this.add(new Wardrobe(assets));
     this.add(new SnackLocker(assets));
     this.screen = this.add(new ConsoleScreen(assets));
     this.chair = this.add(new Chair(assets));
     this.door = this.add(new Door());
     this.add(new WindowPlanet());
     this.addPlaced();
-    this.girl = this.add(new Girl(assets, start.x, start.y));
+    this.girl = this.add(new Girl(assets, start.x, start.y, this.look));
     this.map = new PlanetMap(this, assets);
   }
 
