@@ -10,7 +10,6 @@ export const WALK = { minX: 12, maxX: 244, minY: 122, maxY: 154 };
 export const PORTHOLE = { x: 34, y: 50, r: 13, spot: { x: 46, y: 126 } };
 export const POSTER = { x: 64, y: 26, w: 24, h: 32, spot: { x: 76, y: 124 } };
 export const LOCKERS = { x: 100, y: 26, w: 38, h: 68 };
-export const PLANT = { x: 152, y: 120, spot: { x: 136, y: 128 } };
 export const WINDSHIELD = { top: 16, bottom: 70, leftTop: 176, leftBottom: 166, right: 250, strut: 213 };
 export const CONSOLE = { x: 180, y: 74, w: 74, h: 38 };
 export const SCREEN = { x: 199, y: 82, w: 36, h: 17, spot: { x: 226, y: 124 } };

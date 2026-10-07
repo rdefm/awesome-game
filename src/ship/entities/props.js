@@ -1,6 +1,7 @@
 import { ease } from '../../engine/tween.js';
 import { CHAIR_H, CHAIR_W } from '../art/props.js';
-import { CHAIR, DOOR, PLANET_SPOT, PLANT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
+import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
+import { Carryable } from './carryable.js';
 
 const HEADROOM = 16;
 
@@ -217,13 +218,10 @@ export class Poster extends Prop {
 }
 
 // ---------------------------------------------------------------- space plant
-export class Plant extends Prop {
-  constructor(assets) {
-    super();
+export class Plant extends Carryable {
+  constructor(assets, state) {
+    super(state);
     this.imgs = assets.plant;
-    this.x = PLANT.x;
-    this.y = PLANT.y;
-    this.spot = PLANT.spot;
     this.glow = 0;
   }
 
@@ -251,6 +249,9 @@ export class Plant extends Prop {
   draw(r) {
     // Squash wide-and-short on the way down, like a boing.
     const sway = Math.sin(this.scene.engine.time * 1.3) * 0.03;
+    if (this.held || this.falling) {
+      this.shadow(r, 12);
+    }
     r.image(this.imgs[this.glow > 0 && Math.floor(this.glow * 8) % 3 ? 1 : 0], this.x, this.y + 1, {
       scaleX: this.bounce + sway, scaleY: 2 - this.bounce,
     });

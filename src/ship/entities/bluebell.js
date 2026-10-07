@@ -1,5 +1,6 @@
 import { ease } from '../../engine/tween.js';
-import { PARKED_SHIP } from '../layout.js';
+import { PARKED_SHIP, WALK } from '../layout.js';
+import { Carryable } from './carryable.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -56,15 +57,15 @@ export class ParkedShip extends Thing {
 // ---------------------------------------------------------- giant bluebell
 // Tap one and its bells swing and chime. Each flower has its own note, so
 // tapping along the row plays a little tune.
-export class Bluebell {
-  constructor(assets, x, y, stem, note) {
-    this.stem = assets.stems[stem];
+export class Bluebell extends Carryable {
+  // `state.v` picks both the stem shape and the note it rings.
+  constructor(assets, state) {
+    super(state);
+    this.stem = assets.stems[state.v ?? 0];
     this.bellImg = assets.bell;
-    this.x = x;
-    this.y = y;
-    this.note = note;
+    this.note = state.v ?? 0;
     this.ring = 0;
-    this.phase = x * 0.37;
+    this.phase = this.x * 0.37;
   }
 
   get height() {
@@ -94,6 +95,9 @@ export class Bluebell {
     const t = this.scene.engine.time;
     const img = this.stem.img;
     const sway = Math.round(Math.sin(t * 1.4 + this.phase) * 0.6);
+    if (this.held || this.falling) {
+      this.shadow(r, 14);
+    }
     r.image(img, this.x, this.y + 1, { ax: 8 / img.width });
     this.stem.hang.forEach((h, i) => {
       const swing = Math.sin(t * 14 + i * 1.3) * this.ring * 3 + sway;
@@ -104,12 +108,10 @@ export class Bluebell {
 
 // ------------------------------------------------------------------ critter
 // A puffball that bounces around the meadow in little hops.
-export class Critter extends Thing {
-  constructor(assets, x, y) {
-    super();
+export class Critter extends Carryable {
+  constructor(assets, state) {
+    super(state);
     this.imgs = assets.critter;
-    this.x = x;
-    this.y = y;
     this.facing = 1;
     this.lift = 0;
     this.restIn = 1;
@@ -122,6 +124,18 @@ export class Critter extends Thing {
     return Math.abs(px - this.x) < 11 && py > this.y - 18 - this.lift && py < this.y + 3;
   }
 
+  onPickUp() {
+    this.hop = null;
+    this.hopsLeft = 0;
+    this.lift = 0;
+    this.scene.engine.audio.play('squeak');
+  }
+
+  onLand() {
+    this.landed = 0.12;
+    this.restIn = 1 + Math.random();
+  }
+
   onTap() {
     const { scene } = this;
     scene.engine.audio.play('squeak');
@@ -132,6 +146,9 @@ export class Critter extends Thing {
   }
 
   update(dt) {
+    if (this.held || this.falling) {
+      return;
+    }
     if (this.hop) {
       const h = this.hop;
       h.p = Math.min(1, h.p + dt / h.dur);
@@ -144,34 +161,43 @@ export class Critter extends Thing {
         this.landed = 0.12;
         this.hopsLeft = (this.hopsLeft ?? 1) - 1;
         this.restIn = this.hopsLeft > 0 ? 0.12 : 1.5 + Math.random() * 3;
+        if (this.hopsLeft <= 0) {
+          this.scene.settle(this); // remember where it wandered to
+        }
       }
       return;
     }
     this.landed = Math.max(0, this.landed - dt);
     this.restIn -= dt;
     if (this.restIn <= 0) {
+      // Where it likes to roam (the meadow keeps it away from the ship).
+      const { minX, maxX } = this.scene.roam ?? WALK;
       if (!(this.hopsLeft > 0)) {
         // Pick a new direction and a few hops to go that way.
         this.hopsLeft = 2 + Math.floor(Math.random() * 4);
         this.dir = Math.random() < 0.5 ? -1 : 1;
-        if (this.x < 100 || this.x > 236) {
-          this.dir = this.x < 100 ? 1 : -1;
+        if (this.x < minX + 8 || this.x > maxX - 8) {
+          this.dir = this.x < minX + 8 ? 1 : -1;
         }
         this.dy = (Math.random() - 0.5) * 6;
       }
       this.facing = this.dir;
+      // If she's put it down outside its patch, it hops back a step at a time.
       this.hop = {
         fromX: this.x, fromY: this.y,
-        toX: clamp(this.x + this.dir * 12, 92, 244), toY: clamp(this.y + this.dy, 124, 154),
+        toX: clamp(this.x + this.dir * 12, Math.min(minX, this.x), Math.max(maxX, this.x)),
+        toY: clamp(this.y + this.dy, 124, 154),
         p: 0, dur: 0.32, height: 5,
       };
     }
   }
 
   draw(r) {
-    const frame = this.lift > 1 ? 'jump' : this.landed > 0 ? 'squish' : 'idle';
-    r.rect(this.x - 5, this.y - 1, 10, 2, '#000000', 0.2);
-    r.image(this.imgs[frame], this.x, this.y + 1 - this.lift, { flipX: this.facing < 0 });
+    const frame = this.held || this.lift > 1 ? 'jump' : this.landed > 0 ? 'squish' : 'idle';
+    this.shadow(r, 10);
+    r.image(this.imgs[frame], this.x, this.y + 1 - this.lift, {
+      flipX: this.facing < 0, scaleX: this.bounce, scaleY: 2 - this.bounce,
+    });
   }
 }
 
@@ -222,13 +248,11 @@ export class Butterfly {
 }
 
 // ---------------------------------------------------------- friendly local
-export class Local extends Thing {
-  constructor(assets, x, y) {
-    super();
+export class Local extends Carryable {
+  constructor(assets, state) {
+    super(state);
     this.imgs = assets.local;
-    this.x = x;
-    this.y = y;
-    this.spot = { x: x - 24, y: y + 2 };
+    this.reach = 24;
     this.frame = 'idle';
     this.lift = 0;
     this.blinkIn = 2;
@@ -247,6 +271,17 @@ export class Local extends Thing {
     this.boing(0.8);
     this.frame = 'wave1';
     this.scene.interact(this);
+  }
+
+  onPickUp() {
+    this.frame = 'hop';
+    this.scene.engine.audio.play('giggle');
+  }
+
+  onLand() {
+    if (!this.busy) {
+      this.frame = 'idle';
+    }
   }
 
   // Say hello: they wave at each other, then it does a happy hop.
@@ -286,7 +321,7 @@ export class Local extends Thing {
 
   draw(r) {
     const bob = this.frame === 'idle' ? Math.round(Math.sin(this.scene.engine.time * 3) * 0.6) : 0;
-    r.rect(this.x - 6, this.y - 1, 12, 2, '#000000', 0.2);
+    this.shadow(r, 12);
     r.image(this.imgs[this.frame], this.x, this.y + 1 - this.lift + bob, {
       scaleX: this.bounce, scaleY: 2 - this.bounce,
     });

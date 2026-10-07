@@ -43,10 +43,12 @@ store.
   — sprites as character grids plus procedural painting, baked to canvases
   at startup. No image files.
 - **Save system**: browser `localStorage` (`src/ship/save.js`). Stores where
-  the girl is (ship or planet), her position, the current planet and whether
-  the ship has landed. No account, no backend, no login.
+  the girl is (ship or planet), her position, the current planet, whether
+  the ship has landed, and the **world** (`src/ship/world.js`): where every
+  carryable thing lies in each place, and what's in the bag. No account, no
+  backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens).
+  tweens, world).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -60,14 +62,18 @@ store.
 - Airlock door (locked in space, opens when landed)
 - Bluebell meadow: parked ship to re-board, giant bluebells that each chime
   a note, a hopping puffball critter, butterflies, a friendly pink alien
+- **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
+  teddy, ball, crystal, giant bluebells) and friends (puffball, pink alien)
+  can be dragged anywhere and dropped onto the bag button (bottom-left).
+  Tapping it slides up a tray with two pockets — things and friends — that
+  scrolls sideways, no size limit. Drag a slot upward to pull it out under
+  your finger, or tap it to pop it out beside the girl, in any place. Kinds
+  are registered in `src/ship/kinds.js`.
 
 ## Planned later
 - Scenes for the other four planets
-- **Inventory**: pick up items and characters in one scene, carry them, and
-  place them in another (the "carry things between locations" hook)
 - **Wants**: characters can want a specific item as optional objectives that
   reward you without punishing you for ignoring them
-- Saving inventory contents and where things were placed
 
 ## Explicitly deferred
 - Background music

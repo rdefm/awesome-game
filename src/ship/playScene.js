@@ -1,16 +1,27 @@
 import { Scene } from '../engine/scene.js';
+import { Bag } from './bag.js';
 import { clampToFloor } from './entities/girl.js';
-import { FLOOR_TOP, W, H } from './layout.js';
+import { makeCarryable } from './kinds.js';
+import { FLOOR_TOP, WALK, W, H } from './layout.js';
+import { loadSave, writeSave } from './save.js';
+import { normalizeWorld, place, placedIn, stash } from './world.js';
 
 // Swallows all input (and draws nothing) while a scripted sequence plays.
 export const BLOCK_INPUT = { draw() {} };
 
 // What every place the girl can be has in common: tap-to-walk, little
-// particle effects, a short message banner and fading in/out between places.
+// particle effects, a short message banner, fading in/out between places,
+// and the bag plus all the carryable things lying about.
 export class PlayScene extends Scene {
-  constructor(assets) {
+  // `where` names this place in the world (e.g. 'ship'), for its carryables.
+  constructor(assets, where) {
     super();
     this.assets = assets;
+    this.where = where;
+    this.world = normalizeWorld(loadSave().world);
+    this.bag = new Bag(this);
+    this.carried = null; // the carryable being dragged, if any
+    this.uiPress = false; // true while the bag owns the current press
     this.particles = [];
     this.busy = false; // true during a scripted event
     this.fade = 1; // black overlay; scenes fade in on enter
@@ -29,16 +40,124 @@ export class PlayScene extends Scene {
     this.engine.setScene(makeScene());
   }
 
-  // Tap on a prop: walk over to it, then use it (unless interrupted on the way).
+  // Tap on a prop: walk over to it, then use it (unless interrupted on the
+  // way, or put in the bag meanwhile).
   async interact(prop) {
     const girl = this.girl;
     if (girl.mode === 'held') {
       return;
     }
     const arrived = await girl.walkTo(prop.spot.x, prop.spot.y);
-    if (arrived) {
+    if (arrived && this.entities.includes(prop)) {
       prop.use();
     }
+  }
+
+  // ------------------------------------------------------------ carryables
+  // Adds every carryable the world has lying about in this place.
+  addPlaced() {
+    for (const state of placedIn(this.world, this.where)) {
+      const item = makeCarryable(this.assets, state);
+      if (item) {
+        this.add(item);
+      }
+    }
+  }
+
+  saveWorld() {
+    writeSave({ ...loadSave(), world: this.world });
+  }
+
+  // Remembers where a carryable now is (after it moved about by itself).
+  settle(item) {
+    if (this.entities.includes(item) && !item.held) {
+      this.world = place(this.world, item.id, this.where, item.x, item.y);
+      this.saveWorld();
+    }
+  }
+
+  // A dragged carryable was let go: into the bag, or down onto the floor.
+  dropCarryable(item, p) {
+    if (this.bag.isDropTarget(p)) {
+      this.stashItem(item);
+      return;
+    }
+    const floor = clampToFloor(item.x, item.y);
+    this.world = place(this.world, item.id, this.where, floor.x, floor.y);
+    this.saveWorld();
+    item.fall(floor);
+  }
+
+  stashItem(item) {
+    this.remove(item);
+    this.engine.tweens.cancel(item);
+    this.world = stash(this.world, item.id);
+    this.saveWorld();
+    this.engine.audio.play('stash');
+    this.bag.swallow();
+    this.sparkles(this.bag.center.x, this.bag.center.y, 6);
+    if (this.girl.mode === 'idle') {
+      this.girl.say('heart', 1);
+    }
+  }
+
+  // Dragged up out of the bag tray: it appears under her finger, already held.
+  takeFromBag(entry, p) {
+    const item = makeCarryable(this.assets, { ...entry, x: p.x, y: p.y });
+    if (!item) {
+      return;
+    }
+    this.add(item);
+    this.engine.audio.play('unpack');
+    this.uiPress = false;
+    this.press = { start: p, target: item, dragging: true };
+    item.onDragStart(p);
+    item.grab = { x: 0, y: 8 }; // hang it just below the fingertip
+    item.onDrag(p);
+  }
+
+  // Tapped in the bag tray: it pops out onto the floor beside her.
+  placeFromBag(entry) {
+    const girl = this.girl;
+    const maxY = this.bag.isOpen ? 130 : WALK.maxY; // keep it clear of the open tray
+    const spot = clampToFloor(girl.x + girl.facing * 20, Math.min(girl.y + 2, maxY));
+    const item = makeCarryable(this.assets, { ...entry, x: spot.x, y: spot.y - 16 });
+    if (!item) {
+      return;
+    }
+    this.world = place(this.world, item.id, this.where, spot.x, spot.y);
+    this.saveWorld();
+    this.add(item);
+    this.engine.audio.play('unpack');
+    this.sparkles(spot.x, spot.y - 10, 6);
+    item.fall(spot);
+  }
+
+  // The bag gets first look at every press; the rest goes to the scene.
+  pointerDown(p) {
+    if (!this.modal && this.bag.hitTest(p)) {
+      this.uiPress = true;
+      this.bag.pointerDown(p);
+      return;
+    }
+    super.pointerDown(p);
+  }
+
+  pointerMove(p) {
+    if (this.uiPress) {
+      this.bag.pointerMove(p);
+      return;
+    }
+    super.pointerMove(p);
+  }
+
+  pointerUp(p) {
+    if (this.uiPress) {
+      this.uiPress = false;
+      this.bag.pointerUp(p);
+      return;
+    }
+    super.pointerUp(p);
   }
 
   onTapEmpty(p) {
@@ -75,8 +194,17 @@ export class PlayScene extends Scene {
     this.particles.push({ x, y, ring: true, life: 0.35, age: 0 });
   }
 
+  musicNote(x, y) {
+    const colors = ['#6fb2ff', '#ff8fc8', '#ffe066', '#ffffff'];
+    this.particles.push({
+      x, y, vx: (Math.random() - 0.5) * 16, vy: -22 - Math.random() * 10, gravity: 0, life: 1.1, age: 0,
+      note: true, color: colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+
   update(dt) {
     super.update(dt);
+    this.bag.update(dt);
     for (const p of this.particles) {
       p.age += dt;
       if (!p.ring) {
@@ -114,8 +242,22 @@ export class PlayScene extends Scene {
     }
   }
 
-  // Banner text, the fade, and anything else that sits above the whole scene.
+  // Whatever's being carried is drawn later, above the bag tray.
+  drawEntities(r) {
+    for (const e of this.sorted()) {
+      if (!e.held) {
+        e.draw?.(r);
+      }
+    }
+  }
+
+  // The bag, banner text, the fade, and anything else that sits above the
+  // whole scene.
   drawOverlay(r) {
+    this.bag.draw(r);
+    if (this.carried && !this.modal) {
+      this.carried.draw(r);
+    }
     const m = this.toastMsg;
     if (m) {
       const alpha = Math.min(1, m.t / 0.15, (m.life - m.t) / 0.3);

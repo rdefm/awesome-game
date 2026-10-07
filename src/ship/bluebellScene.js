@@ -1,4 +1,4 @@
-import { Bluebell, Butterfly, Critter, Local, ParkedShip } from './entities/bluebell.js';
+import { Butterfly, ParkedShip } from './entities/bluebell.js';
 import { Girl, clampToFloor } from './entities/girl.js';
 import { PARKED_SHIP, W } from './layout.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
@@ -10,18 +10,15 @@ import { ShipScene } from './shipScene.js';
 export class BluebellScene extends PlayScene {
   // `fromShip`: she's just walked out of the door (rather than a reload).
   constructor(assets, { fromShip = true } = {}) {
-    super(assets);
+    super(assets, 'bluebell');
     this.dustColor = '#c9f0b0';
+    this.roam = { minX: 92, maxX: 244 }; // where critters hop about: clear of the ship
     this.fromShip = fromShip;
     const save = loadSave();
     const start = fromShip ? PARKED_SHIP.spot : clampToFloor(save.bx ?? 90, save.by ?? 134);
 
     this.ship = this.add(new ParkedShip(assets));
-    [[104, 121, 0], [140, 148, 1], [176, 119, 2], [244, 127, 3]].forEach(([x, y, stem], i) => {
-      this.add(new Bluebell(assets, x, y, stem, i));
-    });
-    this.add(new Local(assets, 214, 138));
-    this.add(new Critter(assets, 160, 132));
+    this.addPlaced();
     for (let i = 0; i < 3; i++) {
       this.add(new Butterfly(assets, i));
     }
@@ -64,14 +61,6 @@ export class BluebellScene extends PlayScene {
     engine.tweens.to(girl, { y: PARKED_SHIP.spot.y - 8 }, 0.5);
     await engine.tweens.to(girl, { alpha: 0 }, 0.5);
     await this.leaveTo(() => new ShipScene(this.assets, { fromDoor: true }));
-  }
-
-  musicNote(x, y) {
-    const colors = ['#6fb2ff', '#ff8fc8', '#ffe066', '#ffffff'];
-    this.particles.push({
-      x, y, vx: (Math.random() - 0.5) * 16, vy: -22 - Math.random() * 10, gravity: 0, life: 1.1, age: 0,
-      note: true, color: colors[Math.floor(Math.random() * colors.length)],
-    });
   }
 
   draw(r) {

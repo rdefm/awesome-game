@@ -81,6 +81,15 @@ export function defineSfx(audio) {
       s.tone({ at: t + 0.12, freq: f, dur: 0.6, type: 'triangle', vol: 0.05 });
     });
   });
+  // The bag: a gulp as something goes in, a pop as it comes out.
+  audio.define('stash', (s, t) => {
+    s.tone({ at: t, freq: 900, to: 220, dur: 0.18, type: 'sine', vol: 0.25 });
+    s.tone({ at: t + 0.16, freq: 300, to: 180, dur: 0.1, type: 'triangle', vol: 0.15 });
+  });
+  audio.define('unpack', (s, t) => {
+    s.tone({ at: t, freq: 300, to: 1200, dur: 0.12, type: 'sine', vol: 0.22 });
+    s.tone({ at: t + 0.1, freq: 1568, dur: 0.1, type: 'triangle', vol: 0.08 });
+  });
   audio.define('squeak', (s, t) => {
     s.tone({ at: t, freq: 1400, to: 2200, dur: 0.08, type: 'sine', vol: 0.15 });
     s.tone({ at: t + 0.1, freq: 1800, to: 2600, dur: 0.07, type: 'sine', vol: 0.12 });
