@@ -1,13 +1,15 @@
 import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
 import { girlFrames } from './art/girl.js';
-import { drawRoom, drawSpace } from './art/room.js';
+import { drawLockerDoor, drawRoom, drawSpace } from './art/room.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
   drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawRock,
   drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
-import { drawBag, drawBall, drawBoxIcon, drawCrystal, drawHeartIcon, drawTeddy } from './art/items.js';
+import {
+  drawBag, drawBall, drawBoxIcon, drawCookie, drawCrystal, drawHeartIcon, drawJuice, drawStarFruit, drawTeddy,
+} from './art/items.js';
 import { MEADOW_HORIZON } from './layout.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -95,6 +97,8 @@ export function loadAssets() {
     ball: bake(drawBall()),
     teddy: bake(drawTeddy()),
     crystal: bake([drawCrystal(), drawCrystal(true)]),
+    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice() }),
+    lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
     bag: bake({ shut: drawBag(), open: drawBag(true) }),
     boxIcon: bake(drawBoxIcon()),
     heartIcon: bake(drawHeartIcon()),

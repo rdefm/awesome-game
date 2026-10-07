@@ -2,6 +2,7 @@ import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
 import { MEADOW_SECRETS, PARKED_SHIP, WALK } from '../layout.js';
 import { Carryable } from './carryable.js';
+import { feed, isSnack } from './items.js';
 import { Secret } from './secret.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -121,6 +122,7 @@ export class Critter extends Carryable {
     this.landed = 0;
     this.priority = 5;
     this.chase = null; // { ball, nudges, time } while chasing a ball about
+    this.eating = false;
   }
 
   hitTest(px, py) {
@@ -136,11 +138,37 @@ export class Critter extends Carryable {
   }
 
   // Drop a ball on it and it chases it about, nudging it along a few times.
+  // Drop a snack on it and it gobbles it up.
   accepts(item) {
-    return item.kind === 'ball' && !this.chase && !this.held && !this.falling;
+    return (item.kind === 'ball' || isSnack(item)) && !this.chase && !this.eating && !this.held && !this.falling;
   }
 
-  receive(ball) {
+  receive(item) {
+    if (isSnack(item)) {
+      this.eat(item);
+    } else {
+      this.chaseBall(item);
+    }
+  }
+
+  async eat(snack) {
+    this.eating = true;
+    this.draggable = false; // stay put until it's finished
+    this.hop = null;
+    this.hopsLeft = 0;
+    this.lift = 0;
+    await feed(this, snack);
+    this.eating = false;
+    this.draggable = true;
+    this.restIn = 1.5 + Math.random() * 2;
+  }
+
+  // A squishy chomp with every bite.
+  munch() {
+    this.landed = 0.15;
+  }
+
+  chaseBall(ball) {
     const { scene } = this;
     const side = ball.x < this.x ? -1 : 1;
     scene.putDown(ball, this.x + side * 12, this.y);
@@ -216,6 +244,10 @@ export class Critter extends Carryable {
 
   update(dt) {
     if (this.held || this.falling) {
+      return;
+    }
+    if (this.eating) {
+      this.landed = Math.max(0, this.landed - dt);
       return;
     }
     if (this.chase) {
@@ -586,12 +618,21 @@ export class Local extends Carryable {
     this.busy = false;
   }
 
-  // It loves shiny crystals: drop one on it and it keeps it beside it.
+  // It loves shiny crystals: drop one on it and it keeps it beside it. Drop
+  // a snack on it and it eats it.
   accepts(item) {
-    return item.kind === 'crystal' && !this.busy && !this.held && !this.falling;
+    return (item.kind === 'crystal' || isSnack(item)) && !this.busy && !this.held && !this.falling;
   }
 
   async receive(item) {
+    if (isSnack(item)) {
+      this.busy = true;
+      this.draggable = false;
+      await feed(this, item);
+      this.busy = false;
+      this.draggable = true;
+      return;
+    }
     this.busy = true;
     this.draggable = false; // stay put until the cheering's done
     const { scene } = this;
@@ -611,6 +652,12 @@ export class Local extends Carryable {
     girl.say('heart', 1.4);
     this.busy = false;
     this.draggable = true;
+  }
+
+  // A little hop of a chew with every bite.
+  munch() {
+    const { tweens } = this.scene.engine;
+    tweens.to(this, { lift: 3 }, 0.1, ease.outQuad).then(() => tweens.to(this, { lift: 0 }, 0.12, ease.inQuad));
   }
 
   update(dt) {

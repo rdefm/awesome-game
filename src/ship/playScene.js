@@ -4,7 +4,7 @@ import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { FLOOR_TOP, WALK, W, H } from './layout.js';
 import { loadSave, writeSave } from './save.js';
-import { normalizeWorld, place, placedIn, setStage, stash } from './world.js';
+import { add, discard, freshId, normalizeWorld, place, placedIn, setStage, stash } from './world.js';
 
 // Swallows all input (and draws nothing) while a scripted sequence plays.
 export const BLOCK_INPUT = { draw() {} };
@@ -79,6 +79,27 @@ export class PlayScene extends Scene {
   // Remembers that a carryable has grown to `stage`.
   saveStage(item, stage) {
     this.world = setStage(this.world, item.id, stage);
+    this.saveWorld();
+  }
+
+  // A brand-new carryable of `kind` (a snack off the shelf, say) appears at
+  // (x, y), with an id nothing else has. Remembered on the floor below.
+  spawn(kind, x, y) {
+    const id = freshId(this.world, kind, this.entities.map((e) => e.id));
+    const item = makeCarryable(this.assets, { id, kind, x, y });
+    if (!item) {
+      return null;
+    }
+    this.world = add(this.world, this.where, { id, kind, ...clampToFloor(x, y) });
+    this.saveWorld();
+    this.add(item);
+    return item;
+  }
+
+  // Used up for good (eaten): gone from the world straight away. It stays on
+  // screen until it's removed.
+  useUp(item) {
+    this.world = discard(this.world, item.id);
     this.saveWorld();
   }
 

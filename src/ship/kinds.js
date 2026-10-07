@@ -1,5 +1,5 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
-import { Ball, Crystal, Teddy } from './entities/items.js';
+import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
 
 // Every kind of carryable thing: how to build it from its world entry, the
@@ -10,6 +10,7 @@ export const KINDS = {
   ball: { make: (a, s) => new Ball(a, s), icon: (a) => a.ball },
   teddy: { make: (a, s) => new Teddy(a, s), icon: (a) => a.teddy },
   crystal: { make: (a, s) => new Crystal(a, s), icon: (a) => a.crystal[0] },
+  ...Object.fromEntries(SNACKS.map((kind) => [kind, { make: (a, s) => new Snack(a, s), icon: (a) => a.snacks[kind] }])),
   bluebell: { make: (a, s) => new Bluebell(a, s), icon: (a, s) => a.bluebellIcons[s.v ?? 0] },
   critter: { friend: true, make: (a, s) => new Critter(a, s), icon: (a) => a.critter.idle },
   local: { friend: true, make: (a, s) => new Local(a, s), icon: (a) => a.local.idle },

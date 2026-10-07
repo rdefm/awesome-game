@@ -38,6 +38,21 @@ export function defineSfx(audio) {
   audio.define('grow', (s, t) => {
     [392, 494, 587, 784, 988].forEach((f, i) => s.tone({ at: t + i * 0.09, freq: f, to: f * 1.02, dur: 0.16, type: 'sine', vol: 0.18 }));
   });
+  // The snack locker: a creaky swing open, a clunk shut.
+  audio.define('lockerOpen', (s, t) => {
+    s.noise({ at: t, dur: 0.06, freq: 900, to: 300, vol: 0.2 });
+    s.tone({ at: t + 0.04, freq: 300, to: 520, dur: 0.3, type: 'triangle', vol: 0.08 });
+  });
+  audio.define('lockerShut', (s, t) => {
+    s.tone({ at: t, freq: 420, to: 260, dur: 0.2, type: 'triangle', vol: 0.08 });
+    s.noise({ at: t + 0.22, dur: 0.1, freq: 600, to: 150, vol: 0.3 });
+    s.tone({ at: t + 0.22, freq: 120, to: 70, dur: 0.1, type: 'sine', vol: 0.25 });
+  });
+  // A friend chomping a snack.
+  audio.define('munch', (s, t) => {
+    s.noise({ at: t, dur: 0.06, filter: 'bandpass', freq: 1800, to: 900, vol: 0.25, q: 2 });
+    s.noise({ at: t + 0.09, dur: 0.05, filter: 'bandpass', freq: 1500, to: 700, vol: 0.2, q: 2 });
+  });
   audio.define('peek', (s, t) => s.tone({ at: t, freq: 300, to: 700, dur: 0.18, type: 'triangle', vol: 0.15 }));
   audio.define('hide', (s, t) => s.tone({ at: t, freq: 700, to: 250, dur: 0.2, type: 'triangle', vol: 0.15 }));
   audio.define('wheee', (s, t) => {

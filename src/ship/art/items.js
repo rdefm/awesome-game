@@ -79,6 +79,48 @@ export function drawCrystal(glow = false) {
   return pm.outline(C.outline);
 }
 
+// ---------------------------------------------------------------- snacks
+// Treats from the ship's snack locker.
+export function drawCookie() {
+  return outlinedGrid([
+    '..ccccc..',
+    '.cCCkCyc.',
+    'cCkCCCCCc',
+    'cCCCyCkCc',
+    'cyCkCCCCc',
+    'cCCCCCkCc',
+    '.cCkCyCc.',
+    '..ccccc..',
+  ], { C: '#e0a85a', c: '#b07a3a', k: '#5a3520', y: C.pink });
+}
+
+export function drawStarFruit() {
+  return outlinedGrid([
+    '....o....',
+    '...oYo...',
+    'ooooYoooo',
+    'oyyYYYyyo',
+    '.oyyYyyo.',
+    '..oyyyo..',
+    '.oyyoyyo.',
+    '.ooo.ooo.',
+  ], { o: '#e0a020', y: C.yellow, Y: '#fff3b0' });
+}
+
+export function drawJuice() {
+  return outlinedGrid([
+    '.....ss',
+    '....s..',
+    '.pppsp.',
+    'pPPPPPp',
+    'pPwwwPp',
+    'pPwgwPp',
+    'pPwwwPp',
+    'pPPPPPp',
+    '.ppppp.',
+  ], { p: '#d65a9a', P: C.pink, w: C.white, g: C.greenDark, s: C.white });
+}
+
 // ---------------------------------------------------------------- the bag
 // A chunky backpack for the bag button. `open` gapes the flap so it looks
 // ready to swallow whatever is being dragged.

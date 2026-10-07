@@ -1,3 +1,4 @@
+import { ease } from '../../engine/tween.js';
 import { Carryable } from './carryable.js';
 import { clampToFloor } from './girl.js';
 
@@ -103,6 +104,60 @@ export class Teddy extends Carryable {
     this.shadow(r, 10);
     r.image(this.img, this.x, this.y + 1, { scaleX: this.bounce, scaleY: 2 - this.bounce });
   }
+}
+
+// ---------------------------------------------------------------- snacks
+// Treats from the ship's snack locker. Friends gobble them up (see `feed`).
+export const SNACKS = ['cookie', 'starfruit', 'juice'];
+const CRUMBS = { cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8' };
+
+export const isSnack = (item) => SNACKS.includes(item.kind);
+
+export class Snack extends Carryable {
+  constructor(assets, state) {
+    super(state);
+    this.img = assets.snacks[state.kind];
+    this.bites = 0;
+  }
+
+  hitTest(px, py) {
+    const { width, height } = this.img;
+    return Math.abs(px - this.x) < width / 2 + 3 && py > this.y - height - 3 && py < this.y + 3;
+  }
+
+  draw(r) {
+    const left = 1 - this.bites * 0.25;
+    this.shadow(r, 8 * left);
+    r.image(this.img, this.x, this.y + 1, { scaleX: this.bounce * left, scaleY: (2 - this.bounce) * left });
+  }
+}
+
+// A friend munches a snack dropped on it: the snack is gone from the world
+// straight away (so it's eaten even if she leaves mid-munch), then three
+// crunchy bites and it's gone from sight too. Each bite calls the friend's
+// own `munch()` wiggle, if it has one.
+export async function feed(friend, snack) {
+  const { scene } = friend;
+  const { engine, girl } = scene;
+  snack.draggable = false;
+  scene.useUp(snack);
+  const side = snack.x < friend.x ? -1 : 1;
+  friend.facing = side;
+  const spot = clampToFloor(friend.x + side * 10, friend.y);
+  await engine.tweens.to(snack, { x: spot.x, y: spot.y }, 0.2, ease.outQuad);
+  girl.faceToward(friend.x);
+  for (let bite = 1; bite <= 3; bite++) {
+    engine.audio.play('munch');
+    friend.boing(0.9);
+    friend.munch?.();
+    snack.bites = bite;
+    scene.bits(snack.x, snack.y - 4, 4, CRUMBS[snack.kind]);
+    await engine.wait(0.3);
+  }
+  scene.remove(snack);
+  engine.tweens.cancel(snack);
+  scene.hearts(friend.x, friend.y - 22, 2);
+  girl.say('heart', 1.2);
 }
 
 // ---------------------------------------------------------------- crystal

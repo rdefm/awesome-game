@@ -1,7 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
-import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
+import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER } from '../layout.js';
 import { Carryable } from './carryable.js';
+import { SNACKS } from './items.js';
 
 const HEADROOM = 16;
 
@@ -214,6 +215,139 @@ export class Poster extends Prop {
     const flame = this.flicker ? Math.floor(this.scene.engine.time * 20) % 2 : Math.floor(this.scene.engine.time * 3) % 2;
     const s = this.bounce;
     r.image(this.imgs[flame], POSTER.x + POSTER.w / 2, POSTER.y + POSTER.h / 2, { ay: 0.5, scaleX: s, scaleY: s });
+  }
+}
+
+// ------------------------------------------------------------- snack locker
+// The right-hand locker. Tap it and she walks over and swings the door open
+// on a shelf of snacks: drag one out, or tap one to pop it onto the floor.
+// Shut the door and open it again and the shelves are full again.
+const SWING = Math.PI * 0.75; // how far the door swings round when wide open
+
+export class SnackLocker extends Prop {
+  constructor(assets) {
+    super();
+    this.assets = assets;
+    this.spot = SNACK_LOCKER.spot;
+    this.depth = -10;
+    this.open = 0; // 0 = shut, 1 = swung wide
+    this.isOpen = false;
+    this.swinging = false;
+    this.shelves = [...SNACKS]; // the snack on each shelf (null once taken)
+    this.pulling = null; // a snack being dragged off a shelf
+  }
+
+  // Only the snacks inside can be dragged out.
+  get draggable() {
+    return this.isOpen;
+  }
+
+  hitTest(px, py) {
+    const { x, y, w, h } = SNACK_LOCKER;
+    return inRect(px, py, x, y, w + (this.isOpen ? 12 : 0), h);
+  }
+
+  // Which shelf's snack is under the point (-1 if none, or the door's in the way).
+  shelfAt(px, py) {
+    if (!this.isOpen || this.open < 0.6) {
+      return -1;
+    }
+    return SNACK_LOCKER.shelves.findIndex((s, i) => this.shelves[i] && Math.abs(px - s.x) <= 7 && py >= s.y - 13 && py <= s.y + 2);
+  }
+
+  // Off the shelf and into the world, as a brand-new snack.
+  take(i, x, y) {
+    const item = this.scene.spawn(this.shelves[i], x, y);
+    if (item) {
+      this.shelves[i] = null;
+    }
+    return item;
+  }
+
+  onTap(p) {
+    const i = this.shelfAt(p.x, p.y);
+    if (i < 0) {
+      super.onTap(p);
+      return;
+    }
+    const shelf = SNACK_LOCKER.shelves[i];
+    const item = this.take(i, shelf.x, shelf.y);
+    if (item) {
+      this.scene.engine.audio.play('unpack');
+      this.scene.sparkles(shelf.x, shelf.y - 6, 4);
+      this.scene.putDown(item, shelf.x, this.spot.y + 6);
+    }
+  }
+
+  async use() {
+    if (this.swinging) {
+      return;
+    }
+    this.swinging = true;
+    const { girl } = this.scene;
+    girl.faceToward(SNACK_LOCKER.x);
+    girl.act('reach', 0.4);
+    await this.swing(!this.isOpen);
+    if (this.isOpen) {
+      girl.say('heart', 1);
+    }
+    this.swinging = false;
+  }
+
+  async swing(open) {
+    const { engine } = this.scene;
+    if (open) {
+      this.shelves = [...SNACKS]; // restocked while nobody was looking
+    }
+    this.isOpen = open;
+    engine.audio.play(open ? 'lockerOpen' : 'lockerShut');
+    await engine.tweens.to(this, { open: open ? 1 : 0 }, open ? 0.45 : 0.3, open ? ease.outBack : ease.inQuad);
+  }
+
+  onDragStart(p) {
+    const i = this.shelfAt(p.x, p.y);
+    const item = i < 0 ? null : this.take(i, p.x, p.y);
+    if (!item) {
+      return;
+    }
+    this.pulling = item;
+    item.onDragStart(p);
+    item.grab = { x: 0, y: 8 }; // hang it just below the fingertip
+  }
+
+  onDrag(p) {
+    this.pulling?.onDrag(p);
+  }
+
+  // A wobbly tap on the door (not on a snack) still counts as a tap.
+  onDrop(p) {
+    const item = this.pulling;
+    this.pulling = null;
+    if (item) {
+      item.onDrop(p);
+    } else {
+      this.onTap(p);
+    }
+  }
+
+  draw(r) {
+    const { x, y, w, shelves } = SNACK_LOCKER;
+    if (this.open > 0) {
+      shelves.forEach((s, i) => {
+        if (this.shelves[i]) {
+          r.image(this.assets.snacks[this.shelves[i]], s.x, s.y);
+        }
+      });
+    }
+    // Fake 3D swing about the hinge: the front narrows away, then the inside
+    // of the door comes round past the hinge.
+    const turn = Math.cos(this.open * SWING) * (2 - this.bounce);
+    const door = this.assets.lockerDoor;
+    if (turn > 0) {
+      r.image(door.front, x + w, y, { ax: 1, ay: 0, scaleX: turn });
+    } else {
+      r.image(door.back, x + w, y, { ax: 0, ay: 0, scaleX: -turn });
+    }
   }
 }
 

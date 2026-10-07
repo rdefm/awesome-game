@@ -6,7 +6,8 @@
 //
 // `id` is unique across the whole world, `kind` picks the art and behaviour,
 // `v` is an optional variant (e.g. which of the giant bluebells it is), and
-// `stage` is how far it has grown (the space plant).
+// `stage` is how far it has grown (the space plant). Some things come and go:
+// snacks are added fresh from the locker and discarded once eaten.
 
 export function defaultWorld() {
   return {
@@ -107,6 +108,35 @@ export function stash(world, id) {
   const next = without(world, id);
   next.bag = [identity(entry), ...next.bag];
   return next;
+}
+
+// Gone for good (e.g. a snack that's been eaten).
+export function discard(world, id) {
+  return find(world, id) ? without(world, id) : world;
+}
+
+// An id for a new thing of `kind` that nothing in the world has right now,
+// nor any of the ids in `alsoTaken` (e.g. a snack still being munched on
+// screen after it's left the world).
+export function freshId(world, kind, alsoTaken = []) {
+  const taken = new Set([...allIds(world), ...alsoTaken]);
+  let n = 0;
+  while (taken.has(`${kind}${n}`)) {
+    n += 1;
+  }
+  return `${kind}${n}`;
+}
+
+// A brand-new thing (with an id from `freshId`) lying in `where` at (x, y).
+// Ignored if something already has that id.
+export function add(world, where, { x, y, ...entry }) {
+  if (find(world, entry.id)) {
+    return world;
+  }
+  return {
+    placed: { ...world.placed, [where]: [...(world.placed[where] ?? []), { ...identity(entry), x: Math.round(x), y: Math.round(y) }] },
+    bag: world.bag,
+  };
 }
 
 // Out onto the floor of `where` at (x, y), from the bag or from anywhere else.

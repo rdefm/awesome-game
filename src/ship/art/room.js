@@ -1,7 +1,7 @@
 import { Pixmap, fractalNoise, seededRandom, bayer } from '../../engine/pixmap.js';
 import { drawText } from '../../engine/font.js';
 import { C } from './palette.js';
-import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, WINDSHIELD, CONSOLE, SCREEN, DOOR } from '../layout.js';
+import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, SNACK_LOCKER, WINDSHIELD, CONSOLE, SCREEN, DOOR } from '../layout.js';
 
 function rivet(pm, x, y) {
   pm.set(x, y, C.wallHi);
@@ -139,28 +139,56 @@ function drawWindshield(pm) {
   }
 }
 
+// A locker door at (lx, y), its handle `handleX` in from its left edge.
+function lockerDoor(pm, lx, y, w, h, handleX) {
+  pm.rect(lx, y, w, h, C.metalDark);
+  pm.rect(lx + 1, y + 1, w - 2, h - 2, C.metal);
+  pm.vline(lx + 1, y + 1, y + h - 2, C.metalLight);
+  for (let v = 0; v < 4; v++) {
+    pm.hline(lx + 5, lx + w - 6, y + 6 + v * 2, C.metalDark);
+  }
+  pm.rect(lx + handleX, y + 30, 2, 8, C.outline);
+  pm.set(lx + handleX, y + 30, C.metalHi);
+}
+
+// The left locker, with her name tag on it. The right one is the snack
+// cupboard: only its inside (dark, with three shelves) is painted here; its
+// door swings open live (see drawLockerDoor).
 function drawLockers(pm) {
   const { x, y, w, h } = LOCKERS;
-  const half = w / 2;
-  for (let i = 0; i < 2; i++) {
-    const lx = x + i * half;
-    pm.rect(lx, y, half - 1, h, C.metalDark);
-    pm.rect(lx + 1, y + 1, half - 3, h - 2, C.metal);
-    pm.vline(lx + 1, y + 1, y + h - 2, C.metalLight);
-    for (let v = 0; v < 4; v++) {
-      pm.hline(lx + 5, lx + half - 7, y + 6 + v * 2, C.metalDark);
-    }
-    pm.rect(lx + (i === 0 ? half - 5 : 3), y + 30, 2, 8, C.outline);
-    pm.set(lx + (i === 0 ? half - 5 : 3), y + 30, C.metalHi);
-  }
-  // Name tag sticker and a kid's star sticker.
+  lockerDoor(pm, x, y, w / 2 - 1, h, w / 2 - 5);
   pm.rect(x + 4, y + 50, 12, 7, C.white);
   drawText(pm, 'ME', x + 6, y + 51, C.redDark);
-  pm.set(x + 27, y + 48, C.yellow);
-  pm.hline(x + 26, x + 28, y + 49, C.yellow);
-  pm.set(x + 27, y + 50, C.yellow);
-  pm.set(x + 26, y + 51, C.yellow);
-  pm.set(x + 28, y + 51, C.yellow);
+
+  const snack = SNACK_LOCKER;
+  pm.rect(snack.x, snack.y, snack.w, snack.h, C.metalDark);
+  pm.rect(snack.x + 1, snack.y + 1, snack.w - 2, snack.h - 2, C.ceiling);
+  pm.dither(snack.x + 1, snack.y + 1, snack.w - 2, 4, C.outline, 0.5);
+  for (const shelf of snack.shelves) {
+    pm.hline(snack.x + 1, snack.x + snack.w - 2, shelf.y, C.metalLight);
+    pm.hline(snack.x + 1, snack.x + snack.w - 2, shelf.y + 1, C.metalDark);
+  }
+}
+
+// The snack locker's door, hinged on its right edge. `back` is its inside
+// face, seen once it has swung past wide open.
+export function drawLockerDoor(back = false) {
+  const { w, h } = SNACK_LOCKER;
+  const pm = new Pixmap(w, h);
+  if (back) {
+    pm.rect(0, 0, w, h, C.metalDark);
+    pm.rect(1, 1, w - 2, h - 2, C.wallLight);
+    pm.vline(w - 2, 1, h - 2, C.metal);
+    return pm;
+  }
+  lockerDoor(pm, 0, 0, w, h, 3);
+  // A kid's star sticker.
+  pm.set(8, 48, C.yellow);
+  pm.hline(7, 9, 49, C.yellow);
+  pm.set(8, 50, C.yellow);
+  pm.set(7, 51, C.yellow);
+  pm.set(9, 51, C.yellow);
+  return pm;
 }
 
 function drawConsole(pm) {
