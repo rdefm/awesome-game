@@ -92,10 +92,11 @@ export class PlayScene extends Scene {
     writeSave({ ...loadSave(), look });
   }
 
-  // Remembers where a carryable now is (after it moved about by itself).
-  settle(item) {
+  // Remembers where a carryable now is (after it moved about by itself), or
+  // the floor spot (x, y) to put it back on next time.
+  settle(item, x = item.x, y = item.y) {
     if (this.entities.includes(item) && !item.held) {
-      this.world = place(this.world, item.id, this.where, item.x, item.y);
+      this.world = place(this.world, item.id, this.where, x, y);
       this.saveWorld();
     }
   }

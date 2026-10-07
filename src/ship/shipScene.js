@@ -66,7 +66,8 @@ export class ShipScene extends PlayScene {
   }
 
   interact(prop) {
-    if (prop === this.chair && this.girl.mode === 'seated') {
+    // Someone's already in it (her or a friend): just spin it, no fetching her.
+    if (prop === this.chair && this.chair.occupant) {
       prop.use();
       return;
     }

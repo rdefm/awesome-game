@@ -30,6 +30,7 @@ class Prop {
 }
 
 // ------------------------------------------------------------- pilot chair
+// One seat: the girl, or a friend (anything with a `seatFrame()`), never both.
 export class Chair extends Prop {
   constructor(assets) {
     super();
@@ -39,9 +40,9 @@ export class Chair extends Prop {
     this.spot = CHAIR.spot;
     this.angle = 0;
     this.spinning = false;
-    this.occupied = false;
-    // Offscreen canvas where chair + girl are composed, so they spin as one.
-    // Headroom above the chair lets her bounce in the seat.
+    this.occupant = null; // the girl, a friend, or null
+    // Offscreen canvas where chair + whoever's in it are composed, so they
+    // spin as one. Headroom above the chair lets her bounce in the seat.
     this.comp = document.createElement('canvas');
     this.comp.width = CHAIR_W;
     this.comp.height = CHAIR_H + HEADROOM;
@@ -52,38 +53,68 @@ export class Chair extends Prop {
     return inRect(px, py, this.x - 13, this.y - 36, 26, 36);
   }
 
-  accepts(x, y) {
-    return Math.abs(x - this.x) < 14 && y > this.y - 34 && y < this.y + 6;
+  // Is the seat free, and (x, y) close enough to it to drop her in?
+  fits(x, y) {
+    return !this.occupant && Math.abs(x - this.x) < 14 && y > this.y - 34 && y < this.y + 6;
+  }
+
+  // A friend dropped on the empty chair sits in it.
+  accepts(item) {
+    return Boolean(item.seatFrame) && !this.occupant;
+  }
+
+  receive(friend) {
+    this.occupant = friend;
+    friend.seat = this;
+    friend.x = this.x;
+    friend.y = this.y + 1;
+    // Only the floor beside the chair is remembered, not the seat itself.
+    this.scene.settle(friend, CHAIR.hopOut.x, CHAIR.hopOut.y);
+    this.scene.engine.audio.play('land');
+    friend.onLand?.();
   }
 
   async use() {
-    if (!this.occupied) {
+    if (!this.occupant) {
       await this.seat();
     }
     await this.spin();
   }
 
+  // Sits her in it. She's the pilot: any friend in her seat hops down beside it.
   async seat() {
     const girl = this.scene.girl;
+    const friend = this.occupant;
+    if (friend && friend !== girl) {
+      friend.y -= friend.perch; // so it drops down off the cushion
+      this.release();
+      this.scene.putDown(friend, CHAIR.hopOut.x, CHAIR.hopOut.y);
+    }
     girl.cancelWalk();
     girl.pose = null;
     girl.x = this.x;
     girl.y = this.y + 1;
     girl.mode = 'seated';
     girl.lift = 0;
-    this.occupied = true;
+    this.occupant = girl;
   }
 
+  // Frees the seat. She hops out beside it; a friend stays put for whoever's
+  // lifting it out to move.
   release() {
-    if (!this.occupied) {
+    const who = this.occupant;
+    if (!who) {
       return;
     }
-    const girl = this.scene.girl;
-    this.occupied = false;
+    this.occupant = null;
     this.angle = 0;
-    girl.mode = 'idle';
-    girl.x = this.x + 16;
-    girl.y = this.y;
+    if (who !== this.scene.girl) {
+      who.seat = null;
+      return;
+    }
+    who.mode = 'idle';
+    who.x = CHAIR.hopOut.x;
+    who.y = CHAIR.hopOut.y;
   }
 
   async spin() {
@@ -93,14 +124,14 @@ export class Chair extends Prop {
     this.spinning = true;
     const girl = this.scene.girl;
     this.scene.engine.audio.play('wheee');
-    if (this.occupied) {
+    if (this.occupant === girl) {
       girl.act('sitCheer', 1.6);
     }
     this.angle = 0;
     await this.scene.engine.tweens.to(this, { angle: Math.PI * 6 }, 1.8, ease.outCubic);
     this.angle = 0;
     this.spinning = false;
-    if (this.occupied) {
+    if (this.occupant === girl) {
       girl.dizzy = 1.8;
     }
   }
@@ -113,8 +144,13 @@ export class Chair extends Prop {
       c.drawImage(this.img.rear, 0, HEADROOM);
     } else {
       c.drawImage(this.img.back, 0, HEADROOM);
-      if (this.occupied) {
-        c.drawImage(this.scene.girl.currentFrame(), 3, HEADROOM - 3 - HAT_ROOM - Math.round(this.scene.girl.lift));
+      const who = this.occupant;
+      if (who === this.scene.girl) {
+        c.drawImage(who.currentFrame(), 3, HEADROOM - 3 - HAT_ROOM - Math.round(who.lift));
+      } else if (who) {
+        // Sat on the cushion, tucked in behind the seat lip.
+        const img = who.seatFrame();
+        c.drawImage(img, Math.round((CHAIR_W - img.width) / 2), HEADROOM + CHAIR_H - CHAIR.cushion - img.height - Math.round(who.lift));
       }
       c.drawImage(this.img.front, 0, HEADROOM);
     }

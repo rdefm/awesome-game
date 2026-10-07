@@ -1,4 +1,5 @@
 import { ease } from '../../engine/tween.js';
+import { CHAIR } from '../layout.js';
 import { clampToFloor } from './girl.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -19,11 +20,17 @@ export class Carryable {
     this.draggable = true;
     this.grab = { x: 0, y: 0 };
     this.reach = 16; // how far to the side the girl stands to use it
+    this.seat = null; // the chair it's sitting in, if any (friends only)
   }
 
   // Lifted things float above everything else.
   get depth() {
     return this.held || this.falling ? 1000 : this.y;
+  }
+
+  // How far it's raised up off the floor: onto the cushion, while sat in the chair.
+  get perch() {
+    return this.seat ? CHAIR.cushion : 0;
   }
 
   get bounce() {
@@ -58,6 +65,10 @@ export class Carryable {
   }
 
   onDragStart(p) {
+    if (this.seat) {
+      this.y -= this.perch; // lifted straight up off the cushion
+      this.seat.release();
+    }
     this.held = true;
     this.grab = { x: this.x - p.x, y: this.y - p.y };
     this.scene.carried = this;

@@ -32,7 +32,9 @@ export const SNACK_LOCKER = {
 export const WINDSHIELD = { top: 16, bottom: 70, leftTop: 176, leftBottom: 166, right: 250, strut: 213 };
 export const CONSOLE = { x: 180, y: 74, w: 74, h: 38 };
 export const SCREEN = { x: 199, y: 82, w: 36, h: 17, spot: { x: 226, y: 124 } };
-export const CHAIR = { x: 186, y: 140, spot: { x: 186, y: 141 } };
+// `cushion`: how far above the floor a friend sitting in it is.
+// `hopOut`: the floor beside it, where whoever leaves the seat ends up.
+export const CHAIR = { x: 186, y: 140, spot: { x: 186, y: 141 }, cushion: 13, hopOut: { x: 202, y: 140 } };
 export const PLANET_SPOT = { x: 226, y: 44 };
 // The airlock door on the left wall. It only opens once the ship has landed.
 export const DOOR = { x: 3, y: 66, w: 20, h: 46, spot: { x: 14, y: 124 } };

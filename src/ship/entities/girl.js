@@ -242,7 +242,7 @@ export class Girl {
   }
 
   async onDrop() {
-    if (this.scene.chair?.accepts(this.x, this.y)) {
+    if (this.scene.chair?.fits(this.x, this.y)) {
       this.scene.chair.seat();
       this.scene.engine.audio.play('land');
       return;
