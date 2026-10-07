@@ -53,4 +53,41 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
     s.tone({ at: t + 0.08, freq: 1568, dur: 0.12, vol: 0.1 });
   });
+  audio.define('denied', (s, t) => {
+    s.tone({ at: t, freq: 160, dur: 0.12, type: 'sawtooth', vol: 0.12 });
+    s.tone({ at: t + 0.15, freq: 120, dur: 0.18, type: 'sawtooth', vol: 0.12 });
+  });
+  audio.define('door', (s, t) => {
+    s.noise({ at: t, dur: 0.4, filter: 'bandpass', freq: 2400, to: 900, vol: 0.18, q: 1.5 });
+    s.tone({ at: t + 0.3, freq: 220, to: 160, dur: 0.08, type: 'sine', vol: 0.2 });
+  });
+  audio.define('dive', (s, t) => {
+    s.tone({ at: t, freq: 900, to: 160, dur: 2.2, type: 'triangle', vol: 0.12, attack: 0.3 });
+    s.noise({ at: t, dur: 2.4, freq: 400, to: 2400, vol: 0.2, attack: 0.6 });
+  });
+  audio.define('descend', (s, t) => {
+    s.noise({ at: t, dur: 2.7, freq: 900, to: 250, vol: 0.25, attack: 0.2 });
+    s.tone({ at: t, freq: 90, to: 55, dur: 2.7, type: 'sawtooth', vol: 0.06, attack: 0.2 });
+  });
+  audio.define('thud', (s, t) => {
+    s.tone({ at: t, freq: 120, to: 40, dur: 0.35, type: 'sine', vol: 0.4 });
+    s.noise({ at: t, dur: 0.5, freq: 700, to: 100, vol: 0.3 });
+  });
+  // Giant bluebells: each one rings its own note of a pentatonic scale.
+  [784, 880, 1046, 1175, 1318].forEach((f, i) => {
+    audio.define(`bell${i}`, (s, t) => {
+      s.tone({ at: t, freq: f, dur: 0.9, type: 'sine', vol: 0.18 });
+      s.tone({ at: t, freq: f * 2.01, dur: 0.4, type: 'sine', vol: 0.05 });
+      s.tone({ at: t + 0.12, freq: f, dur: 0.6, type: 'triangle', vol: 0.05 });
+    });
+  });
+  audio.define('squeak', (s, t) => {
+    s.tone({ at: t, freq: 1400, to: 2200, dur: 0.08, type: 'sine', vol: 0.15 });
+    s.tone({ at: t + 0.1, freq: 1800, to: 2600, dur: 0.07, type: 'sine', vol: 0.12 });
+  });
+  audio.define('flutter', (s, t) => {
+    for (let i = 0; i < 5; i++) {
+      s.noise({ at: t + i * 0.05, dur: 0.04, filter: 'bandpass', freq: 3000, vol: 0.08, q: 2 });
+    }
+  });
 }

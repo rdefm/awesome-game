@@ -1,6 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { CHAIR_H, CHAIR_W } from '../art/props.js';
-import { CHAIR, PLANT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
+import { CHAIR, DOOR, PLANET_SPOT, PLANT, PORTHOLE, POSTER, SCREEN } from '../layout.js';
+
+const HEADROOM = 16;
 
 const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + pad && py >= y - pad && py <= y + h + pad;
 
@@ -35,9 +37,10 @@ export class Chair extends Prop {
     this.spinning = false;
     this.occupied = false;
     // Offscreen canvas where chair + girl are composed, so they spin as one.
+    // Headroom above the chair lets her bounce in the seat.
     this.comp = document.createElement('canvas');
     this.comp.width = CHAIR_W;
-    this.comp.height = CHAIR_H + 8;
+    this.comp.height = CHAIR_H + HEADROOM;
     this.compCtx = this.comp.getContext('2d');
   }
 
@@ -103,13 +106,13 @@ export class Chair extends Prop {
     c.clearRect(0, 0, this.comp.width, this.comp.height);
     const facingAway = Math.cos(this.angle) < 0;
     if (facingAway) {
-      c.drawImage(this.img.rear, 0, 8);
+      c.drawImage(this.img.rear, 0, HEADROOM);
     } else {
-      c.drawImage(this.img.back, 0, 8);
+      c.drawImage(this.img.back, 0, HEADROOM);
       if (this.occupied) {
-        c.drawImage(this.scene.girl.currentFrame(), 3, 5);
+        c.drawImage(this.scene.girl.currentFrame(), 3, HEADROOM - 3 - Math.round(this.scene.girl.lift));
       }
-      c.drawImage(this.img.front, 0, 8);
+      c.drawImage(this.img.front, 0, HEADROOM);
     }
     r.rect(this.x - 12, this.y - 1, 24, 2, '#000000', 0.25);
     // Fake 3D spin: squash horizontally by |cos|, swap to the rear view halfway.
@@ -306,5 +309,127 @@ export class ConsoleScreen extends Prop {
       const ly = i < 4 ? 96 + Math.floor(i / 2) * 5 : 100 + Math.floor((i - 4) / 2) * 5;
       r.rect(lx, ly, 3, 2, on ? colors[i % colors.length] : '#2a3150');
     });
+  }
+}
+
+// ------------------------------------------------------------- airlock door
+export class Door extends Prop {
+  constructor() {
+    super();
+    this.spot = DOOR.spot;
+    this.depth = -10;
+    this.open = 0; // 0 = shut, 1 = panels fully slid apart
+    this.denied = 0;
+  }
+
+  hitTest(px, py) {
+    return inRect(px, py, DOOR.x, DOOR.y - 4, DOOR.w, DOOR.h + 4);
+  }
+
+  onTap(p) {
+    const { scene } = this;
+    if (scene.busy) {
+      return;
+    }
+    if (!scene.landed) {
+      // Locked in space: buzz, flash the light and wobble the panels.
+      scene.engine.audio.play('denied');
+      this.denied = 0.8;
+      this.squash = 1;
+      scene.engine.tweens.to(this, { squash: 0 }, 0.35, ease.outElastic);
+      scene.girl.say('question', 1);
+      scene.toast('LAND ON A PLANET FIRST!');
+      return;
+    }
+    super.onTap(p);
+  }
+
+  use() {
+    this.scene.exitShip();
+  }
+
+  async slide(to) {
+    this.scene.engine.audio.play('door');
+    await this.scene.engine.tweens.to(this, { open: to }, 0.45, to ? ease.outCubic : ease.inQuad);
+  }
+
+  update(dt) {
+    this.denied = Math.max(0, this.denied - dt);
+  }
+
+  // Panels go behind the room layer so the door frame hides their edges.
+  drawBehind(r) {
+    const { x, y, w, h } = DOOR;
+    const half = w / 2;
+    const shown = half * (1 - this.open);
+    const wobble = this.squash ? Math.round(Math.sin(this.scene.engine.time * 60) * this.squash) : 0;
+    if (shown < 0.5) {
+      return;
+    }
+    for (const side of [0, 1]) {
+      const px = side ? x + w - shown : x;
+      r.rect(px + wobble, y, shown, h, '#7d88ab');
+      r.rect(px + wobble + (side ? 0 : shown - 1), y, 1, h, '#4d5677');
+      r.rect(px + wobble + (side ? 1 : 0), y, 1, h, '#b4bdd6');
+      // A little window slit in each panel.
+      if (shown > 4) {
+        r.rect(px + wobble + (side ? 2 : shown - 6), y + 10, 4, 10, '#114a55');
+      }
+    }
+  }
+
+  draw(r) {
+    // Status light above the door: red = locked (in space), green = open sesame.
+    const t = this.scene.engine.time;
+    const landed = this.scene.landed;
+    let color = '#b8323f';
+    if (this.denied > 0) {
+      color = Math.floor(this.denied * 10) % 2 ? '#ff5a5a' : '#4d1520';
+    } else if (landed) {
+      color = Math.sin(t * 4) > -0.3 ? '#7cf28a' : '#2f9e57';
+    }
+    r.rect(DOOR.x + DOOR.w / 2 - 3, DOOR.y - 9, 6, 3, '#1b1427');
+    r.rect(DOOR.x + DOOR.w / 2 - 2, DOOR.y - 8, 4, 1, color);
+    if (landed && this.open === 0 && !this.scene.busy && Math.floor(t * 1.5) % 2) {
+      // A bouncing arrow inviting a tap.
+      const bob = Math.round(Math.sin(t * 5) * 1.5);
+      r.image(this.scene.assets.text('V', '#7cf28a', { outline: '#1b1427' }), DOOR.x + DOOR.w / 2, DOOR.y + 14 + bob, { ay: 1 });
+    }
+  }
+}
+
+// ------------------------------------------------------ planet in windshield
+// The planet outside isn't drawn here (the scene draws it in the space layer);
+// this just makes it tappable so the girl can fly down and land on it.
+export class WindowPlanet {
+  constructor() {
+    this.depth = -20;
+  }
+
+  get available() {
+    const scene = this.scene;
+    return !scene.landed && !scene.busy && scene.planetZoom === 0 && Math.abs(scene.planetSlide) < 0.05;
+  }
+
+  // Stays tappable while busy so an excited double-tap doesn't fall through
+  // to "walk here" and cancel the landing.
+  hitTest(px, py) {
+    return !this.scene.landed && Math.hypot(px - PLANET_SPOT.x, py - PLANET_SPOT.y) < 22;
+  }
+
+  onTap() {
+    if (!this.available) {
+      return;
+    }
+    this.scene.engine.audio.play('tap');
+    this.scene.land();
+  }
+
+  draw(r) {
+    const scene = this.scene;
+    const t = scene.engine.time;
+    if (this.available && scene.planet.landable && Math.floor(t * 1.2) % 3 !== 0) {
+      r.image(scene.assets.text('LAND', '#7cf28a', { outline: '#1b1427' }), PLANET_SPOT.x, 70, { ay: 1 });
+    }
   }
 }

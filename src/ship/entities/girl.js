@@ -20,6 +20,7 @@ export class Girl {
     this.y = y;
     this.facing = 1;
     this.lift = 0; // visual hop height above her feet
+    this.alpha = 1; // fades out/in when going through a door
     this.mode = 'idle';
     this.anim = 0;
     this.blinkIn = 2;
@@ -197,7 +198,7 @@ export class Girl {
   }
 
   async onDrop() {
-    if (this.scene.chair.accepts(this.x, this.y)) {
+    if (this.scene.chair?.accepts(this.x, this.y)) {
       this.scene.chair.seat();
       this.scene.engine.audio.play('land');
       return;
@@ -225,8 +226,8 @@ export class Girl {
     }
     const shadowW = this.mode === 'held' ? 8 : 12;
     const shadowY = this.mode === 'held' ? clampToFloor(this.x, this.y + 30).y : this.y;
-    r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, 2, '#000000', 0.25);
-    r.image(this.currentFrame(), this.x, this.y + 1 - this.lift, { flipX: this.facing < 0 });
+    r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, 2, '#000000', 0.25 * this.alpha);
+    r.image(this.currentFrame(), this.x, this.y + 1 - this.lift, { flipX: this.facing < 0, alpha: this.alpha });
   }
 
   // Drawn after everything else so bubbles are never hidden behind props.

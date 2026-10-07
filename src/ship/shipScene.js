@@ -1,37 +1,51 @@
-import { Scene } from '../engine/scene.js';
 import { ease } from '../engine/tween.js';
 import { PLANETS } from './art/props.js';
+import { BluebellScene } from './bluebellScene.js';
 import { Girl, clampToFloor } from './entities/girl.js';
-import { Chair, ConsoleScreen, Plant, Porthole, Poster } from './entities/props.js';
-import { FLOOR_TOP, PLANET_SPOT, W, H } from './layout.js';
+import { Chair, ConsoleScreen, Door, Plant, Porthole, Poster, WindowPlanet } from './entities/props.js';
+import { DOOR, PLANET_SPOT, W, H } from './layout.js';
+import { LandingCutscene } from './landingCutscene.js';
 import { PlanetMap } from './planetMap.js';
+import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 import { Starfield } from './starfield.js';
 
 // The spaceship interior: one room, one hero, a handful of things to poke.
-export class ShipScene extends Scene {
-  constructor(assets) {
-    super();
-    this.assets = assets;
+export class ShipScene extends PlayScene {
+  // `fromDoor`: she's just come back in from outside.
+  constructor(assets, { fromDoor = false } = {}) {
+    super(assets);
     this.stars = new Starfield();
-    this.particles = [];
     this.shake = 0;
     this.alert = false;
     this.warpTint = 0;
-    this.busy = false; // true during a ship-wide event (blast-off, travel)
+    this.flash = 0; // white-out used to cut to and from the landing cutscene
     this.planetSlide = 0;
+    this.planetZoom = 0; // 0..1 while diving down toward the planet
+    this.fromDoor = fromDoor;
 
     const save = loadSave();
     this.planetIndex = Number.isInteger(save.planet) && PLANETS[save.planet] ? save.planet : 0;
-    const start = clampToFloor(save.x ?? 96, save.y ?? 136);
+    this.landed = Boolean(save.landed && this.planet.landable);
+    this.ground = this.landed ? 1 : 0; // how much of the window shows the planet's surface
+    const start = fromDoor ? DOOR.spot : clampToFloor(save.x ?? 96, save.y ?? 136);
 
     this.porthole = this.add(new Porthole(assets));
     this.poster = this.add(new Poster(assets));
     this.screen = this.add(new ConsoleScreen(assets));
     this.chair = this.add(new Chair(assets));
     this.plant = this.add(new Plant(assets));
+    this.door = this.add(new Door());
+    this.add(new WindowPlanet());
     this.girl = this.add(new Girl(assets, start.x, start.y));
     this.map = new PlanetMap(this, assets);
+  }
+
+  enter() {
+    super.enter();
+    if (this.fromDoor) {
+      this.walkInFromDoor();
+    }
   }
 
   get planet() {
@@ -39,29 +53,22 @@ export class ShipScene extends Scene {
   }
 
   persist() {
-    writeSave({ x: Math.round(this.girl.x), y: Math.round(this.girl.y), planet: this.planetIndex });
+    writeSave({
+      ...loadSave(),
+      where: 'ship',
+      x: Math.round(this.girl.x),
+      y: Math.round(this.girl.y),
+      planet: this.planetIndex,
+      landed: this.landed,
+    });
   }
 
-  // Tap on a prop: walk over to it, then use it (unless interrupted on the way).
-  async interact(prop) {
-    const girl = this.girl;
-    if (girl.mode === 'held') {
-      return;
-    }
-    if (prop === this.chair && girl.mode === 'seated') {
+  interact(prop) {
+    if (prop === this.chair && this.girl.mode === 'seated') {
       prop.use();
       return;
     }
-    const arrived = await girl.walkTo(prop.spot.x, prop.spot.y);
-    if (arrived) {
-      prop.use();
-    }
-  }
-
-  onTapEmpty(p) {
-    const target = clampToFloor(p.x, Math.max(p.y, FLOOR_TOP + 10));
-    this.ripple(target.x, target.y);
-    this.girl.walkTo(target.x, target.y);
+    super.interact(prop);
   }
 
   openMap() {
@@ -91,6 +98,9 @@ export class ShipScene extends Scene {
     poster.flicker = true;
     girl.act('surprised', 0.7).then(() => girl.act('cheer', 1.8));
     tw.to(this, { shake: 2.5 }, 0.6, ease.inQuad);
+    if (this.landed) {
+      await this.liftOff();
+    }
     await tw.to(this.stars, { warp: 70 }, 1.2, ease.inCubic);
     await engine.wait(1.2);
     screen.countdown = null;
@@ -111,6 +121,11 @@ export class ShipScene extends Scene {
       return;
     }
     this.busy = true;
+    if (this.landed) {
+      engine.audio.play('blast');
+      tw.to(this, { shake: 2 }, 0.4);
+      await this.liftOff();
+    }
     engine.audio.play('warp');
     girl.say('bang', 1);
     girl.act('cheer', 2.4);
@@ -131,42 +146,106 @@ export class ShipScene extends Scene {
     this.busy = false;
   }
 
-  // ------------------------------------------------------------ particles
-  dust(x, y) {
-    for (let i = 0; i < 6; i++) {
-      const dir = i < 3 ? -1 : 1;
-      this.particles.push({
-        x: x + dir * 4, y: y - 1, vx: dir * (10 + Math.random() * 20), vy: -6 - Math.random() * 8,
-        life: 0.4 + Math.random() * 0.2, age: 0, color: '#8b93b8', size: 2, gravity: 0,
-      });
-    }
+  // The ground drops away out of the windows as the ship climbs.
+  async liftOff() {
+    this.landed = false;
+    this.persist();
+    await this.engine.tweens.to(this, { ground: 0 }, 1.3, ease.inCubic);
   }
 
-  sparkles(x, y, n) {
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2;
-      this.particles.push({
-        x, y, vx: Math.cos(a) * 30, vy: Math.sin(a) * 30 - 10, life: 0.7, age: 0, img: this.assets.sparkle, gravity: 30,
-      });
+  // Tap the planet outside: hop in the pilot seat, bounce with excitement,
+  // dive down toward the planet, then watch the landing from outside.
+  async land() {
+    const { engine, girl, chair, screen } = this;
+    const tw = engine.tweens;
+    if (this.busy || this.landed || this.modal) {
+      return;
     }
+    if (!this.planet.landable) {
+      engine.audio.play('denied');
+      girl.say('question', 1.2);
+      this.toast('TOO WILD TO LAND HERE YET!');
+      return;
+    }
+    this.busy = true;
+    if (girl.mode !== 'seated') {
+      const arrived = await girl.walkTo(chair.spot.x, chair.spot.y);
+      if (!arrived) {
+        this.busy = false;
+        return;
+      }
+      chair.seat();
+    }
+    this.modal = BLOCK_INPUT;
+    girl.say('bang', 1);
+    girl.act('sitCheer', 2.2);
+    for (let i = 0; i < 3; i++) {
+      engine.audio.play('boing');
+      await girl.hop(6);
+    }
+    screen.countdown = 'LAND';
+    engine.audio.play('beep');
+    tw.to(this, { shake: 1 }, 0.8);
+    engine.audio.play('dive');
+    await tw.to(this, { planetZoom: 1 }, 2.2, ease.inCubic);
+    await tw.to(this, { flash: 1 }, 0.25);
+
+    // Cut outside.
+    const cutscene = new LandingCutscene(this, this.assets);
+    this.modal = cutscene;
+    this.shake = 0;
+    this.planetZoom = 0;
+    screen.countdown = null;
+    await tw.to(this, { flash: 0 }, 0.3);
+    await cutscene.play();
+    await tw.to(this, { flash: 1 }, 0.3);
+
+    // Back inside, on the ground.
+    this.modal = BLOCK_INPUT;
+    this.landed = true;
+    this.ground = 1;
+    this.persist();
+    await tw.to(this, { flash: 0 }, 0.4);
+    this.shake = 1.5;
+    tw.to(this, { shake: 0 }, 0.5);
+    engine.audio.play('arrive');
+    girl.act('sitCheer', 1.2);
+    girl.say('heart');
+    this.modal = null;
+    this.busy = false;
+    this.toast('WE LANDED! TAP THE DOOR!', 2.5);
   }
 
-  ripple(x, y) {
-    this.particles.push({ x, y, ring: true, life: 0.35, age: 0 });
+  async exitShip() {
+    const { engine, girl, door } = this;
+    if (this.busy || !this.landed) {
+      return;
+    }
+    this.busy = true;
+    this.modal = BLOCK_INPUT;
+    girl.faceToward(DOOR.x);
+    await door.slide(1);
+    girl.say('heart', 1);
+    engine.tweens.to(girl, { y: DOOR.spot.y - 6 }, 0.5);
+    await engine.tweens.to(girl, { alpha: 0 }, 0.5);
+    await this.leaveTo(() => new BluebellScene(this.assets));
+  }
+
+  async walkInFromDoor() {
+    const { engine, girl, door } = this;
+    this.busy = true;
+    door.open = 1;
+    girl.alpha = 0;
+    girl.facing = 1;
+    await engine.tweens.to(girl, { alpha: 1 }, 0.4);
+    this.busy = false;
+    girl.walkTo(DOOR.spot.x + 26, DOOR.spot.y + 4);
+    await door.slide(0);
   }
 
   update(dt) {
     super.update(dt);
     this.stars.update(dt);
-    for (const p of this.particles) {
-      p.age += dt;
-      if (!p.ring) {
-        p.vy += (p.gravity ?? 0) * dt;
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-      }
-    }
-    this.particles = this.particles.filter((p) => p.age < p.life);
   }
 
   draw(r) {
@@ -174,12 +253,25 @@ export class ShipScene extends Scene {
     r.offsetX = this.shake ? Math.round((Math.random() - 0.5) * 2 * this.shake) : 0;
     r.offsetY = this.shake ? Math.round((Math.random() - 0.5) * 2 * this.shake) : 0;
 
-    // Layer 1: outer space, seen through the window holes in the room.
+    // Layer 1: outer space (or the planet's surface), seen through the
+    // window holes in the room.
     r.image(this.assets.space, 0, 0, { ax: 0, ay: 0 });
     this.stars.draw(r);
     const px = PLANET_SPOT.x + this.planetSlide * 130;
     const py = PLANET_SPOT.y + Math.sin(t * 0.5) * 1.5;
-    r.image(this.assets.planetsBig[this.planetIndex], px, py, { ay: 0.5 });
+    const huge = this.assets.planetsHuge[this.planetIndex];
+    if (this.planetZoom > 0 && huge) {
+      // Diving in: the planet swells and sinks until its surface fills the view.
+      const z = this.planetZoom;
+      const scale = 0.3 + z * z * 4;
+      r.image(huge, px - z * 40, py + z * z * 150, { ay: 0.5, scaleX: scale, scaleY: scale });
+    } else {
+      r.image(this.assets.planetsBig[this.planetIndex], px, py, { ay: 0.5 });
+    }
+    if (this.ground > 0) {
+      r.image(this.assets.meadowWindow, 0, (1 - this.ground) * H, { ax: 0, ay: 0 });
+    }
+    this.door.drawBehind(r);
     this.porthole.drawBehind(r);
 
     // Layer 2: the room itself, then props and the girl, depth-sorted.
@@ -188,19 +280,7 @@ export class ShipScene extends Scene {
     for (const e of this.entities) {
       e.drawOver?.(r);
     }
-
-    for (const p of this.particles) {
-      const k = 1 - p.age / p.life;
-      if (p.ring) {
-        const rad = 2 + (p.age / p.life) * 6;
-        r.rect(p.x - rad, p.y, rad * 2, 1, '#e1e6f2', k);
-        r.rect(p.x - rad / 2, p.y - 2, rad, 1, '#e1e6f2', k * 0.5);
-      } else if (p.img) {
-        r.image(p.img, p.x, p.y, { ay: 0.5, alpha: k });
-      } else {
-        r.rect(p.x, p.y, p.size, p.size, p.color, k);
-      }
-    }
+    this.drawParticles(r);
 
     // Ship-wide lighting moods.
     if (this.alert) {
@@ -213,5 +293,9 @@ export class ShipScene extends Scene {
     r.offsetX = 0;
     r.offsetY = 0;
     this.modal?.draw(r);
+    if (this.flash > 0) {
+      r.rect(0, 0, W, H, '#ffffff', this.flash);
+    }
+    this.drawOverlay(r);
   }
 }

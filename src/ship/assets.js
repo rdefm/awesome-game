@@ -3,6 +3,11 @@ import { textPixmap } from '../engine/font.js';
 import { girlFrames } from './art/girl.js';
 import { drawRoom, drawSpace } from './art/room.js';
 import {
+  BUTTERFLY_COLORS, drawBell, drawBluebellStem, drawButterfly, drawCloud, drawCritter, drawFlame, drawLocal,
+  drawMeadow, drawShipExterior,
+} from './art/bluebell.js';
+import { MEADOW_HORIZON } from './layout.js';
+import {
   ALIEN_COLORS, PLANETS, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
   drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle,
 } from './art/props.js';
@@ -37,6 +42,22 @@ export function loadAssets() {
     })),
     planetsBig: PLANETS.map((p) => bake(drawPlanet(p, 18))),
     planetsSmall: PLANETS.map((p) => bake(drawPlanet(p, 9))),
+    // Only landable planets get the big close-up used while descending.
+    planetsHuge: PLANETS.map((p) => (p.landable ? bake(drawPlanet(p, 60)) : null)),
+    // Planet Bluebell.
+    meadow: bake(drawMeadow({ horizon: MEADOW_HORIZON })),
+    meadowWindow: bake(drawMeadow({ horizon: 52 })),
+    clouds: bake([drawCloud(0), drawCloud(1)]),
+    shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
+    flame: bake([drawFlame(0), drawFlame(1)]),
+    bell: bake(drawBell()),
+    stems: [[40, 3], [52, 3], [34, 2], [44, 3]].map(([h, n]) => bake(drawBluebellStem(h, n))),
+    critter: bake({ idle: drawCritter('idle'), squish: drawCritter('squish'), jump: drawCritter('jump') }),
+    butterflies: BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    local: bake({
+      idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
+      hop: drawLocal('idle', true),
+    }),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),

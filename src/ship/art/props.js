@@ -201,7 +201,7 @@ const SKINS = {
 };
 
 export const PLANETS = [
-  { id: 'bluebell', name: 'BLUEBELL', skin: 'bluebell', seed: 3, ring: null },
+  { id: 'bluebell', name: 'BLUEBELL', skin: 'bluebell', seed: 3, ring: null, landable: true },
   { id: 'ember', name: 'EMBER', skin: 'ember', seed: 11, ring: null },
   { id: 'frosty', name: 'FROSTY', skin: 'frosty', seed: 5, ring: null },
   { id: 'candy', name: 'CANDY', skin: 'candy', seed: 8, ring: '#ffe066' },

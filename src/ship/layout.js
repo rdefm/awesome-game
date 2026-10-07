@@ -16,3 +16,9 @@ export const CONSOLE = { x: 180, y: 74, w: 74, h: 38 };
 export const SCREEN = { x: 199, y: 82, w: 36, h: 17, spot: { x: 226, y: 124 } };
 export const CHAIR = { x: 186, y: 140, spot: { x: 186, y: 141 } };
 export const PLANET_SPOT = { x: 226, y: 44 };
+// The airlock door on the left wall. It only opens once the ship has landed.
+export const DOOR = { x: 3, y: 66, w: 20, h: 46, spot: { x: 14, y: 124 } };
+
+// Planet Bluebell's meadow (same 256x160 screen and walkable band as the ship).
+export const MEADOW_HORIZON = 100;
+export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };

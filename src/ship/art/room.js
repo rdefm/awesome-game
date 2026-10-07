@@ -1,7 +1,7 @@
 import { Pixmap, fractalNoise, seededRandom, bayer } from '../../engine/pixmap.js';
 import { drawText } from '../../engine/font.js';
 import { C } from './palette.js';
-import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, WINDSHIELD, CONSOLE, SCREEN } from '../layout.js';
+import { W, H, FLOOR_TOP, PORTHOLE, LOCKERS, WINDSHIELD, CONSOLE, SCREEN, DOOR } from '../layout.js';
 
 function rivet(pm, x, y) {
   pm.set(x, y, C.wallHi);
@@ -185,6 +185,27 @@ function drawConsole(pm) {
   pm.rect(243, 78, 4, 3, C.red);
 }
 
+// The airlock frame. The doorway itself is cut out: the sliding panels (and
+// whatever is outside) are drawn live behind the room.
+function drawDoor(pm) {
+  const { x, y, w, h } = DOOR;
+  pm.rect(x - 3, y - 4, w + 6, h + 4, C.metalDark);
+  pm.rect(x - 2, y - 3, w + 4, h + 3, C.metal);
+  pm.hline(x - 2, x + w + 1, y - 3, C.metalLight);
+  pm.vline(x - 2, y - 3, y + h - 1, C.metalLight);
+  // Hazard stripes on the lintel.
+  for (let xx = x; xx < x + w; xx++) {
+    for (let yy = y - 2; yy < y; yy++) {
+      pm.set(xx, yy, (xx + yy) % 6 < 3 ? C.yellow : C.outline);
+    }
+  }
+  for (let yy = y; yy < y + h; yy++) {
+    for (let xx = x; xx < x + w; xx++) {
+      pm.clear(xx, yy);
+    }
+  }
+}
+
 function drawShadows(pm) {
   // Contact shadow under the console so it sits on the floor.
   pm.dither(CONSOLE.x - 2, FLOOR_TOP, CONSOLE.w + 2, 3, C.floorDark, 0.7);
@@ -196,6 +217,7 @@ export function drawRoom() {
   drawCeiling(pm);
   drawFloor(pm);
   drawPorthole(pm);
+  drawDoor(pm);
   drawLockers(pm);
   drawWindshield(pm);
   drawConsole(pm);
