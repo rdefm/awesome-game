@@ -9,10 +9,12 @@ import { OutdoorScene } from './outdoorScene.js';
 // the left (and a couple of secrets: a steam vent and a lava pool with a
 // fish in it). At the foot of the volcano is the lava family's house: tap it
 // and she walks up the stepping-stone path, getting smaller, and goes inside.
+// Beside the ship is the hoverbike, to ride off anywhere else on Ember.
 export class EmberScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'ember', opts);
     this.addHouse(new LavaHouse(assets), (o) => new LavaHouseScene(assets, o));
+    this.addBike();
     this.add(new Geyser(assets));
     this.add(new LavaPool(assets));
     this.addPlaced();

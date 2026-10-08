@@ -84,8 +84,23 @@ export function distanceScale(y, house = GINGERBREAD_HOUSE) {
 export const CANDY_SECRETS = { bush: { x: 112, y: 121 } };
 
 // Where the hoverbike parks (bottom-centre) at each place out of doors that
-// has one: on Candy beside the ship, and on the milkshake lake's shore.
-export const HOVERBIKE = { candy: { x: 106, y: 142 }, milkshake: { x: 40, y: 140 } };
+// has one: beside the ship at a landing site, and on the left at a site.
+export const HOVERBIKE = {
+  candy: { x: 106, y: 142 },
+  milkshake: { x: 40, y: 140 },
+  ember: { x: 98, y: 146 }, // clear of the steam vent
+  lavafalls: { x: 40, y: 140 },
+};
+
+// The lava falls on Ember: a cliff across the back with a glowing cascade
+// pouring down it into a lava pool (an ellipse round x, y), and the floor
+// she walks on in front. Stepping stones along the near shore to hop across,
+// lava bubbles rising out of the pool to pop, and a geyser on the right with
+// a pumice rock sat on it for the plume to lift.
+export const LAVA_FALLS = { x: 170, top: 30, w: 26 };
+export const FALLS_POOL = { x: 156, y: 113, rx: 98, ry: 9 };
+export const FALLS_STONES = [{ x: 92, y: 132 }, { x: 116, y: 137 }, { x: 140, y: 132 }, { x: 164, y: 137 }, { x: 188, y: 132 }];
+export const FALLS_GEYSER = { x: 222, y: 146 };
 
 // The milkshake lake on Candy fills the back of the scene (an ellipse round
 // x, y), with the shore she walks along in front. In it: a giant straw to

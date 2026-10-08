@@ -28,7 +28,8 @@ store.
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
-  on Ember) and other places out of doors (Candy's milkshake lake). Where
+  on Ember) and other places out of doors (Candy's milkshake lake, Ember's
+  lava falls). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
   places popping now and then to show they can be tapped); tap a place and
@@ -44,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `MilkshakeLakeScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `MilkshakeLakeScene`, `LavaFallsScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -86,7 +87,13 @@ store.
   glowing moths, a steam vent that erupts and a lava pool with a leaping fish.
   At the foot of the volcano is the lava family's house, dug into the
   mountain: tap it and she walks up the stepping-stone path, getting
-  smaller, and in through the round door
+  smaller, and in through the round door. A hoverbike parked by the ship
+  rides her anywhere on Ember's town map
+- The lava falls on Ember (by hoverbike): a glowing cascade pouring down a
+  dark cliff into a bubbling lava pool. The falls surge and hiss when
+  tapped; lava bubbles float up out of the pool to pop; stepping stones
+  along the shore to hop across, each ringing a higher note; and a geyser
+  that blasts a pumice rock high into the air on a fountain of lava
 - Inside the lava family's house: a cosy stone room where they live — dad
   (bushy moustache; a big belly laugh when tapped), mum (flame hair in a
   bun; hums a tune) and the baby (giggles and hops; toddles after them).

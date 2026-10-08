@@ -3,6 +3,7 @@ import { CandyScene } from './candyScene.js';
 import { EmberScene } from './emberScene.js';
 import { FrostyScene } from './frostyScene.js';
 import { GingerbreadScene } from './gingerbreadScene.js';
+import { LavaFallsScene } from './lavaFallsScene.js';
 import { LavaHouseScene } from './lavaHouseScene.js';
 import { MilkshakeLakeScene } from './milkshakeLakeScene.js';
 import { StripeyScene } from './stripeyScene.js';
@@ -23,6 +24,7 @@ const PLACES = {
   ember: [
     { where: 'ember', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: EmberScene },
     { where: 'lavahouse', name: 'Lava house', kind: 'house', spot: { x: 176, y: 72 }, scene: LavaHouseScene },
+    { where: 'lavafalls', name: 'Lava falls', kind: 'site', spot: { x: 206, y: 132 }, scene: LavaFallsScene },
   ],
   frosty: [
     { where: 'frosty', name: 'Landing site', kind: 'landing', spot: { x: 128, y: 96 }, scene: FrostyScene },

@@ -39,7 +39,11 @@ import {
 } from './art/lavaHouse.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
-import { drawCandyMap, drawMapBike, drawMapGingerbread, drawMapLake, drawMapShip } from './art/townMap.js';
+import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
+import {
+  MAP_STYLE, drawCandyMap, drawEmberMap, drawMapBike, drawMapFalls, drawMapGingerbread, drawMapLake, drawMapLavaHouse,
+  drawMapShip,
+} from './art/townMap.js';
 import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
@@ -171,6 +175,13 @@ export function loadAssets() {
         dust: '#ffffff',
         puff: '#fff0f8',
       }),
+      // Not a planet: the lava falls on Ember.
+      lavafalls: bake({
+        ground: drawLavaFalls({ horizon: HORIZON }),
+        clouds: [drawSmoke(1), drawSmoke(0)],
+        dust: '#7a4a52',
+        puff: '#8a6a74',
+      }),
       stripey: bake({
         ground: drawStripeyCanyon({ horizon: HORIZON }),
         window: drawStripeyCanyon({ horizon: 52 }),
@@ -183,8 +194,15 @@ export function loadAssets() {
     // picture, each place's picture on it (by its `where`), and her on the bike.
     hoverbike: bake([drawHoverbike(0), drawHoverbike(1)]),
     townMap: bake({
-      ground: { candy: drawCandyMap() },
-      places: { candy: drawMapShip(), gingerbread: drawMapGingerbread(), milkshake: drawMapLake() },
+      ground: { candy: drawCandyMap(), ember: drawEmberMap() },
+      places: {
+        candy: drawMapShip(MAP_STYLE.candy.shadow),
+        gingerbread: drawMapGingerbread(),
+        milkshake: drawMapLake(),
+        ember: drawMapShip(MAP_STYLE.ember.shadow),
+        lavahouse: drawMapLavaHouse(),
+        lavafalls: drawMapFalls(),
+      },
       bike: drawMapBike(),
     }),
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
@@ -258,6 +276,10 @@ export function loadAssets() {
     // The cherry: [rows showing above the milkshake] (0 is never drawn).
     cherry: croppedRows(drawCherry()),
     waferBoat: bake(drawWaferBoat()),
+    // The lava falls on Ember (its geyser's vent and steam are Ember's own).
+    steppingStone: bake([drawSteppingStone(), drawSteppingStone(true)]),
+    pumice: bake(drawPumice()),
+    lavaBubble: bake(drawLavaBubble()),
     houseRoom: bake(drawHouseRoom()),
     houseDoor: bake({ shut: drawHouseDoor(), open: drawHouseDoor(true) }),
     oven: bake([drawOven(), drawOven(true)]),

@@ -125,3 +125,20 @@ describe('a reload at the milkshake lake', () => {
     expect(landedOn({ where: 'milkshake', landed: true })).toBe('milkshake');
   });
 });
+
+describe('the lava falls on Ember', () => {
+  it('is out of doors on Ember, after the landing site and the lava house', () => {
+    expect(placesOn('ember').map((place) => place.where)).toEqual(['ember', 'lavahouse', 'lavafalls']);
+    expect(placesOn('ember').find((place) => place.where === 'lavafalls').kind).toBe('site');
+    expect(planetOf('lavafalls')).toBe('ember');
+  });
+
+  it('is ridden to on the hoverbike', () => {
+    expect(arrivingBy('lavafalls')).toEqual({ fromShip: false, byBike: true });
+    expect(arrivingBy('lavahouse')).toEqual({ fromDoor: true });
+  });
+
+  it('puts her back by the falls on a reload', () => {
+    expect(landedOn({ where: 'lavafalls', landed: true })).toBe('lavafalls');
+  });
+});

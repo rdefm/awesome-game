@@ -1,5 +1,5 @@
 import { ease } from '../engine/tween.js';
-import { MAP } from './art/townMap.js';
+import { MAP, MAP_STYLE } from './art/townMap.js';
 import { PLANETS } from './art/props.js';
 import { Picker } from './picker.js';
 import { placesOn, planetOf } from './planetScenes.js';
@@ -22,6 +22,7 @@ export class TownMap extends Picker {
     this.here = here;
     this.planet = planetOf(here);
     this.places = placesOn(this.planet);
+    this.style = MAP_STYLE[this.planet];
     this.title = `${PLANETS.find((p) => p.id === this.planet).name} TOWN`;
     this.popIn = 0.6;
     this.popTurn = 0;
@@ -88,7 +89,8 @@ export class TownMap extends Picker {
     }
   }
 
-  // A dotted path from `a` to `b`, sagging into a gentle curve.
+  // A dotted path from `a` to `b`, sagging into a gentle curve, in the
+  // planet's map colours.
   drawPath(r, a, b, dy) {
     const len = Math.hypot(b.x - a.x, b.y - a.y);
     const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 + len * 0.15 };
@@ -97,8 +99,8 @@ export class TownMap extends Picker {
       const t = i / n;
       const x = (1 - t) ** 2 * a.x + 2 * (1 - t) * t * mid.x + t ** 2 * b.x;
       const y = (1 - t) ** 2 * a.y + 2 * (1 - t) * t * mid.y + t ** 2 * b.y + dy;
-      r.rect(Math.round(x) - 1, Math.round(y), 3, 2, '#c04f9a', 0.5);
-      r.rect(Math.round(x) - 1, Math.round(y) - 1, 3, 2, '#fffaf2');
+      r.rect(Math.round(x) - 1, Math.round(y), 3, 2, this.style.shade, 0.5);
+      r.rect(Math.round(x) - 1, Math.round(y) - 1, 3, 2, this.style.dot);
     }
   }
 
