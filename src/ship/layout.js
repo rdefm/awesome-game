@@ -53,20 +53,28 @@ export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 
 // Frosty's secret: a snow drift at the back, a snow hare hiding behind it.
 export const FROSTY_SECRETS = { drift: { x: 150, y: 121 } };
 
-// Candy: the gingerbread house far off at the back, and the winding path up
-// to its door. The path runs from the near end (on the walkable band) to the
+// A house far off at the back of a planet, and the winding path up to its
+// door. The path runs from the near end (on the walkable band) to the
 // doorstep; she shrinks as she walks it, to `far` scale at the doorstep.
+// Candy's gingerbread house:
 export const GINGERBREAD_HOUSE = {
   x: 196,
   y: 99,
   path: [{ x: 154, y: 128 }, { x: 176, y: 119 }, { x: 162, y: 111 }, { x: 182, y: 104 }, { x: 196, y: 99 }],
   far: 0.34,
 };
+// ...and the lava family's house, dug into the foot of Ember's volcano.
+export const LAVA_HOUSE = {
+  x: 168,
+  y: 99,
+  path: [{ x: 150, y: 129 }, { x: 170, y: 120 }, { x: 156, y: 112 }, { x: 170, y: 105 }, { x: 168, y: 99 }],
+  far: 0.34,
+};
 
-// How big things look at height y on Candy's path: full size at its near end,
-// shrinking steadily to `far` at the house's doorstep.
-export function distanceScale(y) {
-  const { path, far } = GINGERBREAD_HOUSE;
+// How big things look at height y on a house's path: full size at its near
+// end, shrinking steadily to `far` at the house's doorstep.
+export function distanceScale(y, house = GINGERBREAD_HOUSE) {
+  const { path, far } = house;
   const near = path[0].y;
   const door = path[path.length - 1].y;
   const k = (y - door) / (near - door);
@@ -75,6 +83,9 @@ export function distanceScale(y) {
 // Candy's secret: a candy-floss bush at the back, a sugar mouse living in it.
 export const CANDY_SECRETS = { bush: { x: 112, y: 121 } };
 
+// Stripey's secret: a sand mound in the middle, a stripy worm living in it.
+export const STRIPEY_SECRETS = { mound: { x: 132, y: 124 } };
+
 // Inside the gingerbread house (same screen and walkable band as the ship):
 // the front door on the left wall, the oven on the right, a jar of jellybeans
 // on the shelf and a window at the back.
@@ -82,6 +93,14 @@ export const HOUSE_DOOR = { x: 6, y: 64, w: 22, h: 48, spot: { x: 18, y: 124 } }
 export const OVEN = { x: 192, y: 56, w: 50, h: 56, spot: { x: 204, y: 124 } };
 export const JAR = { x: 70, y: 56, spot: { x: 70, y: 124 } };
 export const HOUSE_WINDOW = { x: 106, y: 24, w: 48, h: 40 };
+
+// Inside the lava family's house: the same front door, a lava lamp on a
+// little table, an arched window onto the volcano, the baby's cradle under
+// the family picture, and the hearth with its bubbling pot on the right.
+export const LAVA_LAMP = { x: 56, y: 94, spot: { x: 56, y: 124 } };
+export const LAVA_WINDOW = { x: 80, y: 20, w: 40, h: 40 };
+export const CRADLE = { x: 150, y: 117, w: 32, spot: { x: 150, y: 128 } };
+export const HEARTH = { x: 186, y: 40, w: 58, h: 72, spot: { x: 204, y: 124 } };
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.

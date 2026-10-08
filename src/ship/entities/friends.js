@@ -101,3 +101,47 @@ export async function play(friend, other) {
   scene.settle(friend);
   scene.settle(other);
 }
+
+// A baby back with its mum (or dad): scooped up into a big cuddle and rocked,
+// then set down beside them. `sound` is the grown-up's happy noise; a
+// `sticker`, if given, is found as a thank-you.
+export async function cuddle(mum, baby, { sound = 'hoo', sticker = null } = {}) {
+  const { scene } = mum;
+  const { engine, girl } = scene;
+  hold(mum);
+  hold(baby);
+  const side = baby.x < mum.x ? -1 : 1;
+  await scene.putDown(baby, mum.x + side * 10, mum.y + 1);
+  mum.facing = side;
+  baby.facing = -side;
+  girl.faceToward(mum.x);
+  engine.audio.play(sound);
+  // Up into mum's arms...
+  mum.frame = 'wave1';
+  baby.frame = 'hop';
+  await engine.tweens.to(baby, { lift: 10, x: mum.x + side * 5 }, 0.3, ease.outQuad);
+  // ...and a gentle rock side to side.
+  engine.audio.play('giggle');
+  for (let i = 0; i < 4; i++) {
+    mum.boing(0.5);
+    baby.facing = i % 2 ? side : -side;
+    await engine.wait(0.3);
+    scene.hearts((mum.x + baby.x) / 2, mum.y - 32, 1);
+  }
+  mum.frame = 'blink';
+  baby.frame = 'blink';
+  await engine.wait(0.5);
+  if (sticker) {
+    scene.findSticker(sticker, mum.x, mum.y - 36);
+  }
+  // Back down beside her.
+  baby.frame = 'hop';
+  await engine.tweens.to(baby, { lift: 0, x: mum.x + side * 14 }, 0.3, ease.inQuad);
+  girl.say('heart', 1.4);
+  letGo(mum);
+  letGo(baby);
+  if (engine.scene !== scene) {
+    return; // she left mid-cuddle; they're remembered where they landed
+  }
+  scene.settle(baby);
+}

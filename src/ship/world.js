@@ -45,9 +45,23 @@ export function defaultWorld() {
         { id: 'gumdrop1', kind: 'gumdrop', x: 198, y: 154, v: 1 },
         { id: 'gumdrop2', kind: 'gumdrop', x: 88, y: 150, v: 2 },
       ],
+      stripey: [
+        { id: 'zig', kind: 'zig', x: 210, y: 138 },
+        { id: 'stripestone0', kind: 'stripestone', x: 104, y: 146, v: 0 },
+        { id: 'stripestone1', kind: 'stripestone', x: 170, y: 152, v: 1 },
+        { id: 'stripestone2', kind: 'stripestone', x: 236, y: 150, v: 2 },
+        { id: 'stripecactus0', kind: 'stripecactus', x: 98, y: 124 },
+        { id: 'stripecactus1', kind: 'stripecactus', x: 240, y: 126 },
+      ],
       // Inside the gingerbread house on Candy.
       gingerbread: [
         { id: 'ginger', kind: 'ginger', x: 150, y: 136 },
+      ],
+      // Inside the lava family's house on Ember.
+      lavahouse: [
+        { id: 'lavaDad', kind: 'lavaDad', x: 104, y: 136 },
+        { id: 'lavaMum', kind: 'lavaMum', x: 170, y: 136 },
+        { id: 'lavaBaby', kind: 'lavaBaby', x: 186, y: 146 },
       ],
     },
     bag: [],

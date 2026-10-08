@@ -32,6 +32,13 @@ export const STICKERS = {
     { id: 'candy.bake', color: '#ff8fc8' }, // baked into the first cupcake from Ginger's oven
     { id: 'candy.snow', color: '#a9d6f2' }, // Ginger's thank-you for her first ever snow
   ],
+  stripey: [
+    { id: 'stripey.worm', color: '#a86ad8' }, // flicked off the stripy worm's tail as it loops the loop
+    { id: 'stripey.butterfly', color: '#ff9d3c' }, // shaken off a stripy butterfly tapped three times
+    { id: 'stripey.tune', color: '#ffe066' }, // Zig's thank-you for a stripe stone to play a tune with
+    { id: 'stripey.stripes', color: '#6fb8e8' }, // Zig's thank-you for new stripes from another planet
+    { id: 'stripey.bloom', color: '#ff7ab8' }, // in the flower of a stripe cactus given a juice
+  ],
 };
 
 // Every sticker on every planet, each with the planet it belongs to.

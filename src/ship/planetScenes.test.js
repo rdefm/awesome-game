@@ -8,11 +8,17 @@ describe('landedOn', () => {
     expect(landedOn({ where: 'ember', landed: true })).toBe('ember');
     expect(landedOn({ where: 'frosty', landed: true })).toBe('frosty');
     expect(landedOn({ where: 'candy', landed: true })).toBe('candy');
+    expect(landedOn({ where: 'stripey', landed: true })).toBe('stripey');
   });
 
   it('puts her back inside the gingerbread house if that\'s where she was', () => {
     expect(landedOn({ where: 'gingerbread', landed: true })).toBe('gingerbread');
     expect(landedOn({ where: 'gingerbread', landed: false })).toBe(null);
+  });
+
+  it('puts her back inside the lava family\'s house if that\'s where she was', () => {
+    expect(landedOn({ where: 'lavahouse', landed: true })).toBe('lavahouse');
+    expect(landedOn({ where: 'lavahouse', landed: false })).toBe(null);
   });
 
   it('puts her back in the ship otherwise', () => {

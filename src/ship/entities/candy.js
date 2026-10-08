@@ -1,12 +1,11 @@
 import { ease } from '../../engine/tween.js';
-import { CANDY_SECRETS, GINGERBREAD_HOUSE, HOUSE_DOOR, JAR, OVEN } from '../layout.js';
+import { CANDY_SECRETS, GINGERBREAD_HOUSE, JAR, OVEN } from '../layout.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
+import { FarHouse, HouseProp, inRect } from './house.js';
 import { isSnack } from './items.js';
 import { Secret } from './secret.js';
 import { Stroller } from './stroller.js';
-
-const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + pad && py >= y - pad && py <= y + h + pad;
 
 const JELLYBEANS = ['#ff5a5a', '#ffe066', '#7cf28a', '#6fb2ff', '#ff8fc8', '#9a7cf0'];
 
@@ -318,113 +317,14 @@ export class FlossBush extends Secret {
 
 // ------------------------------------------------------- gingerbread house
 // The house far off at the back, with its path winding up to the door. Tap
-// it and she walks to the path, then up it to go inside (see CandyScene).
-export class GingerbreadHouse {
+// it and she walks up the path and goes inside (see CandyScene).
+export class GingerbreadHouse extends FarHouse {
   constructor(assets) {
-    this.imgs = assets.house;
-    this.x = GINGERBREAD_HOUSE.x;
-    this.y = GINGERBREAD_HOUSE.y;
-    this.spot = GINGERBREAD_HOUSE.path[0];
-    this.depth = 0; // the path's on the ground: everything stands in front of it
-    this.open = false;
-    this.squash = 0;
-  }
-
-  get bounce() {
-    return 1 + this.squash * 0.12;
-  }
-
-  hitTest(px, py) {
-    return px >= this.x - 24 && px <= this.x + 24 && py >= this.y - 46 && py <= this.y + 2;
-  }
-
-  onTap() {
-    const { scene } = this;
-    if (scene.busy) {
-      return;
-    }
-    scene.engine.audio.play('tap');
-    this.squash = 0.6;
-    scene.engine.tweens.to(this, { squash: 0 }, 0.5, ease.outElastic);
-    scene.interact(this);
-  }
-
-  use() {
-    this.scene.enterHouse();
-  }
-
-  draw(r) {
-    r.image(this.imgs.path, 0, 0, { ax: 0, ay: 0 });
-    r.image(this.open ? this.imgs.open : this.imgs.shut, this.x, this.y, { scaleX: this.bounce, scaleY: 2 - this.bounce });
-    // Smoke curling from the chimney.
-    const t = this.scene.engine.time;
-    for (let i = 0; i < 3; i++) {
-      const k = (t * 0.4 + i / 3) % 1;
-      r.rect(this.x + 11 + Math.sin(k * 6 + i) * 2, this.y - 40 - k * 16, 2, 2, '#ffffff', 0.7 * (1 - k));
-    }
+    super(assets.house, GINGERBREAD_HOUSE, { chimney: { x: 11, y: -40 } });
   }
 }
 
 // ----------------------------------------------------------- inside house
-// Shared "you touched me" feedback for the things in the house that stay put.
-class HouseProp {
-  constructor() {
-    this.squash = 0;
-    this.depth = -10;
-  }
-
-  get bounce() {
-    return 1 + this.squash * 0.12;
-  }
-
-  onTap() {
-    this.scene.engine.audio.play('tap');
-    this.squash = 1;
-    this.scene.engine.tweens.to(this, { squash: 0 }, 0.35, ease.outElastic);
-    this.scene.interact(this);
-  }
-}
-
-// The front door: tap it and she goes back out to Candy. It swings open on
-// its left-hand hinge.
-export class HouseDoor extends HouseProp {
-  constructor(assets) {
-    super();
-    this.imgs = assets.houseDoor;
-    this.spot = HOUSE_DOOR.spot;
-    this.open = 0; // 0 = shut, 1 = swung wide
-  }
-
-  hitTest(px, py) {
-    const { x, y, w, h } = HOUSE_DOOR;
-    return inRect(px, py, x, y, w, h);
-  }
-
-  onTap(p) {
-    if (!this.scene.busy) {
-      super.onTap(p);
-    }
-  }
-
-  use() {
-    this.scene.leaveHouse();
-  }
-
-  async swing(to) {
-    this.scene.engine.audio.play('creak');
-    await this.scene.engine.tweens.to(this, { open: to }, 0.4, to ? ease.outCubic : ease.inQuad);
-  }
-
-  draw(r) {
-    const { x, y, w, h } = HOUSE_DOOR;
-    r.image(this.imgs.open, x, y + h, { ax: 0 });
-    const shut = 1 - this.open;
-    if (shut > 0.05) {
-      r.image(this.imgs.shut, x, y + h, { ax: 0, scaleX: shut * this.bounce });
-    }
-  }
-}
-
 // Ginger's oven: tap it and it glows, dings, and out pops a fresh cupcake
 // (the first one ever has a sticker baked into it). It won't bake more than
 // a few at a time.

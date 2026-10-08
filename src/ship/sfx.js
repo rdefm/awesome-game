@@ -203,6 +203,33 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 300, to: 480, dur: 0.25, type: 'triangle', vol: 0.08 });
     s.tone({ at: t + 0.22, freq: 420, to: 340, dur: 0.15, type: 'triangle', vol: 0.06 });
   });
+  // Stripey: a stripe stone's plink (opts.note picks how high, up a happy
+  // scale), Zig's wobbly "zig-zig!", and a cactus slurping juice.
+  audio.define('plink', (s, t, { note = 0 } = {}) => {
+    const scale = [523, 587, 659, 784, 880, 1047, 1175, 1319];
+    const f = scale[Math.max(0, Math.min(scale.length - 1, note))];
+    s.tone({ at: t, freq: f, dur: 0.25, type: 'sine', vol: 0.2 });
+    s.tone({ at: t, freq: f * 4, dur: 0.05, type: 'sine', vol: 0.05 });
+  });
+  audio.define('zig', (s, t) => {
+    [0, 0.14].forEach((d) => s.tone({ at: t + d, freq: 700, to: 1100, dur: 0.1, type: 'square', vol: 0.06 }));
+    s.tone({ at: t + 0.3, freq: 1100, to: 500, dur: 0.2, type: 'triangle', vol: 0.1 });
+  });
+  audio.define('slurp', (s, t) => {
+    s.noise({ at: t, dur: 0.25, filter: 'bandpass', freq: 600, to: 1400, vol: 0.2, q: 3 });
+    s.tone({ at: t + 0.05, freq: 300, to: 200, dur: 0.15, type: 'sine', vol: 0.1 });
+  });
+  // The lava family: dad's big belly laugh, mum humming a little tune, and
+  // the cradle's lullaby.
+  audio.define('hoho', (s, t) => {
+    [0, 0.2, 0.4].forEach((d, i) => s.tone({ at: t + d, freq: 220 - i * 15, to: 160 - i * 15, dur: 0.16, type: 'triangle', vol: 0.2 }));
+  });
+  audio.define('hum', (s, t) => {
+    [392, 440, 523, 440, 392].forEach((f, i) => s.tone({ at: t + i * 0.22, freq: f, dur: 0.2, type: 'sine', vol: 0.14, attack: 0.04 }));
+  });
+  audio.define('lullaby', (s, t) => {
+    [659, 523, 587, 392, 523, 587, 659, 523].forEach((f, i) => s.tone({ at: t + i * 0.35, freq: f, dur: 0.32, type: 'sine', vol: 0.12, attack: 0.05 }));
+  });
   // A star sticker found: a twinkly run up to a held chord.
   audio.define('fanfare', (s, t) => {
     [784, 988, 1175, 1568].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.1, type: 'triangle', vol: 0.13 }));

@@ -233,7 +233,7 @@ export const PLANETS = [
   { id: 'ember', name: 'EMBER', skin: 'ember', seed: 11, ring: null, landable: true },
   { id: 'frosty', name: 'FROSTY', skin: 'frosty', seed: 5, ring: null, landable: true },
   { id: 'candy', name: 'CANDY', skin: 'candy', seed: 8, ring: '#ffe066', landable: true },
-  { id: 'stripey', name: 'STRIPEY', skin: 'stripey', seed: 21, ring: '#c9b6ff' },
+  { id: 'stripey', name: 'STRIPEY', skin: 'stripey', seed: 21, ring: '#c9b6ff', landable: true },
 ];
 
 export function drawPlanet(def, r) {

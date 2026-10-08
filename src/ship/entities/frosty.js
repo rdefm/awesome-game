@@ -2,7 +2,7 @@ import { ease } from '../../engine/tween.js';
 import { FR } from '../art/frosty.js';
 import { FROSTY_SECRETS } from '../layout.js';
 import { Carryable } from './carryable.js';
-import { hold, isFriendItem, letGo, play } from './friends.js';
+import { cuddle, hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
 import { isSnack } from './items.js';
 import { Secret } from './secret.js';
@@ -118,7 +118,7 @@ export class MumYeti extends Stroller {
 
   receive(item) {
     if (item.kind === 'babyYeti') {
-      return cuddle(this, item);
+      return cuddle(this, item, { sticker: 'frosty.cuddle' });
     }
     if (isFriendItem(item)) {
       return play(item, this);
@@ -214,7 +214,7 @@ export class BabyYeti extends Stroller {
 
   receive(item) {
     if (item.kind === 'mumYeti') {
-      return cuddle(item, this);
+      return cuddle(item, this, { sticker: 'frosty.cuddle' });
     }
     if (isFriendItem(item)) {
       return play(item, this);
@@ -268,47 +268,6 @@ export class BabyYeti extends Stroller {
     ball.draggable = true;
     letGo(this);
   }
-}
-
-// Baby back with mum: she scoops it up into a big cuddle and rocks it, then
-// sets it down beside her.
-export async function cuddle(mum, baby) {
-  const { scene } = mum;
-  const { engine, girl } = scene;
-  hold(mum);
-  hold(baby);
-  const side = baby.x < mum.x ? -1 : 1;
-  await scene.putDown(baby, mum.x + side * 10, mum.y + 1);
-  mum.facing = side;
-  baby.facing = -side;
-  girl.faceToward(mum.x);
-  engine.audio.play('hoo');
-  // Up into mum's arms...
-  mum.frame = 'wave1';
-  baby.frame = 'hop';
-  await engine.tweens.to(baby, { lift: 10, x: mum.x + side * 5 }, 0.3, ease.outQuad);
-  // ...and a gentle rock side to side.
-  engine.audio.play('giggle');
-  for (let i = 0; i < 4; i++) {
-    mum.boing(0.5);
-    baby.facing = i % 2 ? side : -side;
-    await engine.wait(0.3);
-    scene.hearts((mum.x + baby.x) / 2, mum.y - 32, 1);
-  }
-  mum.frame = 'blink';
-  baby.frame = 'blink';
-  await engine.wait(0.5);
-  scene.findSticker('frosty.cuddle', mum.x, mum.y - 36);
-  // Back down beside her.
-  baby.frame = 'hop';
-  await engine.tweens.to(baby, { lift: 0, x: mum.x + side * 14 }, 0.3, ease.inQuad);
-  girl.say('heart', 1.4);
-  letGo(mum);
-  letGo(baby);
-  if (engine.scene !== scene) {
-    return; // she left mid-cuddle; they're remembered where they landed
-  }
-  scene.settle(baby);
 }
 
 // ------------------------------------------------------------------- secret

@@ -203,6 +203,37 @@ describe('world', () => {
     expect(placedIn(defaultWorld(), 'gingerbread').map((e) => e.kind)).toEqual(['ginger']);
   });
 
+  it('gives an old save Stripey\'s things, keeping her progress everywhere else', () => {
+    const saved = {
+      placed: { candy: [{ id: 'gummy', kind: 'gummy', x: 120, y: 140 }] },
+      bag: [{ id: 'lollipop0', kind: 'lollipop', v: 0 }],
+    };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'stripey').map((e) => e.id).sort()).toEqual(placedIn(defaultWorld(), 'stripey').map((e) => e.id).sort());
+    expect(find(w, 'gummy')).toMatchObject({ x: 120, y: 140 });
+    expect(w.bag).toEqual([{ id: 'lollipop0', kind: 'lollipop', v: 0 }]);
+  });
+
+  it('has Zig and stripy things to carry lying about on Stripey', () => {
+    const kinds = placedIn(defaultWorld(), 'stripey').map((e) => e.kind);
+    expect(kinds).toEqual(expect.arrayContaining(['zig', 'stripestone', 'stripecactus']));
+  });
+
+  it('has the lava family at home in their house on Ember', () => {
+    expect(placedIn(defaultWorld(), 'lavahouse').map((e) => e.kind)).toEqual(['lavaDad', 'lavaMum', 'lavaBaby']);
+  });
+
+  it('gives an old save the lava family, keeping her progress everywhere else', () => {
+    const saved = {
+      placed: { ember: [{ id: 'newt', kind: 'newt', x: 120, y: 140 }] },
+      bag: [{ id: 'geode', kind: 'geode', stage: 1 }],
+    };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'lavahouse').map((e) => e.id)).toEqual(['lavaDad', 'lavaMum', 'lavaBaby']);
+    expect(find(w, 'newt')).toMatchObject({ x: 120, y: 140 });
+    expect(w.bag).toEqual([{ id: 'geode', kind: 'geode', stage: 1 }]);
+  });
+
   it('drops malformed entries', () => {
     const w = normalizeWorld({ placed: { ship: [{ id: 'plant', kind: 'plant', x: 'a', y: 1 }] }, bag: [{ kind: 'x' }] });
     expect(find(w, 'plant')).toMatchObject({ x: 152, y: 120 });

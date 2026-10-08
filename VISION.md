@@ -26,9 +26,9 @@ store.
   Planets are the scenes you visit.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
   Stripey). Tap the planet in the windshield to land; once landed, the door
-  opens onto that planet's scene. Bluebell, Ember, Frosty and Candy are
-  landable so far — Stripey says "too wild to land here yet" until it gets a
-  scene. A planet can have places to go inside (Candy's gingerbread house).
+  opens onto that planet's scene. All five are landable. A planet can have
+  places to go inside (Candy's gingerbread house, the lava family's house
+  on Ember).
 - **Persistence**: saves locally on the tablet (browser storage) so closing
   the app and coming back picks up where she left off.
 - **Audio**: sound effects only (synthesized at runtime). No music yet.
@@ -38,10 +38,12 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`,
-  `GingerbreadScene`) sharing a `PlayScene` base (tap-to-walk,
+  `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
+  `GingerbreadScene`, `LavaHouseScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
-  `OutdoorScene` base (backdrop, parked ship, ramp) and are listed in
+  `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
+  path to a house far off at the back), houses' insides share an
+  `IndoorScene` base (room, front door back out), and they're listed in
   `src/ship/planetScenes.js` (with places inside, so a reload picks her up
   in there); the ship's rooms, left to right, are in `src/ship/shipRooms.js`. Friends who wander about share a `Stroller` base. Scripted moments (landing, door, cutscenes) are
   plain `async` sequences that `await` tweens.
@@ -65,7 +67,7 @@ store.
 ## Built so far
 - Ship interior with all its props and the girl's idle/walk/act behaviour
 - Star map travel between the five planets, blast-off from the poster
-- Landing on Bluebell, Ember, Frosty or Candy: chair-bounce, dive toward the planet,
+- Landing on any of the five planets: chair-bounce, dive toward the planet,
   outside cutscene of the ship touching down; taking off again via map or
   poster
 - Airlock door (locked in space, opens when landed)
@@ -73,7 +75,16 @@ store.
   a note, a hopping puffball critter, butterflies, a friendly pink alien
 - Ember volcanic plain: smouldering sky and a glowing volcano, parked ship,
   fire flowers that flare when tapped, a geode, a scurrying fire newt,
-  glowing moths, a steam vent that erupts and a lava pool with a leaping fish
+  glowing moths, a steam vent that erupts and a lava pool with a leaping fish.
+  At the foot of the volcano is the lava family's house, dug into the
+  mountain: tap it and she walks up the stepping-stone path, getting
+  smaller, and in through the round door
+- Inside the lava family's house: a cosy stone room where they live — dad
+  (bushy moustache; a big belly laugh when tapped), mum (flame hair in a
+  bun; hums a tune) and the baby (giggles and hops; toddles after them).
+  A hearth whose pot cooks lava cakes (a new snack), a lava lamp that
+  changes colour, the baby's geode cradle that rocks to a lullaby (drop the
+  baby in and it's rocked to sleep), and the door to go back outside
 - Frosty snowy valley: snow falling the whole time (and during the landing),
   snowy peaks and pines, parked ship, a friendly mum yeti who waves hello
   and her baby who toddles after her, snowballs, twinkling frost flowers,
@@ -87,10 +98,16 @@ store.
 - Inside the gingerbread house: Ginger the gingerbread girl, who lives there
   and dances when tapped, an oven that bakes cupcakes (a new snack), a jar
   of jellybeans that pop out, and the door to go back outside
+- Stripey canyon: a sunset sky in stripes, banded mesas, sand in wavy
+  stripes, parked ship, Zig the stripey alien (goggly eyes on stalks; waves
+  both arms with a "zig-zig!"), stripe stones that each plink a note,
+  stripe cacti, stripy butterflies, and a sand mound with a stripy worm in it
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,
-  frost flowers, lollipops, gumdrops, cupcakes) and friends (puffball, pink
-  alien, newt, mum and baby yeti, gummy bear, Ginger)
+  frost flowers, lollipops, gumdrops, cupcakes, lava cakes, stripe stones,
+  stripe cacti)
+  and friends (puffball, pink alien, newt, mum and baby yeti, gummy bear,
+  Ginger, Zig, the lava family)
   can be dragged anywhere and dropped onto the bag button (bottom-left).
   Tapping it slides up a tray with two pockets — things and friends — that
   scrolls sideways, no size limit. Drag a slot upward to pull it out under
@@ -101,11 +118,16 @@ store.
   Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
   the crystal beside it. Drop the geode on the newt and its tail cracks it
   open; bring the always-too-hot newt a giant bluebell from Bluebell and it
-  cools off in the shade. Bring baby yeti back to mum for a cuddle; give
+  cools off in the shade. Bring baby yeti back to mum for a cuddle (and
+  the lava baby to its mum or dad); give
   baby a snowball and it plays catch (until it lands on its head); bring
   mum a fire flower from Ember to warm her paws. Give the gummy bear a
   lollipop for a big lick; bring Ginger a snowball from Frosty — she's
-  never seen snow.
+  never seen snow. Give Zig a stripe stone and it plays a tune on its own
+  stripes; bring it something from another planet (a bluebell, fire flower,
+  frost flower, snowball, lollipop or gumdrop) and it twirls round into
+  that planet's colours, and stays that way. A stripe cactus drinks a juice
+  from the ship's snack locker and bursts into flower for good.
 - **Star stickers**: a gentle "find them all". Stickers hide behind
   Bluebell's secrets (rock, bush, mole, a butterfly, the alien's thank-you)
   and Ember's (the vent's first big plume, the lava fish's big leap, a moth,
@@ -113,7 +135,8 @@ store.
   hare's big bound, a snowbird, baby's snowball, mum's cuddle, mum's
   thank-you for a fire flower) and Candy's (the sugar mouse's dash, a candy
   butterfly, the gummy bear's lick, the first cupcake from the oven,
-  Ginger's first snow);
+  Ginger's first snow) and Stripey's (the worm's loop-the-loop, a stripy
+  butterfly, Zig's tune, Zig's new stripes, the cactus's flower);
   each one found plays a fanfare and flies off with a "+1" banner. A board
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.
@@ -130,7 +153,6 @@ store.
   was in.
 
 ## Planned later
-- A scene for Stripey
 - **Wants**: characters can want a specific item as optional objectives that
   reward you without punishing you for ignoring them
 

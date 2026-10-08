@@ -25,7 +25,15 @@ import {
   drawFlossBush, drawGinger, drawGingerbreadHouse, drawGummy, drawGumdrop, drawHouseDoor, drawHouseRoom, drawJar,
   drawLollipop, drawOven, drawSugarMouse,
 } from './art/candy.js';
-import { GINGERBREAD_HOUSE, HORIZON, distanceScale } from './layout.js';
+import {
+  STONE_COLORS, STRIPE_BUTTERFLY_COLORS, ZIG_STRIPES, drawMound, drawStripeCactus, drawStripeStone,
+  drawStripeyCanyon, drawStripeyCloud, drawWorm, drawZig,
+} from './art/stripey.js';
+import {
+  drawCradle, drawEmberPath, drawHearth, drawLavaCake, drawLavaDoor, drawLavaFolk, drawLavaHouse, drawLavaLamp,
+  drawLavaRoom,
+} from './art/lavaHouse.js';
+import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -135,6 +143,13 @@ export function loadAssets() {
         dust: '#ffffff',
         puff: '#fff0f8',
       }),
+      stripey: bake({
+        ground: drawStripeyCanyon({ horizon: HORIZON }),
+        window: drawStripeyCanyon({ horizon: 52 }),
+        clouds: [drawStripeyCloud(0), drawStripeyCloud(1)],
+        dust: '#f8e2b4',
+        puff: '#ffe8d0',
+      }),
     },
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
     flame: bake([drawFlame(0), drawFlame(1)]),
@@ -165,6 +180,20 @@ export function loadAssets() {
     lavaPool: bake([drawLavaPool(0), drawLavaPool(1)]),
     lavaFish: bake([drawLavaFish(0), drawLavaFish(1)]),
     moths: MOTH_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // The lava family's house on Ember, the family, and inside the house.
+    lavaHouse: bake({
+      shut: drawLavaHouse(),
+      open: drawLavaHouse({ open: true }),
+      path: drawEmberPath(LAVA_HOUSE.path, (y) => distanceScale(y, LAVA_HOUSE)),
+    }),
+    lavaDad: strollerFrames((f) => drawLavaFolk(f, 'dad')),
+    lavaMum: strollerFrames((f) => drawLavaFolk(f, 'mum')),
+    lavaBaby: strollerFrames((f) => drawLavaFolk(f, 'baby')),
+    lavaRoom: bake(drawLavaRoom()),
+    lavaDoor: bake({ shut: drawLavaDoor(), open: drawLavaDoor(true) }),
+    hearth: bake([drawHearth(), drawHearth(true)]),
+    lavaLamp: bake(drawLavaLamp()),
+    cradle: bake({ back: drawCradle(), front: drawCradle(true) }),
     // Planet Frosty.
     mumYeti: strollerFrames((f) => drawYeti(f, 'mum')),
     babyYeti: strollerFrames((f) => drawYeti(f, 'baby')),
@@ -192,6 +221,17 @@ export function loadAssets() {
     houseDoor: bake({ shut: drawHouseDoor(), open: drawHouseDoor(true) }),
     oven: bake([drawOven(), drawOven(true)]),
     jar: bake([drawJar(), drawJar(true)]),
+    // Planet Stripey. Zig comes in every planet's stripes: [stripes][frame].
+    zig: ZIG_STRIPES.map((_, way) => strollerFrames((f) => drawZig(f, way))),
+    stripeStone: bake(STONE_COLORS.map((_, v) => drawStripeStone(v))),
+    stripeCactus: bake([drawStripeCactus(), drawStripeCactus(true)]),
+    mound: bake(drawMound()),
+    // The worm: [eyes open / shut][rows showing above the hole], and whole.
+    worm: {
+      up: [drawWorm(), drawWorm(true)].map((w) => bake(Array.from({ length: w.height + 1 }, (_, k) => cropTop(w, k)))),
+      whole: bake(drawWorm()),
+    },
+    stripeButterflies: STRIPE_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),
@@ -201,7 +241,7 @@ export function loadAssets() {
     ball: bake(drawBall()),
     teddy: bake(drawTeddy()),
     crystal: bake([drawCrystal(), drawCrystal(true)]),
-    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake() }),
+    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake() }),
     lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
     wardrobeDoor: bake({ front: drawWardrobeDoor(), back: drawWardrobeDoor(true) }),
     // The wardrobe picker's buttons. Hats are shown on top of each hair colour,

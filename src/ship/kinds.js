@@ -1,7 +1,9 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
 import { Ginger, Gumdrop, GummyBear, Lollipop } from './entities/candy.js';
 import { Firebloom, Geode, Newt } from './entities/ember.js';
+import { LavaBaby, LavaDad, LavaMum } from './entities/lavaHouse.js';
 import { BabyYeti, FrostFlower, MumYeti, Snowball } from './entities/frosty.js';
+import { StripeCactus, StripeStone, Zig } from './entities/stripey.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
 
@@ -28,6 +30,12 @@ export const KINDS = {
   gumdrop: { make: (a, s) => new Gumdrop(a, s), icon: (a, s) => a.gumdrop[(s.v ?? 0) % a.gumdrop.length] },
   gummy: { friend: true, make: (a, s) => new GummyBear(a, s), icon: (a) => a.gummy.idle },
   ginger: { friend: true, make: (a, s) => new Ginger(a, s), icon: (a) => a.ginger.idle },
+  lavaDad: { friend: true, make: (a, s) => new LavaDad(a, s), icon: (a) => a.lavaDad.idle },
+  lavaMum: { friend: true, make: (a, s) => new LavaMum(a, s), icon: (a) => a.lavaMum.idle },
+  lavaBaby: { friend: true, make: (a, s) => new LavaBaby(a, s), icon: (a) => a.lavaBaby.idle },
+  stripestone: { make: (a, s) => new StripeStone(a, s), icon: (a, s) => a.stripeStone[(s.v ?? 0) % a.stripeStone.length] },
+  stripecactus: { make: (a, s) => new StripeCactus(a, s), icon: (a, s) => a.stripeCactus[s.stage ? 1 : 0] },
+  zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 
 export const isFriend = (kind) => Boolean(KINDS[kind]?.friend);

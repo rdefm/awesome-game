@@ -107,11 +107,11 @@ export class Teddy extends Carryable {
 }
 
 // ---------------------------------------------------------------- snacks
-// Treats: from the ship's snack locker, or cupcakes from Ginger's oven on
-// Candy. Friends gobble them up (see `feed`).
+// Treats: from the ship's snack locker, cupcakes from Ginger's oven on
+// Candy, or lava cakes from the lava family's pot on Ember. Friends gobble them up (see `feed`).
 export const LOCKER_SNACKS = ['cookie', 'starfruit', 'juice'];
-export const SNACKS = [...LOCKER_SNACKS, 'cupcake'];
-const CRUMBS = { cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8', cupcake: '#ff8fc8' };
+export const SNACKS = [...LOCKER_SNACKS, 'cupcake', 'lavacake'];
+const CRUMBS = { cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8', cupcake: '#ff8fc8', lavacake: '#ff6a2a' };
 
 export const isSnack = (item) => SNACKS.includes(item.kind);
 
