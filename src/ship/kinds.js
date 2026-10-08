@@ -1,5 +1,7 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
-import { Beanbag, Lamp, Rug, WallPoster } from './entities/decor.js';
+import {
+  Beanbag, BigCushion, FairyLights, FishTank, Lamp, PlanetMobile, RocketLamp, Rug, StarRug, WallPoster,
+} from './entities/decor.js';
 import { Ginger, Gumdrop, GummyBear, Lollipop } from './entities/candy.js';
 import { Firebloom, Geode, Newt } from './entities/ember.js';
 import { LavaBaby, LavaDad, LavaMum } from './entities/lavaHouse.js';
@@ -40,6 +42,12 @@ export const KINDS = {
   lamp: { make: (a, s) => new Lamp(a, s), icon: (a, s) => a.decor.lamp[s.stage === 1 ? 1 : 0] },
   beanbag: { make: (a, s) => new Beanbag(a, s), icon: (a) => a.decor.beanbag },
   wallposter: { make: (a, s) => new WallPoster(a, s), icon: (a) => a.decor.wallposter },
+  starrug: { make: (a, s) => new StarRug(a, s), icon: (a) => a.decor.starrug },
+  rocketlamp: { make: (a, s) => new RocketLamp(a, s), icon: (a, s) => a.decor.rocketlamp[s.stage === 1 ? 1 : 0] },
+  bigcushion: { make: (a, s) => new BigCushion(a, s), icon: (a) => a.decor.bigcushion },
+  fishtank: { make: (a, s) => new FishTank(a, s), icon: (a) => a.decor.fishtank[0] },
+  fairylights: { make: (a, s) => new FairyLights(a, s), icon: (a) => a.decor.fairylights[0] },
+  planetmobile: { make: (a, s) => new PlanetMobile(a, s), icon: (a) => a.decor.planetmobile },
   zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 

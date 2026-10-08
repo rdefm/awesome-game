@@ -5,13 +5,15 @@ import { add, defaultWorld, stash } from '../world.js';
 import { Critter } from './bluebell.js';
 import { Girl } from './girl.js';
 import { Teddy } from './items.js';
-import { DECOR, MAX_COPIES, canPrint } from './decor.js';
+import { DECOR } from '../decor.js';
+import { MAX_COPIES, canPrint } from './decor.js';
 
 const assets = {
   critter: {},
   teddy: {},
   decor: {
-    rug: {}, lamp: [{}, {}], lampGlow: {}, beanbag: {}, wallposter: {},
+    rug: {}, lamp: [{}, {}], lampGlow: {}, beanbag: {}, wallposter: { width: 24, height: 30 },
+    starrug: {}, rocketlamp: [{}, {}], bigcushion: {}, fishtank: [{}, {}], fairylights: [{}, {}], planetmobile: {},
   },
 };
 
@@ -40,8 +42,7 @@ function make(kind, extra = {}, scene = sceneFor()) {
 }
 
 describe('decor', () => {
-  it('has a rug, a lamp, a beanbag and a wall poster, all carryable', () => {
-    expect(DECOR).toEqual(['rug', 'lamp', 'beanbag', 'wallposter']);
+  it('makes every piece in the catalogue, all carryable', () => {
     for (const kind of DECOR) {
       const item = make(kind);
       expect(item, kind).not.toBeNull();
@@ -151,6 +152,43 @@ describe('decor', () => {
   it('only takes friends on the beanbag', () => {
     const beanbag = make('beanbag');
     expect(beanbag.accepts(new Teddy(assets, { id: 'teddy', kind: 'teddy', x: 0, y: 0 }))).toBe(false);
+  });
+
+  it('lays the star rug flat under everything, like the rug', () => {
+    expect(make('starrug').depth).toBe(make('rug').depth);
+  });
+
+  it('switches the rocket lamp on with a tap, like the lamp', () => {
+    const scene = sceneFor();
+    const lamp = make('rocketlamp', {}, scene);
+    lamp.onTap();
+    expect(lamp.on).toBe(true);
+    expect(scene.saveStage).toHaveBeenLastCalledWith(lamp, 1);
+    expect(make('rocketlamp', { stage: 1 }).on).toBe(true);
+  });
+
+  it('lets friends flop onto the big cushion too', async () => {
+    const scene = sceneFor();
+    const cushion = make('bigcushion', {}, scene);
+    const friend = new Critter(assets, { id: 'critter', kind: 'critter', x: 60, y: 130 });
+    friend.scene = scene;
+    expect(cushion.accepts(friend)).toBe(true);
+    await cushion.receive(friend);
+    expect(scene.settle).toHaveBeenCalledWith(friend);
+  });
+
+  it('hangs fairy lights and the planet mobile on the wall', () => {
+    for (const kind of ['fairylights', 'planetmobile']) {
+      expect(make(kind).restingSpot(80, 140).y, kind).toBe(WALL_HANG.maxY);
+    }
+  });
+
+  it('stands the fish tank on the floor, and blorps when tapped', () => {
+    const scene = sceneFor();
+    const tank = make('fishtank', {}, scene);
+    expect(tank.restingSpot(80, 60).y).toBe(WALK.minY);
+    tank.onTap();
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('blorp');
   });
 });
 

@@ -100,6 +100,179 @@ export function drawWallPoster() {
   return pm.outline(C.outline);
 }
 
+// ---------------------------------------------------------------- star rug
+// A dark round rug lying flat, with a big yellow star (squashed flat too).
+export function drawStarRug() {
+  const pm = new Pixmap(46, 14);
+  const cx = 22.5;
+  const cy = 6.5;
+  pm.ellipse(cx, cy, 21, 5, '#2b1f52');
+  pm.ellipse(cx, cy, 19, 4, '#3a2063');
+  for (const [x, y] of [[8, 5], [36, 8], [12, 9], [33, 4]]) {
+    pm.set(x, y, C.white);
+  }
+  // The star: five points, flattened to a third of its height.
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    pm.line(cx, cy, cx + Math.cos(a) * 9, cy + Math.sin(a) * 3.5, C.yellow, 2);
+  }
+  pm.ellipse(cx, cy, 3, 1, C.yellow);
+  pm.hline(cx - 1, cx + 1, cy - 1, '#fff2a0');
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- rocket lamp
+// A little rocket on a stand, whose porthole and flame light up when it's `on`.
+export const ROCKET_LAMP_H = 32;
+
+export function drawRocketLamp(on = false) {
+  const pm = new Pixmap(18, ROCKET_LAMP_H);
+  const cx = 9;
+  // Nose cone and body.
+  for (let y = 1; y <= 6; y++) {
+    const half = Math.ceil(y * 0.7);
+    pm.hline(cx - half, cx + half - 1, y, C.red);
+  }
+  pm.rect(cx - 4, 7, 8, 13, C.white);
+  pm.vline(cx - 4, 7, 19, '#ffffff');
+  pm.vline(cx + 3, 7, 19, '#cfc8bb');
+  pm.circle(cx - 0.5, 11.5, 2, on ? '#fff2a0' : C.tealDark);
+  pm.set(cx - 1, 11, on ? '#ffffff' : C.teal);
+  // Fins.
+  pm.rect(cx - 7, 16, 3, 5, C.red);
+  pm.rect(cx + 4, 16, 3, 5, C.red);
+  pm.rect(cx - 4, 20, 8, 2, C.redDark);
+  // Flame (lit) or nozzle.
+  if (on) {
+    pm.rect(cx - 2, 22, 4, 3, C.orange);
+    pm.rect(cx - 1, 22, 2, 4, C.yellow);
+  } else {
+    pm.rect(cx - 2, 22, 4, 2, C.metalDark);
+  }
+  // The stand.
+  pm.vline(cx, 24, ROCKET_LAMP_H - 4, C.metal);
+  pm.ellipse(cx - 0.5, ROCKET_LAMP_H - 3, 5, 1.5, C.metalDark);
+  pm.hline(cx - 4, cx + 2, ROCKET_LAMP_H - 4, C.metalLight);
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- big cushion
+// A big flat floor cushion, tufted with buttons.
+export function drawBigCushion() {
+  const pm = new Pixmap(36, 16);
+  const cx = 17.5;
+  pm.ellipse(cx, 9, 16, 5, '#ff7ab8');
+  pm.ellipse(cx, 7, 15, 4, C.pink);
+  for (const x of [cx - 8, cx, cx + 8]) {
+    pm.set(x, 7, '#c74a8e');
+  }
+  pm.hline(cx - 11, cx - 6, 4, '#ffd0e8');
+  pm.hline(cx - 13, cx + 13, 13, '#c74a8e');
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- fish tank
+// A fish tank on a little stand. `frame` 0/1: the fish over on the left
+// or the right of the tank.
+export function drawFishTank(frame = 0) {
+  const pm = new Pixmap(30, 28);
+  // Glass and water.
+  pm.rect(2, 2, 26, 18, '#8fd2ff');
+  pm.rect(3, 5, 24, 14, '#3fa8d8');
+  pm.hline(3, 26, 5, '#8fe0ff');
+  // Gravel and weed.
+  for (let x = 3; x < 27; x++) {
+    pm.set(x, 18, x % 3 ? C.yellow : C.orange);
+    pm.set(x, 17, x % 4 ? null : '#ffcf4a');
+  }
+  pm.vline(6, 11, 17, C.greenDark);
+  pm.vline(7, 13, 17, C.green);
+  pm.vline(23, 12, 17, C.green);
+  // The fish, and a bubble above it.
+  const fx = frame ? 18 : 11;
+  pm.ellipse(fx, 11, 2.5, 1.5, C.orange);
+  const tail = frame ? fx + 3 : fx - 3;
+  pm.vline(tail, 10, 12, C.orange);
+  pm.set(frame ? fx - 1 : fx + 1, 10, C.outline);
+  pm.set(frame ? fx - 2 : fx + 2, 7, C.white);
+  // The stand.
+  pm.rect(2, 20, 26, 2, C.metalDark);
+  pm.rect(4, 22, 2, 5, C.metal);
+  pm.rect(24, 22, 2, 5, C.metal);
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- fairy lights
+// A string of fairy lights for the wall, drooping between two hooks.
+// `frame` 0/1: which half of the bulbs is shining brightest.
+const BULB_COLORS = [C.yellow, C.pink, C.teal, C.green, C.orange];
+
+export function drawFairyLights(frame = 0) {
+  const pm = new Pixmap(44, 14);
+  const sag = (x) => 2 + Math.round(5 * Math.sin((Math.PI * (x - 1)) / 42));
+  for (let x = 1; x < 43; x++) {
+    pm.set(x, sag(x), C.greenDark);
+  }
+  pm.rect(1, 1, 2, 2, C.metalLight);
+  pm.rect(41, 1, 2, 2, C.metalLight);
+  for (let i = 0; i < 8; i++) {
+    const x = 4 + i * 5;
+    const bright = (i + frame) % 2 === 0;
+    const color = BULB_COLORS[i % BULB_COLORS.length];
+    pm.rect(x, sag(x) + 1, 2, 3, bright ? color : '#64729f');
+    if (bright) {
+      pm.set(x, sag(x) + 1, C.white);
+    }
+  }
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- planet mobile
+// A mobile for the wall: a hoop with three little planets hanging off it.
+export function drawPlanetMobile() {
+  const pm = new Pixmap(30, 30);
+  pm.vline(15, 1, 4, C.metalLight);
+  pm.ellipse(15, 5, 12, 1, C.metal);
+  pm.ellipse(15, 5, 10, 0, C.metalDark);
+  const planets = [[5, 15, 3, C.teal], [15, 22, 4, C.pink], [25, 13, 2.5, C.orange]];
+  for (const [x, y, r, color] of planets) {
+    pm.vline(x, 6, y - Math.ceil(r), '#cfc8bb');
+    pm.circle(x, y, r, color);
+    pm.set(x - 1, y - 1, C.white);
+  }
+  pm.ellipse(15, 22, 6, 1, C.yellow);
+  pm.circle(15, 22, 3, C.pink);
+  return pm.outline(C.outline);
+}
+
+// ---------------------------------------------------------------- picker
+// Every piece's picture, as the printer's picker shows it.
+export const DECOR_ICONS = {
+  rug: drawRug,
+  lamp: () => drawLamp(),
+  beanbag: drawBeanbag,
+  wallposter: drawWallPoster,
+  starrug: drawStarRug,
+  rocketlamp: () => drawRocketLamp(),
+  bigcushion: drawBigCushion,
+  fishtank: () => drawFishTank(),
+  fairylights: () => drawFairyLights(),
+  planetmobile: drawPlanetMobile,
+};
+
+// Just the outline of a picture, for a piece not unlocked yet.
+export function drawSilhouette(pm, color = '#8f9cc8') {
+  const out = new Pixmap(pm.width, pm.height);
+  for (let y = 0; y < pm.height; y++) {
+    for (let x = 0; x < pm.width; x++) {
+      if (pm.isSet(x, y) && !(pm.isSet(x - 1, y) && pm.isSet(x + 1, y) && pm.isSet(x, y - 1) && pm.isSet(x, y + 1))) {
+        out.set(x, y, color);
+      }
+    }
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- printer
 // The decor printer: a chunky machine with a little screen, a row of
 // lights (which flash while it's `printing`) and a slot at the front for what

@@ -2,7 +2,10 @@ import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
 import { drawHairSwatch, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
-import { drawBeanbag, drawLamp, drawLampGlow, drawPrinter, drawRug, drawWallPoster } from './art/decor.js';
+import {
+  DECOR_ICONS, drawBeanbag, drawBigCushion, drawFairyLights, drawFishTank, drawLamp, drawLampGlow, drawPlanetMobile,
+  drawPrinter, drawRocketLamp, drawRug, drawSilhouette, drawStarRug, drawWallPoster,
+} from './art/decor.js';
 import {
   drawBallPitFront, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
 } from './art/shipRooms.js';
@@ -100,8 +103,12 @@ export function loadAssets() {
     printer: bake([drawPrinter(), drawPrinter(true)]),
     decor: bake({
       rug: drawRug(), lamp: [drawLamp(), drawLamp(true)], lampGlow: drawLampGlow(), beanbag: drawBeanbag(),
-      wallposter: drawWallPoster(),
+      wallposter: drawWallPoster(), starrug: drawStarRug(), rocketlamp: [drawRocketLamp(), drawRocketLamp(true)],
+      bigcushion: drawBigCushion(), fishtank: [drawFishTank(0), drawFishTank(1)],
+      fairylights: [drawFairyLights(0), drawFairyLights(1)], planetmobile: drawPlanetMobile(),
     }),
+    // The outline the printer's picker shows for a piece not unlocked yet.
+    decorLocked: bake(Object.fromEntries(Object.entries(DECOR_ICONS).map(([kind, draw]) => [kind, drawSilhouette(draw())]))),
     ballPit: bake(drawBallPitFront()),
     swing: bake({ frame: drawSwingFrame(), seat: drawSwingSeat() }),
     trampoline: bake([drawTrampoline(), drawTrampoline(true)]),

@@ -55,11 +55,12 @@ store.
   the girl is (ship or planet), her position, the current planet, whether
   the ship has landed, and the **world** (`src/ship/world.js`): where every
   carryable thing lies in each place, and what's in the bag, plus which star
-  stickers she's found (`src/ship/stickers.js`) and the **memories** friends
+  stickers she's found (`src/ship/stickers.js`), which decor pieces she's
+  unlocked (`src/ship/decor.js`) and the **memories** friends
   chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, world, stickers, drop receivers, chat trees).
+  tweens, world, stickers, decor unlocks, drop receivers, chat trees).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -163,13 +164,19 @@ store.
   wall into the next room; tap the arrow there to come back. Drop anything
   on an arrow and it's sent through on its own. The **store room** (left)
   has painted bays on the floor for keeping things in, and the **decor
-  printer**: tap it and a picker slides up with a rug, a lamp, a beanbag
-  and a wall poster; pick one and the printer whirrs and pops it out (up
-  to three of each). Decor is carryable like everything else — arrange it
-  anywhere in the ship (or take it to a planet in the bag) and it stays
-  put across reloads. Rugs lie flat under everything; wall pieces snap up
-  onto the wall. Tap the lamp to switch it on; tap the beanbag and she
-  flops right in (or drop a friend on it and they do). The
+  printer**: tap it and a picker slides up with every decor piece; pick one
+  and the printer whirrs and pops it out (up to three of each). She starts
+  with a rug, a lamp, a beanbag and a wall poster; the rest (a star rug, a
+  rocket lamp, a big cushion, a fish tank, fairy lights, a planet mobile)
+  show as outlines with a found/total count until unlocked. Unlocking is
+  one call (`unlockDecor`, for Wants and friends' thank-yous to use): a
+  fanfare, it's saved (`src/ship/decor.js`), and the new piece wiggles in
+  a gold frame the next time the picker opens. Decor is carryable like
+  everything else — arrange it anywhere in the ship (or take it to a
+  planet in the bag) and it stays put across reloads. Rugs lie flat under
+  everything; wall pieces snap up onto the wall. Tap a lamp to switch it
+  on; tap the beanbag or the big cushion and she flops right in (or drop a
+  friend on it and they do); tap the fish tank and the fish darts about. The
   **playroom** (right) has a ball pit (she hops in, dives right under and
   pops up in a splash of balls), a swing (higher and higher) and a
   trampoline (each bounce higher than the last). Drop a friend on any of
