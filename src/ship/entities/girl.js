@@ -25,6 +25,7 @@ export class Girl {
     this.facing = 1;
     this.lift = 0; // visual hop height above her feet
     this.alpha = 1; // fades out/in when going through a door
+    this.scale = 1; // smaller when she's far off in the distance
     this.mode = 'idle';
     this.anim = 0;
     this.blinkIn = 2;
@@ -281,20 +282,24 @@ export class Girl {
     if (this.mode === 'seated') {
       return; // the chair draws her, so she spins with it
     }
-    const shadowW = this.mode === 'held' ? 8 : 12;
+    const s = this.scale;
+    const shadowW = (this.mode === 'held' ? 8 : 12) * s;
     const shadowY = this.mode === 'held' ? clampToFloor(this.x, this.y + 30).y : this.y;
-    r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, 2, '#000000', 0.25 * this.alpha);
-    r.image(this.currentFrame(), this.x, this.y + 1 - this.lift, { flipX: this.facing < 0, alpha: this.alpha });
+    r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, Math.max(1, 2 * s), '#000000', 0.25 * this.alpha);
+    r.image(this.currentFrame(), this.x, this.y + 1 - this.lift * s, {
+      flipX: this.facing < 0, alpha: this.alpha, scaleX: s, scaleY: s,
+    });
   }
 
   // Drawn after everything else so bubbles are never hidden behind props.
   drawOver(r) {
-    const headY = (this.mode === 'seated' ? this.y - 38 : this.y - 27 - this.lift) - this.hatHeight;
+    const s = this.scale;
+    const headY = this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (27 + this.lift + this.hatHeight) * s;
     if (this.emote) {
       const e = this.emote;
       const pop = Math.min(1, e.t / 0.15);
       const fade = Math.min(1, (e.life - e.t) / 0.25);
-      r.image(this.emotes[e.kind], this.x + 6, headY - 1 - pop * 3, { scaleX: pop, scaleY: pop, alpha: fade });
+      r.image(this.emotes[e.kind], this.x + 6 * s, headY - 1 - pop * 3, { scaleX: pop, scaleY: pop, alpha: fade });
     }
     if (this.dizzy > 0) {
       for (let i = 0; i < 3; i++) {

@@ -1,4 +1,5 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
+import { Ginger, Gumdrop, GummyBear, Lollipop } from './entities/candy.js';
 import { Firebloom, Geode, Newt } from './entities/ember.js';
 import { BabyYeti, FrostFlower, MumYeti, Snowball } from './entities/frosty.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
@@ -23,6 +24,10 @@ export const KINDS = {
   frostflower: { make: (a, s) => new FrostFlower(a, s), icon: (a) => a.frostFlower[0] },
   mumYeti: { friend: true, make: (a, s) => new MumYeti(a, s), icon: (a) => a.mumYeti.idle },
   babyYeti: { friend: true, make: (a, s) => new BabyYeti(a, s), icon: (a) => a.babyYeti.idle },
+  lollipop: { make: (a, s) => new Lollipop(a, s), icon: (a, s) => a.lollipop[(s.v ?? 0) % a.lollipop.length][0] },
+  gumdrop: { make: (a, s) => new Gumdrop(a, s), icon: (a, s) => a.gumdrop[(s.v ?? 0) % a.gumdrop.length] },
+  gummy: { friend: true, make: (a, s) => new GummyBear(a, s), icon: (a) => a.gummy.idle },
+  ginger: { friend: true, make: (a, s) => new Ginger(a, s), icon: (a) => a.ginger.idle },
 };
 
 export const isFriend = (kind) => Boolean(KINDS[kind]?.friend);

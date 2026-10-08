@@ -181,6 +181,28 @@ export function defineSfx(audio) {
   audio.define('tinkle', (s, t) => {
     [2093, 2637, 3136, 2637].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.12, type: 'triangle', vol: 0.07 }));
   });
+  // Candy: Ginger's jingly dance, the oven's ding, the gummy bear's jelly
+  // wobble and its lick, and the gingerbread house's door.
+  audio.define('jingle', (s, t) => {
+    [1568, 2093, 1760, 2349, 2093].forEach((f, i) => s.tone({ at: t + i * 0.09, freq: f, dur: 0.1, type: 'triangle', vol: 0.08 }));
+  });
+  audio.define('ding', (s, t) => {
+    s.tone({ at: t, freq: 1760, dur: 0.8, type: 'sine', vol: 0.18 });
+    s.tone({ at: t, freq: 3520, dur: 0.3, type: 'sine', vol: 0.05 });
+  });
+  audio.define('wobble', (s, t) => {
+    s.tone({ at: t, freq: 220, to: 330, dur: 0.1, type: 'sine', vol: 0.25 });
+    s.tone({ at: t + 0.1, freq: 330, to: 200, dur: 0.1, type: 'sine', vol: 0.22 });
+    s.tone({ at: t + 0.2, freq: 260, to: 300, dur: 0.12, type: 'sine', vol: 0.18 });
+  });
+  audio.define('lick', (s, t) => {
+    s.noise({ at: t, dur: 0.18, filter: 'bandpass', freq: 1200, to: 2400, vol: 0.15, q: 2 });
+    s.tone({ at: t + 0.05, freq: 600, to: 900, dur: 0.12, type: 'sine', vol: 0.1 });
+  });
+  audio.define('creak', (s, t) => {
+    s.tone({ at: t, freq: 300, to: 480, dur: 0.25, type: 'triangle', vol: 0.08 });
+    s.tone({ at: t + 0.22, freq: 420, to: 340, dur: 0.15, type: 'triangle', vol: 0.06 });
+  });
   // A star sticker found: a twinkly run up to a held chord.
   audio.define('fanfare', (s, t) => {
     [784, 988, 1175, 1568].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.1, type: 'triangle', vol: 0.13 }));

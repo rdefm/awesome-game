@@ -25,6 +25,13 @@ export const STICKERS = {
     { id: 'frosty.cuddle', color: '#ff8fc8' }, // mum's cuddle when baby yeti is brought back to her
     { id: 'frosty.warm', color: '#ffb347' }, // mum yeti's thank-you for a warm fire flower
   ],
+  candy: [
+    { id: 'candy.mouse', color: '#ffffff' }, // dropped by the sugar mouse scampering out of its bush
+    { id: 'candy.butterfly', color: '#8ff0c8' }, // shaken off a candy butterfly tapped three times
+    { id: 'candy.lolly', color: '#ff5a6a' }, // the gummy bear's thank-you for a lick of a lollipop
+    { id: 'candy.bake', color: '#ff8fc8' }, // baked into the first cupcake from Ginger's oven
+    { id: 'candy.snow', color: '#a9d6f2' }, // Ginger's thank-you for her first ever snow
+  ],
 };
 
 // Every sticker on every planet, each with the planet it belongs to.

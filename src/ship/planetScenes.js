@@ -1,6 +1,8 @@
 import { BluebellScene } from './bluebellScene.js';
+import { CandyScene } from './candyScene.js';
 import { EmberScene } from './emberScene.js';
 import { FrostyScene } from './frostyScene.js';
+import { GingerbreadScene } from './gingerbreadScene.js';
 
 // Each planet she can walk about on (by its id in PLANETS), and the scene for
 // it. Adding a planet to explore is one line here (plus `landable` on it in
@@ -10,15 +12,24 @@ const SCENES = {
   bluebell: BluebellScene,
   ember: EmberScene,
   frosty: FrostyScene,
+  candy: CandyScene,
 };
 
-// The scene for walking out onto planet `id`.
+// Places inside on a planet (not planets themselves), so she can be picked
+// up again in there after a reload.
+const INDOORS = {
+  gingerbread: GingerbreadScene,
+};
+
+// The scene for walking out onto planet `id` (or into a place on one, by its
+// place name, like the gingerbread house).
 export function planetScene(id, assets, opts) {
-  return new SCENES[id](assets, opts);
+  return new (SCENES[id] ?? INDOORS[id])(assets, opts);
 }
 
-// The planet whose scene she was out in when `save` was made, or null if she
-// was in the ship.
+// The planet (or place on one) she was out in when `save` was made, or null
+// if she was in the ship.
 export function landedOn(save) {
-  return save.landed && Object.hasOwn(SCENES, save.where) ? save.where : null;
+  const out = Object.hasOwn(SCENES, save.where) || Object.hasOwn(INDOORS, save.where);
+  return save.landed && out ? save.where : null;
 }

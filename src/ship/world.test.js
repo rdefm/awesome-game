@@ -185,6 +185,24 @@ describe('world', () => {
     expect(kinds).toEqual(expect.arrayContaining(['mumYeti', 'babyYeti', 'snowball', 'frostflower']));
   });
 
+  it('gives an old save Candy\'s things and Ginger in her house, keeping her progress everywhere else', () => {
+    const saved = {
+      placed: { frosty: [{ id: 'mumYeti', kind: 'mumYeti', x: 120, y: 140 }] },
+      bag: [{ id: 'snowball0', kind: 'snowball' }],
+    };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'candy').map((e) => e.id).sort()).toEqual(placedIn(defaultWorld(), 'candy').map((e) => e.id).sort());
+    expect(placedIn(w, 'gingerbread').map((e) => e.id)).toEqual(['ginger']);
+    expect(find(w, 'mumYeti')).toMatchObject({ x: 120, y: 140 });
+    expect(w.bag).toEqual([{ id: 'snowball0', kind: 'snowball' }]);
+  });
+
+  it('has a gummy bear and sweets on Candy, and Ginger at home', () => {
+    const kinds = placedIn(defaultWorld(), 'candy').map((e) => e.kind);
+    expect(kinds).toEqual(expect.arrayContaining(['gummy', 'lollipop', 'gumdrop']));
+    expect(placedIn(defaultWorld(), 'gingerbread').map((e) => e.kind)).toEqual(['ginger']);
+  });
+
   it('drops malformed entries', () => {
     const w = normalizeWorld({ placed: { ship: [{ id: 'plant', kind: 'plant', x: 'a', y: 1 }] }, bag: [{ kind: 'x' }] });
     expect(find(w, 'plant')).toMatchObject({ x: 152, y: 120 });

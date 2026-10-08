@@ -8,7 +8,7 @@ import { allStickers, shelf, tally } from '../stickers.js';
 import { WardrobePicker } from '../wardrobePicker.js';
 import { Carryable } from './carryable.js';
 import { isFriendItem } from './friends.js';
-import { SNACKS } from './items.js';
+import { LOCKER_SNACKS } from './items.js';
 
 const HEADROOM = 16;
 
@@ -339,7 +339,7 @@ export class SnackLocker extends Prop {
     this.open = 0; // 0 = shut, 1 = swung wide
     this.isOpen = false;
     this.swinging = false;
-    this.shelves = [...SNACKS]; // the snack on each shelf (null once taken)
+    this.shelves = [...LOCKER_SNACKS]; // the snack on each shelf (null once taken)
     this.pulling = null; // a snack being dragged off a shelf
   }
 
@@ -403,7 +403,7 @@ export class SnackLocker extends Prop {
   async swing(open) {
     const { engine } = this.scene;
     if (open) {
-      this.shelves = [...SNACKS]; // restocked while nobody was looking
+      this.shelves = [...LOCKER_SNACKS]; // restocked while nobody was looking
     }
     this.isOpen = open;
     engine.audio.play(open ? 'lockerOpen' : 'lockerShut');

@@ -52,3 +52,33 @@ export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119
 export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };
 // Frosty's secret: a snow drift at the back, a snow hare hiding behind it.
 export const FROSTY_SECRETS = { drift: { x: 150, y: 121 } };
+
+// Candy: the gingerbread house far off at the back, and the winding path up
+// to its door. The path runs from the near end (on the walkable band) to the
+// doorstep; she shrinks as she walks it, to `far` scale at the doorstep.
+export const GINGERBREAD_HOUSE = {
+  x: 196,
+  y: 99,
+  path: [{ x: 154, y: 128 }, { x: 176, y: 119 }, { x: 162, y: 111 }, { x: 182, y: 104 }, { x: 196, y: 99 }],
+  far: 0.34,
+};
+
+// How big things look at height y on Candy's path: full size at its near end,
+// shrinking steadily to `far` at the house's doorstep.
+export function distanceScale(y) {
+  const { path, far } = GINGERBREAD_HOUSE;
+  const near = path[0].y;
+  const door = path[path.length - 1].y;
+  const k = (y - door) / (near - door);
+  return Math.max(far, Math.min(1, far + (1 - far) * k));
+}
+// Candy's secret: a candy-floss bush at the back, a sugar mouse living in it.
+export const CANDY_SECRETS = { bush: { x: 112, y: 121 } };
+
+// Inside the gingerbread house (same screen and walkable band as the ship):
+// the front door on the left wall, the oven on the right, a jar of jellybeans
+// on the shelf and a window at the back.
+export const HOUSE_DOOR = { x: 6, y: 64, w: 22, h: 48, spot: { x: 18, y: 124 } };
+export const OVEN = { x: 192, y: 56, w: 50, h: 56, spot: { x: 204, y: 124 } };
+export const JAR = { x: 70, y: 56, spot: { x: 70, y: 124 } };
+export const HOUSE_WINDOW = { x: 106, y: 24, w: 48, h: 40 };

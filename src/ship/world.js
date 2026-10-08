@@ -37,6 +37,18 @@ export function defaultWorld() {
         { id: 'frostflower0', kind: 'frostflower', x: 104, y: 126 },
         { id: 'frostflower1', kind: 'frostflower', x: 176, y: 152 },
       ],
+      candy: [
+        { id: 'gummy', kind: 'gummy', x: 222, y: 140 },
+        { id: 'lollipop0', kind: 'lollipop', x: 100, y: 132, v: 0 },
+        { id: 'lollipop1', kind: 'lollipop', x: 238, y: 126, v: 1 },
+        { id: 'gumdrop0', kind: 'gumdrop', x: 128, y: 150, v: 0 },
+        { id: 'gumdrop1', kind: 'gumdrop', x: 198, y: 154, v: 1 },
+        { id: 'gumdrop2', kind: 'gumdrop', x: 88, y: 150, v: 2 },
+      ],
+      // Inside the gingerbread house on Candy.
+      gingerbread: [
+        { id: 'ginger', kind: 'ginger', x: 150, y: 136 },
+      ],
     },
     bag: [],
   };

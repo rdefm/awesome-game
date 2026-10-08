@@ -17,7 +17,12 @@ import {
 import {
   SNOWBIRD_COLORS, drawDrift, drawFrostFlower, drawHare, drawSnowCloud, drawSnowball, drawSnowfield, drawYeti,
 } from './art/frosty.js';
-import { HORIZON } from './layout.js';
+import {
+  CANDY_BUTTERFLY_COLORS, GUMDROP_COLORS, LOLLIPOP_COLORS, drawCandyCloud, drawCandyPath, drawCandyland, drawCupcake,
+  drawFlossBush, drawGinger, drawGingerbreadHouse, drawGummy, drawGumdrop, drawHouseDoor, drawHouseRoom, drawJar,
+  drawLollipop, drawOven, drawSugarMouse,
+} from './art/candy.js';
+import { GINGERBREAD_HOUSE, HORIZON, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -25,7 +30,8 @@ import {
 } from './art/props.js';
 import { allStickers } from './stickers.js';
 
-const YETI_FRAMES = ['idle', 'blink', 'wave1', 'wave2', 'hop', 'walk'];
+// The frames every strolling friend has (see entities/stroller.js).
+const STROLLER_FRAMES = ['idle', 'blink', 'wave1', 'wave2', 'hop', 'walk'];
 
 // Turns a (possibly nested) structure of Pixmaps into canvas images.
 function bake(value) {
@@ -54,6 +60,8 @@ function bluebellIcon(stem, bell) {
   }
   return canvas;
 }
+
+const strollerFrames = (draw) => bake(Object.fromEntries(STROLLER_FRAMES.map((f) => [f, draw(f)])));
 
 // Paints every sprite once at startup. There are no image files: all art is
 // generated from code in ./art.
@@ -110,6 +118,13 @@ export function loadAssets() {
         puff: '#ffffff',
         snow: true,
       }),
+      candy: bake({
+        ground: drawCandyland({ horizon: HORIZON }),
+        window: drawCandyland({ horizon: 52 }),
+        clouds: [drawCandyCloud(0), drawCandyCloud(1)],
+        dust: '#ffffff',
+        puff: '#fff0f8',
+      }),
     },
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
     flame: bake([drawFlame(0), drawFlame(1)]),
@@ -141,14 +156,32 @@ export function loadAssets() {
     lavaFish: bake([drawLavaFish(0), drawLavaFish(1)]),
     moths: MOTH_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
     // Planet Frosty.
-    mumYeti: bake(Object.fromEntries(YETI_FRAMES.map((f) => [f, drawYeti(f, 'mum')]))),
-    babyYeti: bake(Object.fromEntries(YETI_FRAMES.map((f) => [f, drawYeti(f, 'baby')]))),
+    mumYeti: strollerFrames((f) => drawYeti(f, 'mum')),
+    babyYeti: strollerFrames((f) => drawYeti(f, 'baby')),
     snowball: bake(drawSnowball()),
     // [twinkle 0, twinkle 1, lit up]
     frostFlower: bake([drawFrostFlower(0), drawFrostFlower(1), drawFrostFlower(0, true)]),
     drift: bake(drawDrift()),
     hare: bake([drawHare(), drawHare(true)]),
     snowbirds: SNOWBIRD_COLORS.map((c) => bake([drawBird(c, 0), drawBird(c, 1)])),
+    // Planet Candy, and inside the gingerbread house.
+    house: bake({
+      shut: drawGingerbreadHouse(),
+      open: drawGingerbreadHouse({ open: true }),
+      path: drawCandyPath(GINGERBREAD_HOUSE.path, distanceScale),
+    }),
+    gummy: strollerFrames(drawGummy),
+    ginger: strollerFrames(drawGinger),
+    // [colour][swirl turned 0..3]
+    lollipop: bake(LOLLIPOP_COLORS.map((_, v) => [0, 1, 2, 3].map((f) => drawLollipop(v, f)))),
+    gumdrop: bake(GUMDROP_COLORS.map((_, v) => drawGumdrop(v))),
+    flossBush: bake([drawFlossBush(), drawFlossBush(true)]),
+    sugarMouse: bake([drawSugarMouse(), drawSugarMouse(true)]),
+    candyButterflies: CANDY_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    houseRoom: bake(drawHouseRoom()),
+    houseDoor: bake({ shut: drawHouseDoor(), open: drawHouseDoor(true) }),
+    oven: bake([drawOven(), drawOven(true)]),
+    jar: bake([drawJar(), drawJar(true)]),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),
@@ -158,7 +191,7 @@ export function loadAssets() {
     ball: bake(drawBall()),
     teddy: bake(drawTeddy()),
     crystal: bake([drawCrystal(), drawCrystal(true)]),
-    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice() }),
+    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake() }),
     lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
     wardrobeDoor: bake({ front: drawWardrobeDoor(), back: drawWardrobeDoor(true) }),
     // The wardrobe picker's buttons. Hats are shown on top of each hair colour,

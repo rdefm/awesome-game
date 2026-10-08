@@ -1,13 +1,12 @@
 import { ease } from '../../engine/tween.js';
 import { FR } from '../art/frosty.js';
-import { FROSTY_SECRETS, WALK } from '../layout.js';
+import { FROSTY_SECRETS } from '../layout.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
-import { feed, isSnack } from './items.js';
+import { isSnack } from './items.js';
 import { Secret } from './secret.js';
-
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+import { Stroller } from './stroller.js';
 
 // ----------------------------------------------------------------- snowball
 // Tap it and it puffs a little snow. The baby yeti loves to play with one.
@@ -74,139 +73,13 @@ export class FrostFlower extends Carryable {
 }
 
 // -------------------------------------------------------------------- yetis
-// What mum and baby yeti have in common: they plod about the snow, blink,
-// greet her and play with other friends, gobble snacks and sit in the
-// pilot chair. Each kind adds its own tap fun and things it loves.
-class Yeti extends Carryable {
-  constructor(state, imgs, { speed, wander, width, height }) {
-    super(state);
-    this.imgs = imgs;
-    this.speed = speed;
-    this.wander = wander; // how far it strolls off at a time
-    this.width = width;
-    this.height = height;
-    this.frame = 'idle';
-    this.facing = -1;
-    this.lift = 0;
-    this.blinkIn = 2;
-    this.restIn = 2 + Math.random() * 2;
-    this.walk = null; // { x, y, steps } while strolling somewhere
-    this.busy = false;
-    this.priority = 5;
-  }
-
-  hitTest(px, py) {
-    const y = this.y - this.perch;
-    return Math.abs(px - this.x) < this.width / 2 && py > y - this.height - this.lift && py < y + 3;
-  }
-
-  get free() {
-    return !this.busy && !this.held && !this.falling && !this.seat;
-  }
-
-  onPickUp() {
-    this.stayPut();
-    this.frame = 'hop';
-  }
-
-  onLand() {
-    if (!this.busy) {
-      this.frame = 'idle';
-    }
-  }
-
-  // Stops wherever it is (cutting short a stroll).
-  stayPut() {
-    this.walk = null;
-    this.lift = 0;
-  }
-
-  pose(frame) {
-    this.frame = frame;
-  }
-
-  // A little hop of a chew with every bite.
-  munch() {
-    const { tweens } = this.scene.engine;
-    tweens.to(this, { lift: 3 }, 0.1, ease.outQuad).then(() => tweens.to(this, { lift: 0 }, 0.12, ease.inQuad));
-  }
-
-  async eat(snack) {
-    hold(this);
-    await feed(this, snack);
-    letGo(this);
-  }
-
-  // Where to stroll to next: somewhere nearby in its patch (the planet keeps
-  // it clear of the ship).
-  nextStroll() {
-    const { minX, maxX } = this.scene.roam ?? WALK;
-    return clampToFloor(clamp(this.x + (Math.random() - 0.5) * this.wander, minX, maxX), this.y + (Math.random() - 0.5) * 16);
-  }
-
-  update(dt) {
-    if (this.held || this.falling || this.busy || this.seat) {
-      return;
-    }
-    if (this.walk) {
-      this.stroll(dt);
-      return;
-    }
-    if (this.frame === 'idle' || this.frame === 'blink') {
-      this.blinkIn -= dt;
-      this.frame = this.blinkIn < 0 ? 'blink' : 'idle';
-      if (this.blinkIn < -0.15) {
-        this.blinkIn = 2 + Math.random() * 3;
-      }
-    }
-    this.restIn -= dt;
-    if (this.restIn <= 0) {
-      const to = this.nextStroll();
-      this.walk = { x: to.x, y: to.y, steps: 0 };
-    }
-  }
-
-  // A step of a stroll: big furry feet going, until it's there.
-  stroll(dt) {
-    const w = this.walk;
-    const dx = w.x - this.x;
-    const dy = w.y - this.y;
-    const d = Math.hypot(dx, dy);
-    if (d < 1) {
-      this.walk = null;
-      this.frame = 'idle';
-      this.restIn = 2 + Math.random() * 3;
-      this.scene.settle(this); // remember where it wandered to
-      return;
-    }
-    const step = Math.min(d, this.speed * dt);
-    this.x += (dx / d) * step;
-    this.y += (dy / d) * step;
-    this.facing = dx < 0 ? -1 : 1;
-    w.steps += dt;
-    this.frame = Math.floor(w.steps * 6) % 2 ? 'walk' : 'idle';
-  }
-
-  // How it looks sitting in the pilot chair (which draws it, so it spins too).
-  seatFrame() {
-    return this.imgs[this.frame];
-  }
-
-  draw(r) {
-    if (this.seat) {
-      return;
-    }
-    this.shadow(r, this.width);
-    r.image(this.imgs[this.frame], this.x, this.y + 1 - this.lift, {
-      flipX: this.facing < 0, scaleX: this.bounce * this.twirl, scaleY: 2 - this.bounce,
-    });
-  }
-}
+// Mum and baby yeti plod about the snow like any strolling friend (see
+// stroller.js), each with its own tap fun and things it loves.
 
 // Mum yeti: big, soft and gentle. Tap her and she waves hello with a happy
 // hoot. Bring her baby back to her for a cuddle, and she's always glad of a
 // warm fire flower from Ember to toast her paws on.
-export class MumYeti extends Yeti {
+export class MumYeti extends Stroller {
   constructor(assets, state) {
     super(state, assets.mumYeti, { speed: 12, wander: 60, width: 22, height: 30 });
   }
@@ -286,7 +159,7 @@ export class MumYeti extends Yeti {
 // Baby yeti: a little bundle of fluff that never strays far from mum. Tap it
 // and it bounces with a giggle. Give it a snowball and it throws it up in
 // the air and catches it — or doesn't, and gets a face full of snow!
-export class BabyYeti extends Yeti {
+export class BabyYeti extends Stroller {
   constructor(assets, state) {
     super(state, assets.babyYeti, { speed: 20, wander: 50, width: 14, height: 18 });
   }
