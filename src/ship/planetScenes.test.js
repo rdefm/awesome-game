@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PLANETS } from './art/props.js';
-import { landedOn } from './planetScenes.js';
+import { H, W } from './layout.js';
+import { landedOn, placesOn } from './planetScenes.js';
 
 describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
@@ -35,5 +36,47 @@ describe('landedOn', () => {
     for (const p of PLANETS) {
       expect(landedOn({ where: p.id, landed: true }), p.id).toBe(p.landable ? p.id : null);
     }
+  });
+});
+
+describe('placesOn', () => {
+  const landable = PLANETS.filter((p) => p.landable);
+
+  it('lists nothing for a planet she can\'t land on', () => {
+    for (const p of PLANETS.filter((q) => !q.landable)) expect(placesOn(p.id), p.id).toEqual([]);
+    expect(placesOn('nowhere')).toEqual([]);
+  });
+
+  it('gives every landable planet one landing site, listed first and named for the planet', () => {
+    for (const p of landable) {
+      const landings = placesOn(p.id).filter((place) => place.kind === 'landing');
+      expect(landings.map((place) => place.where), p.id).toEqual([p.id]);
+      expect(placesOn(p.id)[0].kind, p.id).toBe('landing');
+    }
+  });
+
+  it('gives every place a name, a kind, a spot on the town map and a scene', () => {
+    for (const p of landable) {
+      for (const place of placesOn(p.id)) {
+        expect(place.name, place.where).toEqual(expect.any(String));
+        expect(['landing', 'house', 'site'], place.where).toContain(place.kind);
+        expect(place.spot.x, place.where).toBeGreaterThanOrEqual(0);
+        expect(place.spot.x, place.where).toBeLessThanOrEqual(W);
+        expect(place.spot.y, place.where).toBeGreaterThanOrEqual(0);
+        expect(place.spot.y, place.where).toBeLessThanOrEqual(H);
+        expect(place.scene, place.where).toEqual(expect.any(Function));
+        expect(landedOn({ where: place.where, landed: true }), place.where).toBe(place.where);
+      }
+    }
+  });
+
+  it('never gives two places the same where', () => {
+    const all = landable.flatMap((p) => placesOn(p.id).map((place) => place.where));
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it('knows the houses', () => {
+    expect(placesOn('candy').find((place) => place.where === 'gingerbread').kind).toBe('house');
+    expect(placesOn('ember').find((place) => place.where === 'lavahouse').kind).toBe('house');
   });
 });
