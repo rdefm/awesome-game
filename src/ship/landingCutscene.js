@@ -1,5 +1,5 @@
 import { ease } from '../engine/tween.js';
-import { drawBackdrop } from './backdrop.js';
+import { drawBackdrop, drawWeather } from './backdrop.js';
 import { PARKED_SHIP, W, H } from './layout.js';
 
 const START_Y = -10;
@@ -70,6 +70,7 @@ export class LandingCutscene {
     for (const p of this.puffs) {
       r.rect(p.x, p.y, 3, 2, this.backdrop.puff, 1 - p.age / p.life);
     }
+    drawWeather(r, this.backdrop, t);
     r.rect(0, 0, W, 10, '#000000');
     r.rect(0, H - 10, W, 10, '#000000');
   }

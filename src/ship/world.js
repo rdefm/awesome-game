@@ -29,6 +29,14 @@ export function defaultWorld() {
         { id: 'geode', kind: 'geode', x: 136, y: 146 },
         { id: 'newt', kind: 'newt', x: 214, y: 140 },
       ],
+      frosty: [
+        { id: 'mumYeti', kind: 'mumYeti', x: 204, y: 134 },
+        { id: 'babyYeti', kind: 'babyYeti', x: 226, y: 140 },
+        { id: 'snowball0', kind: 'snowball', x: 124, y: 148 },
+        { id: 'snowball1', kind: 'snowball', x: 236, y: 152 },
+        { id: 'frostflower0', kind: 'frostflower', x: 104, y: 126 },
+        { id: 'frostflower1', kind: 'frostflower', x: 176, y: 152 },
+      ],
     },
     bag: [],
   };

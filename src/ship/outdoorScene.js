@@ -1,4 +1,4 @@
-import { drawBackdrop } from './backdrop.js';
+import { drawBackdrop, drawWeather } from './backdrop.js';
 import { Girl, clampToFloor } from './entities/girl.js';
 import { ParkedShip } from './entities/outdoors.js';
 import { PARKED_SHIP } from './layout.js';
@@ -72,6 +72,7 @@ export class OutdoorScene extends PlayScene {
       e.drawOver?.(r);
     }
     this.drawParticles(r);
+    drawWeather(r, this.backdrop, this.engine.time);
     this.modal?.draw(r);
     this.drawOverlay(r);
   }

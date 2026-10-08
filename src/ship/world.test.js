@@ -168,6 +168,23 @@ describe('world', () => {
     expect(placedIn(w, 'ember').some((e) => e.id === 'newt')).toBe(false);
   });
 
+  it('gives an old save Frosty\'s yetis and things, keeping her progress everywhere else', () => {
+    const saved = {
+      placed: { ship: [{ id: 'newt', kind: 'newt', x: 90, y: 140 }], ember: [{ id: 'geode', kind: 'geode', x: 150, y: 146, stage: 1 }] },
+      bag: [{ id: 'firebloom0', kind: 'firebloom', v: 0 }],
+    };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'frosty').map((e) => e.id).sort()).toEqual(placedIn(defaultWorld(), 'frosty').map((e) => e.id).sort());
+    expect(find(w, 'newt')).toMatchObject({ x: 90, y: 140 });
+    expect(find(w, 'geode')).toMatchObject({ stage: 1 });
+    expect(w.bag).toEqual([{ id: 'firebloom0', kind: 'firebloom', v: 0 }]);
+  });
+
+  it('has a mum and baby yeti and things to carry lying about on Frosty', () => {
+    const kinds = placedIn(defaultWorld(), 'frosty').map((e) => e.kind);
+    expect(kinds).toEqual(expect.arrayContaining(['mumYeti', 'babyYeti', 'snowball', 'frostflower']));
+  });
+
   it('drops malformed entries', () => {
     const w = normalizeWorld({ placed: { ship: [{ id: 'plant', kind: 'plant', x: 'a', y: 1 }] }, bag: [{ kind: 'x' }] });
     expect(find(w, 'plant')).toMatchObject({ x: 152, y: 120 });

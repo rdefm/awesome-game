@@ -6,6 +6,7 @@ describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
     expect(landedOn({ where: 'bluebell', landed: true })).toBe('bluebell');
     expect(landedOn({ where: 'ember', landed: true })).toBe('ember');
+    expect(landedOn({ where: 'frosty', landed: true })).toBe('frosty');
   });
 
   it('puts her back in the ship otherwise', () => {

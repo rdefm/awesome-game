@@ -18,6 +18,13 @@ export const STICKERS = {
     { id: 'ember.geode', color: '#9a6cf0' }, // inside the geode the newt cracks open
     { id: 'ember.newt', color: '#ff5a5a' }, // the newt's thank-you for a shady bluebell
   ],
+  frosty: [
+    { id: 'frosty.hare', color: '#ffc0d0' }, // kicked up by the snow hare bounding over its drift
+    { id: 'frosty.bird', color: '#8fc4e8' }, // shaken off a snowbird tapped three times
+    { id: 'frosty.snowball', color: '#ffffff' }, // shaken out of baby yeti's fur after a snowball on the head
+    { id: 'frosty.cuddle', color: '#ff8fc8' }, // mum's cuddle when baby yeti is brought back to her
+    { id: 'frosty.warm', color: '#ffb347' }, // mum yeti's thank-you for a warm fire flower
+  ],
 };
 
 // Every sticker on every planet, each with the planet it belongs to.

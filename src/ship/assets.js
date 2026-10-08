@@ -14,6 +14,9 @@ import {
   MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
   drawVent,
 } from './art/ember.js';
+import {
+  SNOWBIRD_COLORS, drawDrift, drawFrostFlower, drawHare, drawSnowCloud, drawSnowball, drawSnowfield, drawYeti,
+} from './art/frosty.js';
 import { HORIZON } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
@@ -21,6 +24,8 @@ import {
   drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle, drawStarSticker,
 } from './art/props.js';
 import { allStickers } from './stickers.js';
+
+const YETI_FRAMES = ['idle', 'blink', 'wave1', 'wave2', 'hop', 'walk'];
 
 // Turns a (possibly nested) structure of Pixmaps into canvas images.
 function bake(value) {
@@ -97,6 +102,14 @@ export function loadAssets() {
         dust: '#7a4a52',
         puff: '#8a6a74',
       }),
+      frosty: bake({
+        ground: drawSnowfield({ horizon: HORIZON }),
+        window: drawSnowfield({ horizon: 52 }),
+        clouds: [drawSnowCloud(0), drawSnowCloud(1)],
+        dust: '#ffffff',
+        puff: '#ffffff',
+        snow: true,
+      }),
     },
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
     flame: bake([drawFlame(0), drawFlame(1)]),
@@ -127,6 +140,15 @@ export function loadAssets() {
     lavaPool: bake([drawLavaPool(0), drawLavaPool(1)]),
     lavaFish: bake([drawLavaFish(0), drawLavaFish(1)]),
     moths: MOTH_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // Planet Frosty.
+    mumYeti: bake(Object.fromEntries(YETI_FRAMES.map((f) => [f, drawYeti(f, 'mum')]))),
+    babyYeti: bake(Object.fromEntries(YETI_FRAMES.map((f) => [f, drawYeti(f, 'baby')]))),
+    snowball: bake(drawSnowball()),
+    // [twinkle 0, twinkle 1, lit up]
+    frostFlower: bake([drawFrostFlower(0), drawFrostFlower(1), drawFrostFlower(0, true)]),
+    drift: bake(drawDrift()),
+    hare: bake([drawHare(), drawHare(true)]),
+    snowbirds: SNOWBIRD_COLORS.map((c) => bake([drawBird(c, 0), drawBird(c, 1)])),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),

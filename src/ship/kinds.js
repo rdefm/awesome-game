@@ -1,5 +1,6 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
 import { Firebloom, Geode, Newt } from './entities/ember.js';
+import { BabyYeti, FrostFlower, MumYeti, Snowball } from './entities/frosty.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
 
@@ -18,6 +19,10 @@ export const KINDS = {
   firebloom: { make: (a, s) => new Firebloom(a, s), icon: (a, s) => a.firebloom[(s.v ?? 0) % a.firebloom.length][0] },
   geode: { make: (a, s) => new Geode(a, s), icon: (a, s) => a.geode[s.stage ? 1 : 0] },
   newt: { friend: true, make: (a, s) => new Newt(a, s), icon: (a) => a.newt.idle },
+  snowball: { make: (a, s) => new Snowball(a, s), icon: (a) => a.snowball },
+  frostflower: { make: (a, s) => new FrostFlower(a, s), icon: (a) => a.frostFlower[0] },
+  mumYeti: { friend: true, make: (a, s) => new MumYeti(a, s), icon: (a) => a.mumYeti.idle },
+  babyYeti: { friend: true, make: (a, s) => new BabyYeti(a, s), icon: (a) => a.babyYeti.idle },
 };
 
 export const isFriend = (kind) => Boolean(KINDS[kind]?.friend);

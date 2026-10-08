@@ -1,5 +1,6 @@
 import { BluebellScene } from './bluebellScene.js';
 import { EmberScene } from './emberScene.js';
+import { FrostyScene } from './frostyScene.js';
 
 // Each planet she can walk about on (by its id in PLANETS), and the scene for
 // it. Adding a planet to explore is one line here (plus `landable` on it in
@@ -8,6 +9,7 @@ import { EmberScene } from './emberScene.js';
 const SCENES = {
   bluebell: BluebellScene,
   ember: EmberScene,
+  frosty: FrostyScene,
 };
 
 // The scene for walking out onto planet `id`.

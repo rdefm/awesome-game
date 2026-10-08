@@ -171,6 +171,16 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 140, to: 420, dur: 0.12, type: 'sine', vol: 0.3 });
     s.tone({ at: t + 0.1, freq: 260, to: 120, dur: 0.1, type: 'sine', vol: 0.15 });
   });
+  // Frosty: mum yeti's soft friendly hoot, a puff of snow, and a frost
+  // flower's tinkle.
+  audio.define('hoo', (s, t) => {
+    s.tone({ at: t, freq: 196, to: 247, dur: 0.22, type: 'sine', vol: 0.3 });
+    s.tone({ at: t + 0.28, freq: 247, to: 196, dur: 0.3, type: 'sine', vol: 0.28 });
+  });
+  audio.define('poof', (s, t) => s.noise({ at: t, dur: 0.25, filter: 'lowpass', freq: 1800, to: 400, vol: 0.22 }));
+  audio.define('tinkle', (s, t) => {
+    [2093, 2637, 3136, 2637].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.12, type: 'triangle', vol: 0.07 }));
+  });
   // A star sticker found: a twinkly run up to a held chord.
   audio.define('fanfare', (s, t) => {
     [784, 988, 1175, 1568].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.1, type: 'triangle', vol: 0.13 }));

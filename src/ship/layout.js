@@ -50,3 +50,5 @@ export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };
 export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119 }, hole: { x: 192, y: 151 } };
 // Ember's secrets: a steam vent at the back and a lava pool at the front.
 export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };
+// Frosty's secret: a snow drift at the back, a snow hare hiding behind it.
+export const FROSTY_SECRETS = { drift: { x: 150, y: 121 } };
