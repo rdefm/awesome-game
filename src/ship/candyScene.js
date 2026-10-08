@@ -7,11 +7,13 @@ import { OutdoorScene } from './outdoorScene.js';
 // wobbly gummy bear, lollipops and gumdrops, candy butterflies, our ship
 // parked on the left (and a secret: a candy-floss bush with a sugar mouse in
 // it). Far off at the back is the gingerbread house: tap it and she walks
-// up the winding path, getting smaller and smaller, and goes inside.
+// up the winding path, getting smaller and smaller, and goes inside. Beside
+// the ship is the hoverbike, to ride off anywhere else on Candy.
 export class CandyScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'candy', opts);
     this.addHouse(new GingerbreadHouse(assets), (o) => new GingerbreadScene(assets, o));
+    this.addBike();
     this.add(new FlossBush(assets));
     this.addPlaced();
     for (let i = 0; i < 3; i++) {

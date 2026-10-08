@@ -83,6 +83,18 @@ export function distanceScale(y, house = GINGERBREAD_HOUSE) {
 // Candy's secret: a candy-floss bush at the back, a sugar mouse living in it.
 export const CANDY_SECRETS = { bush: { x: 112, y: 121 } };
 
+// Where the hoverbike parks (bottom-centre) at each place out of doors that
+// has one: on Candy beside the ship, and on the milkshake lake's shore.
+export const HOVERBIKE = { candy: { x: 106, y: 142 }, milkshake: { x: 40, y: 140 } };
+
+// The milkshake lake on Candy fills the back of the scene (an ellipse round
+// x, y), with the shore she walks along in front. In it: a giant straw to
+// slurp from, cherries bobbing about, and a wafer boat sailing up and down.
+export const MILKSHAKE_LAKE = { x: 150, y: 111, rx: 100, ry: 11 };
+export const STRAW = { x: 92, y: 116, spot: { x: 98, y: 126 } };
+export const CHERRIES = [{ x: 140, y: 106 }, { x: 178, y: 113 }, { x: 214, y: 105 }];
+export const WAFER_BOAT = { y: 119, minX: 116, maxX: 232 };
+
 // Stripey's secret: a sand mound in the middle, a stripy worm living in it.
 export const STRIPEY_SECRETS = { mound: { x: 132, y: 124 } };
 

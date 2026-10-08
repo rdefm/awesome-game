@@ -28,7 +28,12 @@ store.
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
-  on Ember).
+  on Ember) and other places out of doors (Candy's milkshake lake). Where
+  a planet has a hoverbike, it's parked by the ship: hop on and a town map
+  slides up (an illustrated overview of the planet, Aha World-style, its
+  places popping now and then to show they can be tapped); tap a place and
+  she zooms there. Every outdoor place has the bike, so she can always ride
+  back to the ship.
 - **Persistence**: saves locally on the tablet (browser storage) so closing
   the app and coming back picks up where she left off.
 - **Audio**: sound effects only (synthesized at runtime). No music yet.
@@ -39,13 +44,14 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `MilkshakeLakeScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
-  path to a house far off at the back), houses' insides share an
+  path to a house far off at the back, the hoverbike ride), houses' insides share an
   `IndoorScene` base (room, front door back out), and they're listed in
-  `src/ship/planetScenes.js` (with places inside, so a reload picks her up
-  in there); the ship's rooms, left to right, are in `src/ship/shipRooms.js`. Friends who wander about share a `Stroller` base. Scripted moments (landing, door, cutscenes) are
+  `src/ship/planetScenes.js`, every place on each planet with its spot on
+  the town map (`src/ship/townMap.js` reads them), so a reload picks her up
+  wherever she was; the ship's rooms, left to right, are in `src/ship/shipRooms.js`. Friends who wander about share a `Stroller` base. Scripted moments (landing, door, cutscenes) are
   plain `async` sequences that `await` tweens.
 - **Art pipeline**: pixel art only, drawn entirely in code under
   `src/ship/art/` (256x160 internal resolution, scaled up with crisp pixels)
@@ -96,7 +102,12 @@ store.
   bouncy gumdrops, candy butterflies, and a candy-floss bush with a sugar
   mouse in it. Far off at the back is a gingerbread house: tap it and she
   walks up the winding path, getting smaller as she goes, and in through
-  the door (and back down it, growing, when she comes out)
+  the door (and back down it, growing, when she comes out). A hoverbike
+  parked by the ship rides her anywhere on Candy's town map
+- The milkshake lake on Candy (by hoverbike): a pink strawberry-milkshake
+  lake ringed with whipped cream, a giant stripy straw to slurp from,
+  cherries bobbing about that duck under with a plop, and a wafer boat
+  with an umbrella sail that toots and speeds up when tapped
 - Inside the gingerbread house: Ginger the gingerbread girl, who lives there
   and dances when tapped, an oven that bakes cupcakes (a new snack), a jar
   of jellybeans that pop out, and the door to go back outside

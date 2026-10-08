@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PLANETS } from './art/props.js';
 import { H, W } from './layout.js';
-import { landedOn, placesOn } from './planetScenes.js';
+import { arrivingBy, landedOn, placesOn, planetOf } from './planetScenes.js';
 
 describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
@@ -43,7 +43,9 @@ describe('placesOn', () => {
   const landable = PLANETS.filter((p) => p.landable);
 
   it('lists nothing for a planet she can\'t land on', () => {
-    for (const p of PLANETS.filter((q) => !q.landable)) expect(placesOn(p.id), p.id).toEqual([]);
+    for (const p of PLANETS.filter((q) => !q.landable)) {
+      expect(placesOn(p.id), p.id).toEqual([]);
+    }
     expect(placesOn('nowhere')).toEqual([]);
   });
 
@@ -78,5 +80,48 @@ describe('placesOn', () => {
   it('knows the houses', () => {
     expect(placesOn('candy').find((place) => place.where === 'gingerbread').kind).toBe('house');
     expect(placesOn('ember').find((place) => place.where === 'lavahouse').kind).toBe('house');
+  });
+
+  it('has the milkshake lake on Candy, out of doors with no ship', () => {
+    expect(placesOn('candy').map((place) => place.where)).toEqual(['candy', 'gingerbread', 'milkshake']);
+    expect(placesOn('candy').find((place) => place.where === 'milkshake').kind).toBe('site');
+  });
+
+  it('keeps places on a town map far enough apart to tap', () => {
+    for (const p of landable) {
+      const spots = placesOn(p.id).map((place) => place.spot);
+      for (const [i, a] of spots.entries()) {
+        for (const b of spots.slice(i + 1)) {
+          expect(Math.hypot(a.x - b.x, a.y - b.y), p.id).toBeGreaterThanOrEqual(44);
+        }
+      }
+    }
+  });
+});
+
+describe('planetOf', () => {
+  it('finds the planet any place is on', () => {
+    expect(planetOf('candy')).toBe('candy');
+    expect(planetOf('gingerbread')).toBe('candy');
+    expect(planetOf('milkshake')).toBe('candy');
+    expect(planetOf('lavahouse')).toBe('ember');
+    expect(planetOf('ship')).toBe(null);
+  });
+});
+
+describe('arrivingBy', () => {
+  it('rides up to a place out of doors and parks the bike', () => {
+    expect(arrivingBy('candy')).toEqual({ fromShip: false, byBike: true });
+    expect(arrivingBy('milkshake')).toEqual({ fromShip: false, byBike: true });
+  });
+
+  it('takes her straight in through a house\'s front door', () => {
+    expect(arrivingBy('gingerbread')).toEqual({ fromDoor: true });
+  });
+});
+
+describe('a reload at the milkshake lake', () => {
+  it('puts her back by the lake', () => {
+    expect(landedOn({ where: 'milkshake', landed: true })).toBe('milkshake');
   });
 });

@@ -37,6 +37,9 @@ import {
   drawCradle, drawEmberPath, drawHearth, drawLavaCake, drawLavaDoor, drawLavaFolk, drawLavaHouse, drawLavaLamp,
   drawLavaRoom,
 } from './art/lavaHouse.js';
+import { drawHoverbike } from './art/hoverbike.js';
+import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
+import { drawCandyMap, drawMapBike, drawMapGingerbread, drawMapLake, drawMapShip } from './art/townMap.js';
 import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
@@ -75,6 +78,10 @@ function bluebellIcon(stem, bell) {
   }
   return canvas;
 }
+
+// A sprite cut down to each number of its top rows (0 is never drawn): how
+// much of something shows above a hole, or above the milkshake.
+const croppedRows = (pm) => bake(Array.from({ length: pm.height + 1 }, (_, k) => cropTop(pm, k)));
 
 const strollerFrames = (draw) => bake(Object.fromEntries(STROLLER_FRAMES.map((f) => [f, draw(f)])));
 
@@ -157,6 +164,13 @@ export function loadAssets() {
         dust: '#ffffff',
         puff: '#fff0f8',
       }),
+      // Not a planet: the milkshake lake on Candy (there are no windows onto it).
+      milkshake: bake({
+        ground: drawMilkshakeLake({ horizon: HORIZON }),
+        clouds: [drawCandyCloud(1), drawCandyCloud(0)],
+        dust: '#ffffff',
+        puff: '#fff0f8',
+      }),
       stripey: bake({
         ground: drawStripeyCanyon({ horizon: HORIZON }),
         window: drawStripeyCanyon({ horizon: 52 }),
@@ -165,6 +179,14 @@ export function loadAssets() {
         puff: '#ffe8d0',
       }),
     },
+    // The hoverbike [glow flicker 0, 1], and its town maps: each planet's
+    // picture, each place's picture on it (by its `where`), and her on the bike.
+    hoverbike: bake([drawHoverbike(0), drawHoverbike(1)]),
+    townMap: bake({
+      ground: { candy: drawCandyMap() },
+      places: { candy: drawMapShip(), gingerbread: drawMapGingerbread(), milkshake: drawMapLake() },
+      bike: drawMapBike(),
+    }),
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
     flame: bake([drawFlame(0), drawFlame(1)]),
     bell,
@@ -179,7 +201,7 @@ export function loadAssets() {
     birds: BIRD_COLORS.map((c) => bake([drawBird(c, 0), drawBird(c, 1)])),
     hole: bake(drawHole()),
     // [eyes open / shut][rows showing above the hole] (0 is never drawn)
-    mole: [drawMole(), drawMole(true)].map((m) => bake(Array.from({ length: m.height + 1 }, (_, k) => cropTop(m, k)))),
+    mole: [drawMole(), drawMole(true)].map(croppedRows),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),
@@ -231,6 +253,11 @@ export function loadAssets() {
     flossBush: bake([drawFlossBush(), drawFlossBush(true)]),
     sugarMouse: bake([drawSugarMouse(), drawSugarMouse(true)]),
     candyButterflies: CANDY_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // The milkshake lake on Candy.
+    straw: bake(drawStraw()),
+    // The cherry: [rows showing above the milkshake] (0 is never drawn).
+    cherry: croppedRows(drawCherry()),
+    waferBoat: bake(drawWaferBoat()),
     houseRoom: bake(drawHouseRoom()),
     houseDoor: bake({ shut: drawHouseDoor(), open: drawHouseDoor(true) }),
     oven: bake([drawOven(), drawOven(true)]),
@@ -242,7 +269,7 @@ export function loadAssets() {
     mound: bake(drawMound()),
     // The worm: [eyes open / shut][rows showing above the hole], and whole.
     worm: {
-      up: [drawWorm(), drawWorm(true)].map((w) => bake(Array.from({ length: w.height + 1 }, (_, k) => cropTop(w, k)))),
+      up: [drawWorm(), drawWorm(true)].map(croppedRows),
       whole: bake(drawWorm()),
     },
     stripeButterflies: STRIPE_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),

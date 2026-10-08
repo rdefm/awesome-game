@@ -45,10 +45,12 @@ export class PlayScene extends Scene {
     this.engine.tweens.to(this, { fade: 0 }, 0.5);
   }
 
-  // Fades to black, then swaps to the scene `makeScene` builds.
-  async leaveTo(makeScene) {
+  // Fades to black, then swaps to the scene `makeScene` builds. Input is held
+  // off meanwhile by `modal` (which can be something to keep showing, like
+  // the town map, so long as it ignores taps).
+  async leaveTo(makeScene, modal = BLOCK_INPUT) {
     this.busy = true;
-    this.modal = BLOCK_INPUT;
+    this.modal = modal;
     await this.engine.tweens.to(this, { fade: 1 }, 0.45);
     this.engine.setScene(makeScene());
   }

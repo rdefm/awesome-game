@@ -1,31 +1,40 @@
 import { ease } from '../engine/tween.js';
 import { drawBackdrop, drawWeather } from './backdrop.js';
 import { Girl, clampToFloor } from './entities/girl.js';
+import { Hoverbike } from './entities/hoverbike.js';
 import { ParkedShip } from './entities/outdoors.js';
-import { PARKED_SHIP, distanceScale } from './layout.js';
+import { HOVERBIKE, PARKED_SHIP, distanceScale } from './layout.js';
+import { arrivingBy, planetScene } from './planetScenes.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 import { ShipScene } from './shipScene.js';
+import { TownMap } from './townMap.js';
 
 const PATH_SPEED = 44; // game px per second up a house's path, at full size (slower when far off)
 
-// What every planet she can walk about on has in common: its backdrop, our
-// ship parked on the left to walk out of and back into, and remembering
-// where she is. `where` is the planet's id (see planetScenes.js). Some
-// planets have a house far off at the back to visit (see `addHouse`).
+// What every place out of doors she can walk about on has in common: its
+// backdrop, our ship parked on the left to walk out of and back into (at a
+// planet's landing site), and remembering where she is. `where` is the
+// place's id (see planetScenes.js): the planet's id at its landing site.
+// Some places have a house far off at the back to visit (see `addHouse`),
+// and some a hoverbike to ride to the planet's other places (see `addBike`).
 // Subclasses add their own things, then `addGirl()` last.
 export class OutdoorScene extends PlayScene {
   // `fromShip`: she's just walked out of the door (rather than a reload).
   // `fromHouse`: she's just come out of the house's front door.
-  constructor(assets, where, { fromShip = true, fromHouse = false } = {}) {
+  // `byBike`: she's just ridden here on the hoverbike.
+  // `ship`: whether our ship is parked here (false at a site off the landing site).
+  constructor(assets, where, { fromShip = true, fromHouse = false, byBike = false, ship = true } = {}) {
     super(assets, where);
     this.backdrop = assets.backdrops[where];
     this.dustColor = this.backdrop.dust;
     this.roam = { minX: 92, maxX: 244 }; // where critters wander: clear of the ship
-    this.fromShip = fromShip && !fromHouse;
+    this.fromShip = fromShip && !fromHouse && !byBike && ship;
     this.fromHouse = fromHouse;
-    this.ship = this.add(new ParkedShip(assets));
+    this.byBike = byBike;
+    this.ship = ship ? this.add(new ParkedShip(assets)) : null;
     this.house = null;
+    this.bike = null;
   }
 
   // A house far off at the back (a FarHouse); `inside(opts)` builds the scene
@@ -35,9 +44,14 @@ export class OutdoorScene extends PlayScene {
     this.inside = inside;
   }
 
+  // The hoverbike, parked in its spot here (see HOVERBIKE).
+  addBike() {
+    this.bike = this.add(new Hoverbike(this.assets, HOVERBIKE[this.where]));
+  }
+
   addGirl() {
     const save = loadSave();
-    const start = this.fromShip ? PARKED_SHIP.spot : clampToFloor(save.bx ?? 90, save.by ?? 134);
+    const start = this.fromShip ? PARKED_SHIP.spot : this.byBike ? this.bike.spot : clampToFloor(save.bx ?? 90, save.by ?? 134);
     this.girl = this.add(new Girl(this.assets, start.x, start.y, this.look));
     if (this.fromHouse) {
       const { layout } = this.house;
@@ -54,6 +68,9 @@ export class OutdoorScene extends PlayScene {
     }
     if (this.fromHouse) {
       this.walkOutOfHouse();
+    }
+    if (this.byBike) {
+      this.rideIn();
     }
   }
 
@@ -85,6 +102,42 @@ export class OutdoorScene extends PlayScene {
     engine.tweens.to(girl, { y: PARKED_SHIP.spot.y - 8 }, 0.5);
     await engine.tweens.to(girl, { alpha: 0 }, 0.5);
     await this.leaveTo(() => new ShipScene(this.assets, { fromDoor: true }));
+  }
+
+  // She's tapped the hoverbike (and walked over to it): on she hops and the
+  // town map slides up. Pick a place and off she zooms to it; close the map
+  // and she hops back off.
+  async rideBike() {
+    const { bike, girl } = this;
+    if (this.busy) {
+      return;
+    }
+    this.busy = true;
+    this.modal = BLOCK_INPUT;
+    await bike.mount(girl);
+    this.modal = null;
+    const map = new TownMap(this, this.where);
+    const place = await map.open();
+    if (place) {
+      await this.leaveTo(() => planetScene(place.where, this.assets, arrivingBy(place.where)), map);
+      return;
+    }
+    await this.scripted(async () => {
+      await bike.dismount(girl);
+    });
+    this.persist();
+  }
+
+  // She's just ridden here: the bike swoops in and parks, and she hops off.
+  async rideIn() {
+    const { bike, girl } = this;
+    await this.scripted(async () => {
+      await bike.flyIn(girl);
+      await this.engine.wait(0.2);
+      await bike.dismount(girl);
+    });
+    this.persist();
+    girl.say('heart');
   }
 
   // Walks her along `points` (off the usual floor, so not with walkTo),

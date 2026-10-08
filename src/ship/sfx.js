@@ -263,6 +263,26 @@ export function defineSfx(audio) {
     [1047, 1319, 1568].forEach((f) => s.tone({ at: t + 0.36, freq: f, dur: 0.5, type: 'triangle', vol: 0.09 }));
     [2600, 3100, 2800].forEach((f, i) => s.tone({ at: t + 0.4 + i * 0.1, freq: f, to: f * 1.2, dur: 0.05, type: 'sine', vol: 0.06 }));
   });
+  // The hoverbike humming up off the ground and settling back down, and the
+  // soft bloop of a place on its town map bouncing to say "come here!".
+  audio.define('hoverUp', (s, t) => {
+    s.tone({ at: t, freq: 110, to: 330, dur: 0.5, type: 'sawtooth', vol: 0.06, attack: 0.05 });
+    s.tone({ at: t, freq: 660, to: 990, dur: 0.5, type: 'sine', vol: 0.08, attack: 0.05 });
+  });
+  audio.define('hoverDown', (s, t) => {
+    s.tone({ at: t, freq: 330, to: 100, dur: 0.4, type: 'sawtooth', vol: 0.05 });
+    s.tone({ at: t, freq: 990, to: 520, dur: 0.4, type: 'sine', vol: 0.07 });
+  });
+  audio.define('mapPop', (s, t) => s.tone({ at: t, freq: 520, to: 1040, dur: 0.12, type: 'sine', vol: 0.07 }));
+  // The milkshake lake: a cherry bobbing under with a plop, and the wafer boat's toot.
+  audio.define('plop', (s, t) => {
+    s.tone({ at: t, freq: 900, to: 220, dur: 0.12, type: 'sine', vol: 0.25 });
+    s.noise({ at: t + 0.05, dur: 0.15, filter: 'bandpass', freq: 1200, to: 500, vol: 0.12, q: 2 });
+  });
+  audio.define('toot', (s, t) => {
+    s.tone({ at: t, freq: 392, dur: 0.18, type: 'triangle', vol: 0.15 });
+    s.tone({ at: t + 0.22, freq: 392, dur: 0.35, type: 'triangle', vol: 0.15 });
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });
