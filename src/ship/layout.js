@@ -71,6 +71,14 @@ export const LAVA_HOUSE = {
   far: 0.34,
 };
 
+// ...and Zig's stripy dome hut, out among the mesas on Stripey.
+export const ZIG_HUT = {
+  x: 202,
+  y: 99,
+  path: [{ x: 178, y: 129 }, { x: 198, y: 120 }, { x: 186, y: 112 }, { x: 200, y: 105 }, { x: 202, y: 99 }],
+  far: 0.34,
+};
+
 // How big things look at height y on a house's path: full size at its near
 // end, shrinking steadily to `far` at the house's doorstep.
 export function distanceScale(y, house = GINGERBREAD_HOUSE) {
@@ -128,6 +136,16 @@ export const LAVA_LAMP = { x: 56, y: 94, spot: { x: 56, y: 124 } };
 export const LAVA_WINDOW = { x: 80, y: 20, w: 40, h: 40 };
 export const CRADLE = { x: 150, y: 117, w: 32, spot: { x: 150, y: 128 } };
 export const HEARTH = { x: 186, y: 40, w: 58, h: 72, spot: { x: 204, y: 124 } };
+
+// Inside Zig's hut: the same front door, a stripe-painting easel on the
+// floor, a round window onto the canyon, a sand timer on a little table, a
+// shelf of goggles to try on, and a hammock slung between two hooks on the
+// right (its ends at x1 and x2 on `top`, sagging down to `sag`).
+export const EASEL = { x: 58, y: 118, spot: { x: 74, y: 126 } };
+export const HUT_WINDOW = { x: 102, y: 42, r: 15 };
+export const SAND_TIMER = { x: 138, y: 92, spot: { x: 138, y: 124 } };
+export const GOGGLE_SHELF = { x: 152, y: 52, w: 42, spot: { x: 172, y: 124 } };
+export const HAMMOCK = { x1: 202, x2: 246, top: 66, sag: 98, spot: { x: 222, y: 126 } };
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.

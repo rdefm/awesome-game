@@ -7,6 +7,7 @@ import { LavaFallsScene } from './lavaFallsScene.js';
 import { LavaHouseScene } from './lavaHouseScene.js';
 import { MilkshakeLakeScene } from './milkshakeLakeScene.js';
 import { StripeyScene } from './stripeyScene.js';
+import { ZigHutScene } from './zigHutScene.js';
 
 // Every place she can be on each planet (by its id in PLANETS), for the
 // hoverbike's town map to read. A place's `where` is its id, so saves and the
@@ -36,6 +37,7 @@ const PLACES = {
   ],
   stripey: [
     { where: 'stripey', name: 'Landing site', kind: 'landing', spot: { x: 128, y: 96 }, scene: StripeyScene },
+    { where: 'zighut', name: "Zig's hut", kind: 'house', spot: { x: 176, y: 72 }, scene: ZigHutScene },
   ],
 };
 

@@ -8,9 +8,9 @@ export const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x 
 // door. Tap it and she walks to the path, then up it to go inside (see
 // OutdoorScene). `layout` is its spot and path (e.g. GINGERBREAD_HOUSE);
 // `imgs` its pictures (shut, open, and the path as a full-screen overlay);
-// smoke curls from its chimney at `chimney` (from the doorstep).
+// smoke curls from its chimney at `chimney` (from the doorstep), if it has one.
 export class FarHouse {
-  constructor(imgs, layout, { chimney, smoke = '#ffffff' }) {
+  constructor(imgs, layout, { chimney, smoke = '#ffffff' } = {}) {
     this.imgs = imgs;
     this.layout = layout;
     this.x = layout.x;
@@ -50,6 +50,9 @@ export class FarHouse {
   draw(r) {
     r.image(this.imgs.path, 0, 0, { ax: 0, ay: 0 });
     r.image(this.open ? this.imgs.open : this.imgs.shut, this.x, this.y, { scaleX: this.bounce, scaleY: 2 - this.bounce });
+    if (!this.chimney) {
+      return;
+    }
     const t = this.scene.engine.time;
     for (let i = 0; i < 3; i++) {
       const k = (t * 0.4 + i / 3) % 1;

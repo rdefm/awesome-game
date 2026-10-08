@@ -116,7 +116,7 @@ export function drawStripeyCloud(variant = 0) {
 
 // Recolours every pixel of `from` into stripes of `a` and `b`, `band` rows
 // each, counting from row `y0`.
-function stripe(pm, from, a, b, band = 2, y0 = 0) {
+export function stripe(pm, from, a, b, band = 2, y0 = 0) {
   const [fr, fg, fb] = parseColor(from);
   for (let y = 0; y < pm.height; y++) {
     for (let x = 0; x < pm.width; x++) {

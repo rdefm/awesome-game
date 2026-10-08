@@ -28,7 +28,7 @@ store.
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
-  on Ember) and other places out of doors (Candy's milkshake lake, Ember's
+  on Ember, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
   lava falls). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `MilkshakeLakeScene`, `LavaFallsScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -121,7 +121,15 @@ store.
 - Stripey canyon: a sunset sky in stripes, banded mesas, sand in wavy
   stripes, parked ship, Zig the stripey alien (goggly eyes on stalks; waves
   both arms with a "zig-zig!"), stripe stones that each plink a note,
-  stripe cacti, stripy butterflies, and a sand mound with a stripy worm in it
+  stripe cacti, stripy butterflies, and a sand mound with a stripy worm in
+  it. Out among the mesas is Zig's hut, a dome in orange and cream stripes
+  with two little eye-stalk aerials on top: tap it and she walks up the
+  sandy path, getting smaller, and in through the round door
+- Inside Zig's hut: a stripy dome of a room. An easel: tap it and she
+  paints the walls in the next planet's stripes; a sand timer to turn over
+  (it dings when the sand's all through); a shelf of goggles to try on, one
+  pair after another; and a hammock that swings when tapped (drop a friend
+  in and it's swung off to sleep). The door goes back out
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,
   frost flowers, lollipops, gumdrops, cupcakes, lava cakes, stripe stones,

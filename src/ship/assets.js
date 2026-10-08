@@ -37,6 +37,10 @@ import {
   drawCradle, drawEmberPath, drawHearth, drawLavaCake, drawLavaDoor, drawLavaFolk, drawLavaHouse, drawLavaLamp,
   drawLavaRoom,
 } from './art/lavaHouse.js';
+import {
+  GOGGLE_COLORS, HUT_WALLS, drawEasel, drawGoggles, drawSandTimer, drawSling, drawZigDoor, drawZigHut, drawZigPath,
+  drawZigRoom,
+} from './art/zigHut.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
@@ -44,7 +48,7 @@ import {
   MAP_STYLE, drawCandyMap, drawEmberMap, drawMapBike, drawMapFalls, drawMapGingerbread, drawMapLake, drawMapLavaHouse,
   drawMapShip,
 } from './art/townMap.js';
-import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, distanceScale } from './layout.js';
+import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -295,6 +299,18 @@ export function loadAssets() {
       whole: bake(drawWorm()),
     },
     stripeButterflies: STRIPE_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // Zig's hut on Stripey, and inside it (its walls in every planet's stripes).
+    zigHut: bake({
+      shut: drawZigHut(),
+      open: drawZigHut({ open: true }),
+      path: drawZigPath(ZIG_HUT.path, (y) => distanceScale(y, ZIG_HUT)),
+    }),
+    zigRoom: bake(HUT_WALLS.map((_, v) => drawZigRoom(v))),
+    zigDoor: bake({ shut: drawZigDoor(), open: drawZigDoor(true) }),
+    easel: bake(HUT_WALLS.map((_, v) => drawEasel(v))),
+    sandTimer: bake(drawSandTimer()),
+    goggles: bake(GOGGLE_COLORS.map((_, v) => drawGoggles(v))),
+    sling: bake(drawSling()),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),
