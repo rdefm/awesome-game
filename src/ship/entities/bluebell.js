@@ -1,8 +1,9 @@
 import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
-import { offerChat } from '../chat.js';
+import { happened, offerChat } from '../chat.js';
 import { MEADOW_SECRETS, WALK } from '../layout.js';
 import { PINK_ALIEN } from '../talks/pinkAlien.js';
+import { PUFFBALL } from '../talks/puffball.js';
 import { Carryable } from './carryable.js';
 import { isFriendItem, play } from './friends.js';
 import { feed, isSnack } from './items.js';
@@ -170,6 +171,7 @@ export class Critter extends Carryable {
         return;
       }
       if (c.nudges <= 0) {
+        scene.remember('puffball.ball'); // a whole chase, booped all about
         this.endChase();
         return;
       }
@@ -214,6 +216,17 @@ export class Critter extends Carryable {
     scene.sparkles(this.x, this.y - 16, 6);
     scene.girl.faceToward(this.x);
     scene.girl.say('heart', 1.2);
+    offerChat(scene, this, 0.6); // once it's landed
+  }
+
+  // Where its chat lines go.
+  get headTop() {
+    return this.y - this.perch - 16 - this.lift;
+  }
+
+  // What it has to say, and whether it's had a ball to chase yet.
+  chat() {
+    return { tree: PUFFBALL, facts: { chased: happened(this.scene, 'puffball.ball') } };
   }
 
   update(dt) {
@@ -576,7 +589,7 @@ export class Local extends Carryable {
 
   // What it has to say, and whether she's given it the crystal yet.
   chat() {
-    return { tree: PINK_ALIEN, facts: { gotCrystal: this.scene.stickers.includes('bluebell.local') } };
+    return { tree: PINK_ALIEN, facts: { gotCrystal: happened(this.scene, 'bluebell.local') } };
   }
 
   // It loves shiny crystals: drop one on it and it keeps it beside it. Drop

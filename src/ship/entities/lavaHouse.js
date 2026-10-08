@@ -1,7 +1,9 @@
 import { ease } from '../../engine/tween.js';
 import { EM } from '../art/ember.js';
 import { LAMP_COLORS, LAMP_GLASS } from '../art/lavaHouse.js';
+import { happened, offerChat } from '../chat.js';
 import { CRADLE, HEARTH, LAVA_HOUSE, LAVA_LAMP } from '../layout.js';
+import { LAVA_BABY, LAVA_DAD, LAVA_MUM } from '../talks/lavaFamily.js';
 import { cuddle, hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
 import { FarHouse, HouseProp, inRect } from './house.js';
@@ -9,6 +11,10 @@ import { isSnack } from './items.js';
 import { Stroller } from './stroller.js';
 
 const isParent = (item) => item.kind === 'lavaDad' || item.kind === 'lavaMum';
+
+// What the family's chats remember: a cuddle with the baby, and its nap in
+// the cradle.
+const familyFacts = (scene) => ({ cuddled: happened(scene, 'lava.cuddle'), napped: happened(scene, 'lava.nap') });
 
 // ---------------------------------------------------------------- the house
 // The lava family's house, dug into the foot of the volcano at the back, with
@@ -30,19 +36,25 @@ class LavaParent extends Stroller {
 
   receive(item) {
     if (item.kind === 'lavaBaby') {
-      return cuddle(this, item, { sound: 'hum' });
+      return cuddle(this, item, { sound: 'hum', memory: 'lava.cuddle' });
     }
     return isFriendItem(item) ? play(item, this) : this.eat(item);
   }
 
-  onTap() {
+  async onTap() {
     if (this.seat) {
       this.seat.spin();
       return;
     }
     if (this.free) {
-      this.tapFun();
+      await this.tapFun();
+      offerChat(this.scene, this);
     }
+  }
+
+  // What they have to say (`chatTree` is dad's or mum's).
+  chat() {
+    return { tree: this.chatTree, facts: familyFacts(this.scene) };
   }
 }
 
@@ -51,6 +63,7 @@ class LavaParent extends Stroller {
 export class LavaDad extends LavaParent {
   constructor(assets, state) {
     super(state, assets.lavaDad, { speed: 11, wander: 60, width: 20, height: 28 });
+    this.chatTree = LAVA_DAD;
   }
 
   async tapFun() {
@@ -80,6 +93,7 @@ export class LavaDad extends LavaParent {
 export class LavaMum extends LavaParent {
   constructor(assets, state) {
     super(state, assets.lavaMum, { speed: 13, wander: 60, width: 18, height: 26 });
+    this.chatTree = LAVA_MUM;
   }
 
   async tapFun() {
@@ -144,6 +158,12 @@ export class LavaBaby extends Stroller {
     scene.bits(this.x, this.y - 16, 4, EM.lavaHi);
     scene.girl.faceToward(this.x);
     scene.girl.say('heart', 1.2);
+    offerChat(scene, this, 0.4); // once it's landed
+  }
+
+  // What it babbles about: its cuddles and its naps.
+  chat() {
+    return { tree: LAVA_BABY, facts: familyFacts(this.scene) };
   }
 
   accepts(item) {
@@ -152,7 +172,7 @@ export class LavaBaby extends Stroller {
 
   receive(item) {
     if (isParent(item)) {
-      return cuddle(item, this, { sound: 'hum' });
+      return cuddle(item, this, { sound: 'hum', memory: 'lava.cuddle' });
     }
     return isFriendItem(item) ? play(item, this) : this.eat(item);
   }
@@ -347,6 +367,7 @@ export class Cradle extends HouseProp {
     this.rocking = true;
     await scene.putDown(baby, CRADLE.x, CRADLE.spot.y);
     baby.tucked = true;
+    scene.remember('lava.nap');
     baby.frame = 'idle';
     this.baby = baby;
     this.rocking = false;

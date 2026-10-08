@@ -81,6 +81,25 @@ export function defineSfx(audio) {
   audio.define('chatGirl', (s, t) => {
     [620, 760, 680].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, to: f * 0.95, dur: 0.05, type: 'triangle', vol: 0.12 }));
   });
+  // Every other friend's chatter: the puffball squeaks, the newt drawls
+  // (it's too hot to hurry), the yetis hoot (baby higher), the gummy bear
+  // wobbles, Ginger jingles, Zig buzzes, and the lava family rumble, hum and
+  // gurgle, biggest to smallest.
+  const chatter = (name, freqs, { gap = 0.06, dur = 0.05, bend = 1, type = 'sine', vol = 0.12 } = {}) => {
+    audio.define(name, (s, t) => {
+      freqs.forEach((f, i) => s.tone({ at: t + i * gap, freq: f, to: f * bend, dur, type, vol }));
+    });
+  };
+  chatter('chatPuff', [1600, 2000, 1800], { gap: 0.05, dur: 0.04, bend: 1.3, vol: 0.1 });
+  chatter('chatNewt', [380, 340, 300], { gap: 0.11, dur: 0.1, bend: 0.85, type: 'triangle' });
+  chatter('chatMumYeti', [220, 262, 220], { gap: 0.1, dur: 0.09, bend: 1.1, vol: 0.2 });
+  chatter('chatBabyYeti', [520, 620, 560], { gap: 0.07, dur: 0.06, bend: 1.15, vol: 0.16 });
+  chatter('chatGummy', [300, 380, 320], { gap: 0.07, dur: 0.07, bend: 0.8, vol: 0.18 });
+  chatter('chatGinger', [1320, 1568, 1397], { gap: 0.06, dur: 0.06, type: 'triangle', vol: 0.08 });
+  chatter('chatZig', [800, 1000, 900], { gap: 0.05, dur: 0.05, bend: 1.2, type: 'square', vol: 0.04 });
+  chatter('chatLavaDad', [150, 175, 140], { gap: 0.1, dur: 0.09, bend: 0.9, type: 'triangle', vol: 0.2 });
+  chatter('chatLavaMum', [392, 440, 392], { gap: 0.09, dur: 0.08, bend: 1.05, vol: 0.14 });
+  chatter('chatLavaBaby', [700, 840, 760], { gap: 0.06, dur: 0.05, bend: 1.2, vol: 0.14 });
   audio.define('select', (s, t) => {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
     s.tone({ at: t + 0.08, freq: 1568, dur: 0.12, vol: 0.1 });

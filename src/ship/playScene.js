@@ -25,6 +25,9 @@ export class PlayScene extends Scene {
     this.world = normalizeWorld(save.world);
     this.look = normalizeLook(save.look); // how she looks, wherever she goes
     this.stickers = normalizeFound(save.stickers); // ids of the star stickers she's found
+    // Things friends remember happening that leave no sticker behind (like
+    // a cuddle), for their chats to mention: a list of names.
+    this.memories = Array.isArray(save.memories) ? save.memories.filter((m) => typeof m === 'string') : [];
     this.flyingStickers = []; // just-found stickers on their way off screen
     this.bag = new Bag(this);
     this.carried = null; // the carryable being dragged, if any
@@ -94,6 +97,14 @@ export class PlayScene extends Scene {
     this.look = look;
     this.girl.wear(look);
     writeSave({ ...loadSave(), look });
+  }
+
+  // Remembers that `memory` has happened (see `memories`).
+  remember(memory) {
+    if (!this.memories.includes(memory)) {
+      this.memories = [...this.memories, memory];
+      writeSave({ ...loadSave(), memories: this.memories });
+    }
   }
 
   // A star sticker turns up at (x, y): if it's a new one, a fanfare, it pops

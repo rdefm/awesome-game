@@ -1,4 +1,5 @@
 import { ease } from '../engine/tween.js';
+import { hold, letGo } from './entities/friends.js';
 import { H, W } from './layout.js';
 import { choose, current, next, startTalk, wrap } from './talk.js';
 
@@ -20,8 +21,21 @@ export function choiceRows(n) {
   return Array.from({ length: n }, (_, i) => ({ x: 0, y: top + i * ROW_H, w: W, h: ROW_H }));
 }
 
-// Offers a chat with `speaker` via a speech bubble over its head.
-export function offerChat(scene, speaker) {
+// True if `id` (a star sticker, or one of the scene's memories) has
+// happened: the world facts friends' chats change with.
+export function happened(scene, id) {
+  return scene.stickers.includes(id) || scene.memories.includes(id);
+}
+
+// Offers a chat with `speaker` via a speech bubble over its head, after
+// `delay` seconds (to let a trick finish), if it's still free to chat.
+export async function offerChat(scene, speaker, delay = 0) {
+  if (delay) {
+    await scene.engine.wait(delay);
+  }
+  if (scene.engine.scene !== scene || !scene.entities.includes(speaker) || speaker.busy || speaker.held || speaker.seat) {
+    return;
+  }
   for (const e of scene.entities) {
     if (e instanceof ChatBubble && e.speaker === speaker) {
       scene.remove(e);
@@ -111,6 +125,8 @@ export class Chat {
     scene.modal = this;
     scene.girl.cancelWalk();
     scene.girl.faceToward(speaker.x);
+    hold(speaker); // it stays to chat
+    speaker.facing = scene.girl.x < speaker.x ? -1 : 1;
     scene.engine.audio.play('select');
     this.shown();
     return new Promise((resolve) => {
@@ -124,6 +140,7 @@ export class Chat {
     this.t = 0;
     if (!step) {
       this.scene.modal = this.prevModal;
+      letGo(this.speaker);
       this.done?.();
       return;
     }

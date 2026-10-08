@@ -1,6 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { EM } from '../art/ember.js';
+import { happened, offerChat } from '../chat.js';
 import { EMBER_SECRETS, WALK } from '../layout.js';
+import { NEWT } from '../talks/newt.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
@@ -151,6 +153,18 @@ export class Newt extends Carryable {
     scene.bits(this.x, this.y - 8, 4, EM.lavaLight);
     scene.girl.faceToward(this.x);
     scene.girl.say('heart', 1.2);
+    offerChat(scene, this, 0.4); // once it's landed
+  }
+
+  // Where its chat lines go.
+  get headTop() {
+    return this.y - this.perch - 16 - this.lift;
+  }
+
+  // What it has to say, and whether it's had its shade, or cracked a geode.
+  chat() {
+    const { scene } = this;
+    return { tree: NEWT, facts: { shady: happened(scene, 'ember.newt'), cracked: happened(scene, 'ember.geode') } };
   }
 
   onPickUp() {

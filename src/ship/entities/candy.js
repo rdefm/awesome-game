@@ -1,5 +1,8 @@
 import { ease } from '../../engine/tween.js';
+import { happened, offerChat } from '../chat.js';
 import { CANDY_SECRETS, GINGERBREAD_HOUSE, JAR, OVEN } from '../layout.js';
+import { GINGER } from '../talks/ginger.js';
+import { GUMMY_BEAR } from '../talks/gummyBear.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
 import { FarHouse, HouseProp, inRect } from './house.js';
@@ -104,6 +107,12 @@ export class GummyBear extends Stroller {
     this.hopUp(6);
     scene.girl.faceToward(this.x);
     scene.girl.say('heart', 1.2);
+    offerChat(scene, this, 0.4); // once it's landed
+  }
+
+  // What it has to say, and whether it's had its lick of a lollipop.
+  chat() {
+    return { tree: GUMMY_BEAR, facts: { licked: happened(this.scene, 'candy.lolly') } };
   }
 
   onPickUp() {
@@ -195,6 +204,12 @@ export class Ginger extends Stroller {
     scene.hearts(this.x, this.y - 28, 2);
     girl.say('heart', 1.2);
     letGo(this);
+    offerChat(scene, this);
+  }
+
+  // What she has to say, and whether she's seen snow yet.
+  chat() {
+    return { tree: GINGER, facts: { snow: happened(this.scene, 'candy.snow') } };
   }
 
   accepts(item) {

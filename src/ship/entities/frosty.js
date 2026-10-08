@@ -1,6 +1,9 @@
 import { ease } from '../../engine/tween.js';
 import { FR } from '../art/frosty.js';
+import { happened, offerChat } from '../chat.js';
 import { FROSTY_SECRETS } from '../layout.js';
+import { BABY_YETI } from '../talks/babyYeti.js';
+import { MUM_YETI } from '../talks/mumYeti.js';
 import { Carryable } from './carryable.js';
 import { cuddle, hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
@@ -110,6 +113,13 @@ export class MumYeti extends Stroller {
     scene.hearts(this.x, this.y - 32, 2);
     girl.say('heart', 1.2);
     letGo(this);
+    offerChat(scene, this);
+  }
+
+  // What she has to say, and whether she's been warmed, or had her cuddle.
+  chat() {
+    const { scene } = this;
+    return { tree: MUM_YETI, facts: { warm: happened(scene, 'frosty.warm'), cuddled: happened(scene, 'frosty.cuddle') } };
   }
 
   accepts(item) {
@@ -201,6 +211,14 @@ export class BabyYeti extends Stroller {
     scene.bits(this.x, this.y - 2, 4, FR.snow);
     scene.girl.faceToward(this.x);
     scene.girl.say('heart', 1.2);
+    offerChat(scene, this, 0.4); // once it's landed
+  }
+
+  // What it has to say, and whether it's had a snowball on its head, or a
+  // cuddle with mum.
+  chat() {
+    const { scene } = this;
+    return { tree: BABY_YETI, facts: { snowball: happened(scene, 'frosty.snowball'), cuddled: happened(scene, 'frosty.cuddle') } };
   }
 
   onPickUp() {

@@ -55,7 +55,8 @@ store.
   the girl is (ship or planet), her position, the current planet, whether
   the ship has landed, and the **world** (`src/ship/world.js`): where every
   carryable thing lies in each place, and what's in the bag, plus which star
-  stickers she's found (`src/ship/stickers.js`). No account, no
+  stickers she's found (`src/ship/stickers.js`) and the **memories** friends
+  chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
   tweens, world, stickers, drop receivers, chat trees).
@@ -141,15 +142,21 @@ store.
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.
 
-- **Chatting**, Monkey Island style: tap the pink alien and after its
-  wave-and-hop a little speech bubble pops over its head (fading if
-  ignored). Tap the bubble and they chat: each line shows over the
-  speaker's head in their own colour (tap to move on, with a chatter blip),
-  and her replies are big tappable lines along the bottom. "Bye!" is always
-  one of them. While chatting the scene is modal. Chats are plain data
-  trees (`src/ship/talks/`, one per character, walked by `src/ship/talk.js`)
-  that can branch on world facts: the alien hints at wanting a crystal, and
-  is all thank-yous once it has one.
+- **Chatting**, Monkey Island style: tap any friend and after its tap
+  trick a little speech bubble pops over its head (fading if ignored). Tap
+  the bubble and they chat: each line shows over the speaker's head in
+  their own colour (tap to move on, with a chatter blip in their own
+  voice), and her replies are big tappable lines along the bottom. "Bye!" is
+  always one of them. While chatting the scene is modal and the friend
+  stays put. Chats are plain data trees (`src/ship/talks/`, one per
+  character, the lava family's together; walked by `src/ship/talk.js`)
+  that branch on world facts (the stickers she's found and the scene's
+  memories). Every friend has its own
+  way of talking (the newt drawls, Zig goes "ZIG-ZIG!", the babies babble
+  in tiny words), and each chat hints at that friend's drop-on reactions:
+  the newt is sooo hot, Ginger wonders what snow is, Zig dreams of other
+  planets' colours, the pink alien wants a crystal. Once a reaction has
+  happened, the chat changes to talk about it.
 
 - **The ship's other rooms**: an arrow by each side wall of the cockpit
   (labelled with where it goes) — tap it and she walks off through the

@@ -16,6 +16,10 @@ function setup() {
     engine: { audio: { play: vi.fn() }, tweens: { to: vi.fn(() => Promise.resolve()), cancel: vi.fn() }, wait: () => Promise.resolve() },
     entities: [],
     settle: vi.fn(),
+    stickers: [],
+    memories: [],
+    remember: vi.fn(),
+    add: vi.fn(),
     findSticker: vi.fn(() => true),
     useUp: vi.fn(),
     remove: vi.fn(),
@@ -68,7 +72,26 @@ describe('the lava family', () => {
       expect(scene.engine.audio.play).toHaveBeenCalledWith('hum');
       expect(parent.busy).toBe(false);
       expect(baby.busy).toBe(false);
+      expect(scene.remember).toHaveBeenCalledWith('lava.cuddle');
     }
+  });
+
+  it('chat about the cuddle and the nap once they have happened', () => {
+    const { scene, dad, mum, baby } = setup();
+    for (const friend of [dad, mum, baby]) {
+      expect(friend.chat().facts).toEqual({ cuddled: false, napped: false });
+    }
+    scene.memories = ['lava.cuddle', 'lava.nap'];
+    for (const friend of [dad, mum, baby]) {
+      expect(friend.chat().facts).toEqual({ cuddled: true, napped: true });
+    }
+    expect(new Set([dad, mum, baby].map((f) => f.chat().tree)).size).toBe(3);
+  });
+
+  it('offer a chat once their tap fun is done', async () => {
+    const { scene, dad } = setup();
+    await dad.onTap();
+    expect(scene.add).toHaveBeenCalledWith(expect.objectContaining({ speaker: dad }));
   });
 
   it('a parent brought to the baby cuddles it too', async () => {
@@ -115,6 +138,7 @@ describe('the cradle', () => {
     await done;
     expect(scene.putDown.mock.calls[0][0]).toBe(baby);
     expect(scene.engine.audio.play).toHaveBeenCalledWith('lullaby');
+    expect(scene.remember).toHaveBeenCalledWith('lava.nap');
     expect(baby.tucked).toBe(false);
     expect(cradle.baby).toBe(null);
     expect(cradle.rocking).toBe(false);

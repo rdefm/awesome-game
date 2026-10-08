@@ -1,6 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { ST, ZIG_STRIPES } from '../art/stripey.js';
+import { happened, offerChat } from '../chat.js';
 import { STRIPEY_SECRETS } from '../layout.js';
+import { ZIG } from '../talks/zig.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
 import { isSnack } from './items.js';
@@ -161,6 +163,13 @@ export class Zig extends Stroller {
     scene.hearts(this.x, this.y - 30, 2);
     girl.say('heart', 1.2);
     letGo(this);
+    offerChat(scene, this);
+  }
+
+  // What it has to say, and whether it's played a tune, or had new stripes.
+  chat() {
+    const { scene } = this;
+    return { tree: ZIG, facts: { tune: happened(scene, 'stripey.tune'), restriped: happened(scene, 'stripey.stripes') } };
   }
 
   onPickUp() {

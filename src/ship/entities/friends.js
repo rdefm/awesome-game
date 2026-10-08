@@ -104,8 +104,9 @@ export async function play(friend, other) {
 
 // A baby back with its mum (or dad): scooped up into a big cuddle and rocked,
 // then set down beside them. `sound` is the grown-up's happy noise; a
-// `sticker`, if given, is found as a thank-you.
-export async function cuddle(mum, baby, { sound = 'hoo', sticker = null } = {}) {
+// `sticker`, if given, is found as a thank-you, and a `memory`, if given, is
+// remembered (see PlayScene.remember).
+export async function cuddle(mum, baby, { sound = 'hoo', sticker = null, memory = null } = {}) {
   const { scene } = mum;
   const { engine, girl } = scene;
   hold(mum);
@@ -133,6 +134,9 @@ export async function cuddle(mum, baby, { sound = 'hoo', sticker = null } = {}) 
   await engine.wait(0.5);
   if (sticker) {
     scene.findSticker(sticker, mum.x, mum.y - 36);
+  }
+  if (memory) {
+    scene.remember(memory);
   }
   // Back down beside her.
   baby.frame = 'hop';

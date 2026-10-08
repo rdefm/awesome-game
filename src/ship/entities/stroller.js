@@ -38,6 +38,11 @@ export class Stroller extends Carryable {
     return !this.busy && !this.held && !this.falling && !this.seat;
   }
 
+  // The top of its head, where its chat lines go.
+  get headTop() {
+    return this.y - this.perch - this.height - this.lift;
+  }
+
   onPickUp() {
     this.stayPut();
     this.frame = 'hop';

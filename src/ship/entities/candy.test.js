@@ -17,6 +17,10 @@ function setup() {
     engine: { audio: { play: vi.fn() }, tweens: { to: vi.fn(() => Promise.resolve()), cancel: vi.fn() }, wait: () => Promise.resolve() },
     entities: [],
     settle: vi.fn(),
+    stickers: [],
+    memories: [],
+    remember: vi.fn(),
+    add: vi.fn(),
     findSticker: vi.fn(() => true),
     useUp: vi.fn(),
     remove: vi.fn(),
@@ -92,6 +96,15 @@ describe('the gummy bear and Ginger', () => {
     await ginger.dance();
     expect(ginger.busy).toBe(false);
     expect(ginger.draggable).toBe(true);
+  });
+
+  it('Ginger offers a chat after her dance, wondering about snow until she has had some', async () => {
+    const { scene, ginger } = setup();
+    await ginger.dance();
+    expect(scene.add).toHaveBeenCalledWith(expect.objectContaining({ speaker: ginger }));
+    expect(ginger.chat().facts).toEqual({ snow: false });
+    scene.stickers = ['candy.snow'];
+    expect(ginger.chat().facts).toEqual({ snow: true });
   });
 });
 

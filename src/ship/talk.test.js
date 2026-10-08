@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { canDraw } from '../engine/font.js';
+import { defineSfx } from './sfx.js';
 import { BYE, choose, current, next, startTalk, wrap } from './talk.js';
 import { TALKS } from './talks/index.js';
 
@@ -141,8 +142,21 @@ describe.each(Object.entries(TALKS))('the %s chat', (name, tree) => {
   });
 
   it('can always be said goodbye to, whatever the world facts', () => {
-    for (const gotCrystal of [false, true]) {
-      expect(playThrough(tree, { gotCrystal }).at(-1)).toMatch(/^them: /);
+    const used = Object.values(tree.nodes).flatMap((n) => [n.if, ...(n.choices ?? []).map((c) => c.if)]).filter(Boolean);
+    const names = [...new Set(used.map((f) => f.replace('!', '')))];
+    for (const holds of [false, true]) {
+      const facts = Object.fromEntries(names.map((f) => [f, holds]));
+      expect(playThrough(tree, facts).at(-1)).toMatch(/^them: /);
     }
+  });
+
+  it('talks in a voice that has a sound, and a colour of its own', () => {
+    const sounds = [];
+    defineSfx({ define: (sound) => sounds.push(sound) });
+    expect(sounds).toContain(tree.voice);
+    expect(tree.color).toMatch(/^#[0-9a-f]{6}$/);
+    const others = Object.entries(TALKS).filter(([other]) => other !== name);
+    expect(others.map(([, t]) => t.voice)).not.toContain(tree.voice);
+    expect(others.map(([, t]) => t.color)).not.toContain(tree.color);
   });
 });
