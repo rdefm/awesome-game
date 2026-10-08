@@ -3,6 +3,9 @@ import { textPixmap } from '../engine/font.js';
 import { drawHairSwatch, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
+  drawBallPitFront, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
+} from './art/shipRooms.js';
+import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
   drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawRock,
   drawShipExterior, drawSoilPatch,
@@ -80,6 +83,13 @@ export function loadAssets() {
       return girlCache.get(key);
     },
     room: bake(drawRoom()),
+    // The ship's other rooms, either side of the cockpit, and the arrows through.
+    storeRoom: bake(drawStoreRoom()),
+    playRoom: bake(drawPlayRoom()),
+    roomArrow: bake(drawRoomArrow()),
+    ballPit: bake(drawBallPitFront()),
+    swing: bake({ frame: drawSwingFrame(), seat: drawSwingSeat() }),
+    trampoline: bake([drawTrampoline(), drawTrampoline(true)]),
     space: bake(drawSpace()),
     poster: bake([drawPoster(0), drawPoster(1)]),
     // [stage][glow]

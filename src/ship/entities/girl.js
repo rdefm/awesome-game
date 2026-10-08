@@ -37,6 +37,7 @@ export class Girl {
     this.priority = 10;
     this.hugging = false;
     this.greeting = false; // saying hello to a friend dropped on her
+    this.riding = null; // playground kit that's drawing her (she's down in the ball pit)
     this.draggable = true;
   }
 
@@ -279,8 +280,8 @@ export class Girl {
   }
 
   draw(r) {
-    if (this.mode === 'seated') {
-      return; // the chair draws her, so she spins with it
+    if (this.mode === 'seated' || this.riding) {
+      return; // the chair draws her, so she spins with it (or the ball pit, so she can sink out of sight)
     }
     const s = this.scale;
     const shadowW = (this.mode === 'held' ? 8 : 12) * s;

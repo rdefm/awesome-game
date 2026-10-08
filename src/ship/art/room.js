@@ -29,7 +29,8 @@ function drawCeiling(pm) {
   }
 }
 
-function drawWall(pm) {
+// `railTo`: where the chair rail stops (short of the cockpit's windshield).
+function drawWall(pm, railTo = 175) {
   pm.rect(0, 12, W, FLOOR_TOP - 12, C.wall);
   // Darker toward the ceiling.
   for (let y = 12; y < 26; y++) {
@@ -39,8 +40,8 @@ function drawWall(pm) {
     pm.vline(x, 12, 93, C.wallDark);
     pm.vline(x + 1, 12, 93, C.wallLight);
   }
-  pm.hline(0, 175, 62, C.wallDark);
-  pm.hline(0, 175, 63, C.wallLight);
+  pm.hline(0, railTo, 62, C.wallDark);
+  pm.hline(0, railTo, 63, C.wallLight);
   for (const x of [4, 47, 56, 91, 100, 155, 164]) {
     rivet(pm, x, 16);
     rivet(pm, x, 58);
@@ -280,6 +281,15 @@ function drawDoor(pm) {
 function drawShadows(pm) {
   // Contact shadow under the console so it sits on the floor.
   pm.dither(CONSOLE.x - 2, FLOOR_TOP, CONSOLE.w + 2, 3, C.floorDark, 0.7);
+}
+
+// Bare walls, ceiling and floor, for the ship's other rooms to fit out.
+export function drawShell() {
+  const pm = new Pixmap(W, H);
+  drawWall(pm, W - 1);
+  drawCeiling(pm);
+  drawFloor(pm);
+  return pm;
 }
 
 export function drawRoom() {

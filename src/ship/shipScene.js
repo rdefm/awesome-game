@@ -1,6 +1,7 @@
 import { ease } from '../engine/tween.js';
 import { PLANETS } from './art/props.js';
 import { Girl, clampToFloor } from './entities/girl.js';
+import { addRoomArrows, startBeyondWall, walkIn } from './entities/roomArrow.js';
 import {
   Chair, ConsoleScreen, Door, Porthole, Poster, SnackLocker, StickerBoard, Wardrobe, WindowPlanet,
 } from './entities/props.js';
@@ -12,10 +13,12 @@ import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 import { Starfield } from './starfield.js';
 
-// The spaceship interior: one room, one hero, a handful of things to poke.
+// The spaceship's cockpit: one hero, a handful of things to poke, and the
+// ship's other rooms through the walls either side (see shipRooms.js).
 export class ShipScene extends PlayScene {
-  // `fromDoor`: she's just come back in from outside.
-  constructor(assets, { fromDoor = false } = {}) {
+  // `fromDoor`: she's just come back in from outside. `enter`: she's just
+  // come through the wall on `enter.side` from the room next door.
+  constructor(assets, { fromDoor = false, enter = null } = {}) {
     super(assets, 'ship');
     this.stars = new Starfield();
     this.shake = 0;
@@ -25,12 +28,16 @@ export class ShipScene extends PlayScene {
     this.planetSlide = 0;
     this.planetZoom = 0; // 0..1 while diving down toward the planet
     this.fromDoor = fromDoor;
+    this.entering = enter;
 
     const save = loadSave();
     this.planetIndex = Number.isInteger(save.planet) && PLANETS[save.planet] ? save.planet : 0;
     this.landed = Boolean(save.landed && this.planet.landable);
     this.ground = this.landed ? 1 : 0; // how much of the window shows the planet's surface
-    const start = fromDoor ? DOOR.spot : clampToFloor(save.x ?? 96, save.y ?? 136);
+    let start = fromDoor ? DOOR.spot : clampToFloor(save.x ?? 96, save.y ?? 136);
+    if (enter) {
+      start = startBeyondWall(enter);
+    }
 
     this.porthole = this.add(new Porthole(assets));
     this.poster = this.add(new Poster(assets));
@@ -42,6 +49,7 @@ export class ShipScene extends PlayScene {
     this.door = this.add(new Door());
     this.add(new WindowPlanet());
     this.addPlaced();
+    addRoomArrows(this);
     this.girl = this.add(new Girl(assets, start.x, start.y, this.look));
     this.map = new PlanetMap(this, assets);
   }
@@ -50,6 +58,10 @@ export class ShipScene extends PlayScene {
     super.enter();
     if (this.fromDoor) {
       this.walkInFromDoor();
+    }
+    if (this.entering) {
+      this.persist();
+      walkIn(this, this.entering);
     }
   }
 
@@ -61,8 +73,7 @@ export class ShipScene extends PlayScene {
     writeSave({
       ...loadSave(),
       where: 'ship',
-      x: Math.round(this.girl.x),
-      y: Math.round(this.girl.y),
+      ...clampToFloor(Math.round(this.girl.x), Math.round(this.girl.y)),
       planet: this.planetIndex,
       landed: this.landed,
     });

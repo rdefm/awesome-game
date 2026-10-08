@@ -82,3 +82,17 @@ export const HOUSE_DOOR = { x: 6, y: 64, w: 22, h: 48, spot: { x: 18, y: 124 } }
 export const OVEN = { x: 192, y: 56, w: 50, h: 56, spot: { x: 204, y: 124 } };
 export const JAR = { x: 70, y: 56, spot: { x: 70, y: 124 } };
 export const HOUSE_WINDOW = { x: 106, y: 24, w: 48, h: 40 };
+
+// The ship's other rooms sit either side of the cockpit (same screen and
+// walkable band): an arrow by each side wall goes through to the next room.
+export const ROOM_ARROW = { y: 124, left: 8, right: 248 };
+
+// The playroom. The ball pit is a padded box on the floor: its back wall
+// from `back` down to `rim`, balls from there to `top`, where the front wall
+// starts, down to `bottom` on the floor. Whoever's in it stands at `inY`.
+export const BALL_PIT = { x: 26, w: 76, back: 112, rim: 121, top: 133, bottom: 144, inY: 139, spot: { x: 64, y: 150 } };
+// A swing hanging from a frame at the back: its rope hangs from (x, top),
+// `rope` long; whoever's on it is `y` deep.
+export const SWING = { x: 142, top: 30, rope: 86, y: 127, spot: { x: 142, y: 136 } };
+// A round trampoline; its mat is `mat` above the floor at y.
+export const TRAMPOLINE = { x: 206, y: 134, rx: 22, mat: 8, spot: { x: 206, y: 147 } };

@@ -21,7 +21,9 @@ store.
 - **Theme/setting**: a cosy spaceship. The hero is a small girl with red
   hair in a blue flight suit. The ship's interior is the hub: porthole alien,
   spinning pilot chair, star map to fly between planets, blast-off poster,
-  space plant, and an airlock door. Planets are the scenes you visit.
+  space plant, and an airlock door. Arrows by the cockpit's side walls lead
+  to the ship's other rooms: a store room (left) and a playroom (right).
+  Planets are the scenes you visit.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. Bluebell, Ember, Frosty and Candy are
@@ -36,12 +38,12 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`,
+  `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`,
   `GingerbreadScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp) and are listed in
   `src/ship/planetScenes.js` (with places inside, so a reload picks her up
-  in there). Friends who wander about share a `Stroller` base. Scripted moments (landing, door, cutscenes) are
+  in there); the ship's rooms, left to right, are in `src/ship/shipRooms.js`. Friends who wander about share a `Stroller` base. Scripted moments (landing, door, cutscenes) are
   plain `async` sequences that `await` tweens.
 - **Art pipeline**: pixel art only, drawn entirely in code under
   `src/ship/art/` (256x160 internal resolution, scaled up with crisp pixels)
@@ -115,6 +117,17 @@ store.
   each one found plays a fanfare and flies off with a "+1" banner. A board
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.
+
+- **The ship's other rooms**: an arrow by each side wall of the cockpit
+  (labelled with where it goes) — tap it and she walks off through the
+  wall into the next room; tap the arrow there to come back. Drop anything
+  on an arrow and it's sent through on its own. The **store room** (left)
+  starts empty: painted bays on the floor for keeping things in. The
+  **playroom** (right) has a ball pit (she hops in, dives right under and
+  pops up in a splash of balls), a swing (higher and higher) and a
+  trampoline (each bounce higher than the last). Drop a friend on any of
+  them and they have a go. A reload puts her back in whichever room she
+  was in.
 
 ## Planned later
 - A scene for Stripey
