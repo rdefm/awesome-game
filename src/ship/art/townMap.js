@@ -3,6 +3,8 @@ import { C } from './palette.js';
 import { CA } from './candy.js';
 import { EM } from './ember.js';
 import { MS } from './milkshakeLake.js';
+import { OA } from './oasis.js';
+import { ST, ZIG_STRIPES, stripe } from './stripey.js';
 
 // The hoverbike's town map: an illustrated picture of a planet seen from up
 // high, and little pictures of each place on it to tap. The paths between
@@ -15,7 +17,10 @@ export const MAP = { x: 6, y: 19, w: 244, h: 135 }; // where the picture sits on
 export const MAP_STYLE = {
   candy: { dot: '#fffaf2', shade: '#c04f9a', shadow: CA.groundDeep },
   ember: { dot: EM.lavaHi, shade: EM.lavaDark, shadow: EM.rockDark },
+  stripey: { dot: '#fff4d8', shade: ST.rockShade, shadow: ST.sandDeep },
 };
+
+const BODY = '#ff00ff'; // stand-in colour, striped once the shape's drawn
 
 const SPRINKLES = ['#ff5a8a', '#ffe066', '#7cf28a', '#6fb2ff', '#ffffff', '#c9b6ff'];
 
@@ -136,6 +141,54 @@ export function drawEmberMap() {
   return pm;
 }
 
+// Stripey from up high: sand in wavy stripes, flat-topped mesas ringed in
+// their rock layers, stripy cacti here and there, and a green patch round
+// the oasis, under a border of rock stripes.
+export function drawStripeyMap() {
+  const { w, h } = MAP;
+  const pm = new Pixmap(w, h);
+  const rand = seededRandom(23);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const band = Math.floor((y + Math.sin(x / 14) * 3) / 5) % 3;
+      pm.set(x, y, band === 0 ? ST.sandDark : band === 1 ? ST.sand : ST.sandLight);
+    }
+  }
+  // The green round the oasis, so the palms have something to drink.
+  pm.ellipse(190, 112, 30, 12, ST.greenDark);
+  pm.ellipse(190, 111, 27, 10, ST.green);
+  // Mesas seen from above: rings of rock layers, the top in the middle,
+  // shadow off to the lower right.
+  for (const [mx, my, r] of [[34, 34, 20], [120, 28, 16], [226, 70, 14], [118, 116, 12]]) {
+    pm.ellipse(mx + 4, my + 4, r, r * 0.7, ST.sandDeep);
+    for (let k = r; k > 0; k -= 3) {
+      pm.ellipse(mx, my, k, k * 0.7, ST.strata[Math.floor((r - k) / 3) % ST.strata.length]);
+    }
+  }
+  // Stripy cacti dotted about.
+  for (let i = 0; i < 14; i++) {
+    const cx = 8 + Math.floor(rand() * (w - 16));
+    const cy = 8 + Math.floor(rand() * (h - 16));
+    pm.rect(cx, cy - 4, 2, 5, ST.green);
+    pm.set(cx, cy - 2, ST.greenLight);
+    pm.set(cx - 1, cy - 3, ST.green);
+    pm.set(cx + 2, cy - 2, ST.green);
+  }
+  // Pebbles.
+  for (let i = 0; i < 90; i++) {
+    pm.set(Math.floor(rand() * w), Math.floor(rand() * h), rand() < 0.4 ? ST.strata[2] : ST.sandDeep);
+  }
+  // A border of rock stripes all round.
+  for (let i = 0; i < Math.max(w, h); i++) {
+    const color = ST.strata[Math.floor(i / 4) % 3 === 0 ? 2 : 1];
+    pm.rect(i, 0, 1, 3, color);
+    pm.rect(i, h - 3, 1, 3, color);
+    pm.rect(0, i, 3, 1, color);
+    pm.rect(w - 3, i, 3, 1, color);
+  }
+  return pm;
+}
+
 // ------------------------------------------------------------ place pictures
 // Each is centred on its place's spot on the map.
 
@@ -232,6 +285,44 @@ export function drawMapFalls() {
     pm.set(20, y, EM.lavaHi);
   }
   pm.ellipse(20, 22, 6, 1.5, EM.lavaHi); // the splash at the bottom
+  return pm.outline(C.outline);
+}
+
+// Zig's hut: a dome in orange and cream stripes with its two eye-stalk
+// aerials and a round door.
+export function drawMapZigHut() {
+  const { a, b, dark } = ZIG_STRIPES[0];
+  const pm = new Pixmap(30, 28);
+  pm.ellipse(15, 26, 13, 1.5, ST.sandDeep);
+  for (const [x, lean] of [[11, -2], [19, 2]]) {
+    pm.line(x, 10, x + lean, 3, dark, 1);
+    pm.circle(x + lean, 2, 1.5, '#ffffff');
+  }
+  pm.ellipse(15, 26, 13, 16, BODY);
+  stripe(pm, BODY, a, b, 3, 1);
+  pm.dither(20, 12, 8, 14, dark, 0.4);
+  pm.circle(15, 20, 3.5, '#7a4a2a');
+  pm.rect(12, 20, 7, 6, '#7a4a2a');
+  pm.set(17, 22, '#ffe066');
+  return pm.outline(C.outline);
+}
+
+// The oasis: a pool in turquoise stripes with a palm leaning over it.
+export function drawMapOasis() {
+  const pm = new Pixmap(42, 34);
+  pm.ellipse(22, 25, 19, 7, ST.sandDark);
+  pm.ellipse(22, 25, 17, 5.5, BODY);
+  stripe(pm, BODY, OA.water, OA.waterLight, 2, 0);
+  pm.ellipse(28, 26, 3, 1, OA.pad);
+  // The palm, on the left bank, its fronds fanned out over the water.
+  for (let i = 0; i < 18; i++) {
+    pm.set(8 + Math.round((i / 18) ** 2 * 5), 26 - i, i % 2 ? OA.trunk : OA.trunkLight);
+  }
+  for (const [dx, dy] of [[-7, 3], [-5, -3], [0, -5], [6, -3], [9, 3], [4, 4], [-3, 4]]) {
+    pm.line(13, 8, 13 + dx, 8 + dy, ST.greenDark, 1);
+    pm.set(13 + dx, 8 + dy, ST.green);
+  }
+  pm.circle(12, 10, 1.5, OA.nut);
   return pm.outline(C.outline);
 }
 

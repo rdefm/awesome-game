@@ -29,7 +29,7 @@ store.
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
   on Ember, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
-  lava falls). Where
+  lava falls, Stripey's oasis). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
   places popping now and then to show they can be tapped); tap a place and
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -124,7 +124,13 @@ store.
   stripe cacti, stripy butterflies, and a sand mound with a stripy worm in
   it. Out among the mesas is Zig's hut, a dome in orange and cream stripes
   with two little eye-stalk aerials on top: tap it and she walks up the
-  sandy path, getting smaller, and in through the round door
+  sandy path, getting smaller, and in through the round door. A hoverbike
+  parked by the ship rides her anywhere on Stripey's town map
+- The oasis on Stripey (by hoverbike): a pool in turquoise stripes among
+  palms. A stripy frog on the lily pads croaks, leaps and dives in with a
+  splash (splashing her if she's close), popping up on the next pad; shake
+  the palm and a coconut drops and rolls off along the sand (tap one to
+  kick it rolling again); and a big sand dune to climb and slide down
 - Inside Zig's hut: a stripy dome of a room. An easel: tap it and she
   paints the walls in the next planet's stripes; a sand timer to turn over
   (it dings when the sand's all through); a shelf of goggles to try on, one

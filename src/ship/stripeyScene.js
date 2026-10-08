@@ -8,11 +8,13 @@ import { ZigHutScene } from './zigHutScene.js';
 // the stripey alien, with stripe stones, stripe cacti and stripy
 // butterflies, our ship parked on the left (and a secret: a sand mound with
 // a stripy worm living in it). Out among the mesas is Zig's hut: tap it and
-// she walks up the sandy path, getting smaller, and goes inside.
+// she walks up the sandy path, getting smaller, and goes inside. Beside the
+// ship is the hoverbike, to ride off anywhere else on Stripey.
 export class StripeyScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'stripey', opts);
     this.addHouse(new ZigHut(assets), (o) => new ZigHutScene(assets, o));
+    this.addBike();
     this.add(new SandMound(assets));
     this.addPlaced();
     for (let i = 0; i < 3; i++) {

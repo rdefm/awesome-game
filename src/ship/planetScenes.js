@@ -6,6 +6,7 @@ import { GingerbreadScene } from './gingerbreadScene.js';
 import { LavaFallsScene } from './lavaFallsScene.js';
 import { LavaHouseScene } from './lavaHouseScene.js';
 import { MilkshakeLakeScene } from './milkshakeLakeScene.js';
+import { OasisScene } from './oasisScene.js';
 import { StripeyScene } from './stripeyScene.js';
 import { ZigHutScene } from './zigHutScene.js';
 
@@ -36,8 +37,9 @@ const PLACES = {
     { where: 'milkshake', name: 'Milkshake lake', kind: 'site', spot: { x: 200, y: 128 }, scene: MilkshakeLakeScene },
   ],
   stripey: [
-    { where: 'stripey', name: 'Landing site', kind: 'landing', spot: { x: 128, y: 96 }, scene: StripeyScene },
+    { where: 'stripey', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: StripeyScene },
     { where: 'zighut', name: "Zig's hut", kind: 'house', spot: { x: 176, y: 72 }, scene: ZigHutScene },
+    { where: 'oasis', name: 'Oasis', kind: 'site', spot: { x: 196, y: 128 }, scene: OasisScene },
   ],
 };
 

@@ -98,7 +98,32 @@ export const HOVERBIKE = {
   milkshake: { x: 40, y: 140 },
   ember: { x: 98, y: 146 }, // clear of the steam vent
   lavafalls: { x: 40, y: 140 },
+  stripey: { x: 100, y: 148 }, // below the sand mound
+  oasis: { x: 34, y: 142 },
 };
+
+// The oasis on Stripey: a stripy pool (an ellipse round x, y) with lily pads
+// for the frog to sit on, a palm on the left whose crown hangs coconuts out
+// over the shore, and a big sand dune at the back on the right, its top
+// edge running down from `peak` to its `foot` (see duneTop), to climb (up
+// its front from `spot`, by way of `climb`) and slide down.
+export const OASIS_POOL = { x: 128, y: 112, rx: 62, ry: 9 };
+export const LILY_PADS = [{ x: 96, y: 110 }, { x: 132, y: 116 }, { x: 166, y: 108 }];
+export const PALM = { x: 58, y: 124 };
+export const DUNE = {
+  peak: { x: 232, y: 78 },
+  foot: { x: 194, y: 124 },
+  spot: { x: 236, y: 130 },
+  climb: [{ x: 240, y: 106 }, { x: 236, y: 90 }, { x: 232, y: 79 }],
+};
+
+// The height of the dune's top edge at column x (past the peak it falls
+// away more gently, off the side of the screen).
+export function duneTop(x) {
+  const { peak, foot } = DUNE;
+  const k = (x - peak.x) / (x < peak.x ? peak.x - foot.x : 48);
+  return peak.y + (foot.y - peak.y) * k * k;
+}
 
 // The lava falls on Ember: a cliff across the back with a glowing cascade
 // pouring down it into a lava pool (an ellipse round x, y), and the floor

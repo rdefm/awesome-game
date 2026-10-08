@@ -150,3 +150,19 @@ describe('the lava falls on Ember', () => {
     expect(landedOn({ where: 'lavafalls', landed: true })).toBe('lavafalls');
   });
 });
+
+describe('the oasis on Stripey', () => {
+  it('is out of doors on Stripey, after the landing site and Zig\'s hut', () => {
+    expect(placesOn('stripey').map((place) => place.where)).toEqual(['stripey', 'zighut', 'oasis']);
+    expect(placesOn('stripey').find((place) => place.where === 'oasis').kind).toBe('site');
+    expect(planetOf('oasis')).toBe('stripey');
+  });
+
+  it('is ridden to on the hoverbike', () => {
+    expect(arrivingBy('oasis')).toEqual({ fromShip: false, byBike: true });
+  });
+
+  it('puts her back by the pool on a reload', () => {
+    expect(landedOn({ where: 'oasis', landed: true })).toBe('oasis');
+  });
+});

@@ -46,8 +46,9 @@ import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/m
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
 import {
   MAP_STYLE, drawCandyMap, drawEmberMap, drawMapBike, drawMapFalls, drawMapGingerbread, drawMapLake, drawMapLavaHouse,
-  drawMapShip,
+  drawMapOasis, drawMapShip, drawMapZigHut, drawStripeyMap,
 } from './art/townMap.js';
+import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
@@ -193,12 +194,19 @@ export function loadAssets() {
         dust: '#f8e2b4',
         puff: '#ffe8d0',
       }),
+      // Not a planet: the oasis on Stripey.
+      oasis: bake({
+        ground: drawOasis({ horizon: HORIZON }),
+        clouds: [drawStripeyCloud(1), drawStripeyCloud(0)],
+        dust: '#f8e2b4',
+        puff: '#ffe8d0',
+      }),
     },
     // The hoverbike [glow flicker 0, 1], and its town maps: each planet's
     // picture, each place's picture on it (by its `where`), and her on the bike.
     hoverbike: bake([drawHoverbike(0), drawHoverbike(1)]),
     townMap: bake({
-      ground: { candy: drawCandyMap(), ember: drawEmberMap() },
+      ground: { candy: drawCandyMap(), ember: drawEmberMap(), stripey: drawStripeyMap() },
       places: {
         candy: drawMapShip(MAP_STYLE.candy.shadow),
         gingerbread: drawMapGingerbread(),
@@ -206,6 +214,9 @@ export function loadAssets() {
         ember: drawMapShip(MAP_STYLE.ember.shadow),
         lavahouse: drawMapLavaHouse(),
         lavafalls: drawMapFalls(),
+        stripey: drawMapShip(MAP_STYLE.stripey.shadow),
+        zighut: drawMapZigHut(),
+        oasis: drawMapOasis(),
       },
       bike: drawMapBike(),
     }),
@@ -311,6 +322,15 @@ export function loadAssets() {
     sandTimer: bake(drawSandTimer()),
     goggles: bake(GOGGLE_COLORS.map((_, v) => drawGoggles(v))),
     sling: bake(drawSling()),
+    // The oasis on Stripey: the palm [swayed left, still, swayed right], a
+    // coconut [turned 0..3], and the frog (and [rows showing above the water]
+    // as it pops up).
+    palm: bake([drawPalm(-2), drawPalm(0), drawPalm(2)]),
+    coconut: bake([0, 1, 2, 3].map(drawCoconut)),
+    frog: {
+      ...bake({ sit: drawFrog('sit'), blink: drawFrog('blink'), puff: drawFrog('puff'), leap: drawFrog('leap') }),
+      up: croppedRows(drawFrog('sit')),
+    },
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),

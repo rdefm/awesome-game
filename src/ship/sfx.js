@@ -283,6 +283,15 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 392, dur: 0.18, type: 'triangle', vol: 0.15 });
     s.tone({ at: t + 0.22, freq: 392, dur: 0.35, type: 'triangle', vol: 0.15 });
   });
+  // The oasis: the stripy frog's croak, and its dive into the pool.
+  audio.define('ribbit', (s, t) => {
+    s.tone({ at: t, freq: 160, to: 260, dur: 0.09, type: 'square', vol: 0.08 });
+    s.tone({ at: t + 0.13, freq: 180, to: 300, dur: 0.12, type: 'square', vol: 0.08 });
+  });
+  audio.define('splash', (s, t) => {
+    s.tone({ at: t, freq: 700, to: 180, dur: 0.15, type: 'sine', vol: 0.22 });
+    s.noise({ at: t, dur: 0.5, filter: 'bandpass', freq: 2200, to: 600, vol: 0.2, q: 1 });
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });
