@@ -168,8 +168,8 @@ store.
   to three of each). Decor is carryable like everything else — arrange it
   anywhere in the ship (or take it to a planet in the bag) and it stays
   put across reloads. Rugs lie flat under everything; wall pieces snap up
-  onto the wall. Tap the lamp to switch it on; drop a friend on the
-  beanbag and they flop right in. The
+  onto the wall. Tap the lamp to switch it on; tap the beanbag and she
+  flops right in (or drop a friend on it and they do). The
   **playroom** (right) has a ball pit (she hops in, dives right under and
   pops up in a splash of balls), a swing (higher and higher) and a
   trampoline (each bounce higher than the last). Drop a friend on any of

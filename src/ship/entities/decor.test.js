@@ -3,6 +3,7 @@ import { WALK, WALL_HANG } from '../layout.js';
 import { makeCarryable } from '../kinds.js';
 import { add, defaultWorld, stash } from '../world.js';
 import { Critter } from './bluebell.js';
+import { Girl } from './girl.js';
 import { Teddy } from './items.js';
 import { DECOR, MAX_COPIES, canPrint } from './decor.js';
 
@@ -117,6 +118,34 @@ describe('decor', () => {
     expect(scene.settle).toHaveBeenCalledWith(friend);
     expect(friend.busy).toBe(false);
     expect(friend.draggable).toBe(true);
+  });
+
+  it('lets her flop into the beanbag too, then hop out beside it', async () => {
+    const scene = sceneFor();
+    const girl = new Girl({ girl: () => ({}), emotes: {} }, 100, 136, {});
+    girl.scene = scene;
+    Object.assign(scene, { girl, persist: vi.fn(), scripted: (run) => run() });
+    const beanbag = make('beanbag', { x: 120, y: 140 }, scene);
+    expect(typeof beanbag.use).toBe('function'); // so tapping it walks her over
+    await beanbag.use();
+    expect(girl.mode).toBe('idle');
+    expect(girl.lift).toBe(0);
+    expect(girl.pose).toBeNull();
+    expect(Math.abs(girl.x - beanbag.x)).toBeGreaterThan(10);
+    expect(beanbag.sitter).toBeNull();
+    expect(scene.persist).toHaveBeenCalled();
+  });
+
+  it('keeps her out of the beanbag while a friend is in it', async () => {
+    const scene = sceneFor();
+    const girl = new Girl({ girl: () => ({}), emotes: {} }, 100, 136, {});
+    girl.scene = scene;
+    Object.assign(scene, { girl, persist: vi.fn(), scripted: vi.fn() });
+    const beanbag = make('beanbag', {}, scene);
+    beanbag.sitter = new Critter(assets, { id: 'critter', kind: 'critter', x: 60, y: 130 });
+    await beanbag.use();
+    expect(scene.scripted).not.toHaveBeenCalled();
+    expect(girl.emote?.kind).toBe('question');
   });
 
   it('only takes friends on the beanbag', () => {

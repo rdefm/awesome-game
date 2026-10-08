@@ -1,19 +1,10 @@
 import { ease } from '../../engine/tween.js';
 import { BALL_COLORS } from '../art/shipRooms.js';
 import { BALL_PIT, SWING, TRAMPOLINE } from '../layout.js';
-import { hold, isFriendItem, letGo } from './friends.js';
+import { hold, isFriendItem, letGo, strike } from './friends.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + pad && py >= y - pad && py <= y + h + pad;
-
-// Shows a pose on whoever's playing: one of her frames, or a friend's.
-function strike(who, girlFrame, friendFrame) {
-  if (who === who.scene.girl) {
-    who.pose = { frame: girlFrame, token: {} };
-  } else {
-    who.pose?.(friendFrame);
-  }
-}
 
 // Playground kit, one at a time: tap it and she walks over and has a go, or
 // drop a friend on it and they do. Each kind plays out its own `play(who)`,

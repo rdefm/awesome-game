@@ -7,6 +7,16 @@ import { WALK } from '../layout.js';
 // to show a named picture of itself for a moment.
 export const isFriendItem = (item) => Boolean(item.seatFrame);
 
+// Shows a pose on whoever's playing (or sitting, or...): one of her frames,
+// or a friend's.
+export function strike(who, girlFrame, friendFrame) {
+  if (who === who.scene.girl) {
+    who.pose = { frame: girlFrame, token: {} };
+  } else {
+    who.pose?.(friendFrame);
+  }
+}
+
 // Holds a friend still (and out of reach of fingers) for a reaction.
 export function hold(friend) {
   friend.stayPut?.();
