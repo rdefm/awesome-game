@@ -1,7 +1,10 @@
 import { ease } from '../../engine/tween.js';
 import { HAT_ROOM } from '../art/girl.js';
 import { CHAIR_H, CHAIR_W, PLANT_STAGES } from '../art/props.js';
-import { CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER, WARDROBE } from '../layout.js';
+import {
+  CHAIR, DOOR, PLANET_SPOT, PORTHOLE, POSTER, SCREEN, SNACK_LOCKER, STICKER_BOARD, WARDROBE,
+} from '../layout.js';
+import { allStickers, shelf, tally } from '../stickers.js';
 import { WardrobePicker } from '../wardrobePicker.js';
 import { Carryable } from './carryable.js';
 import { isFriendItem } from './friends.js';
@@ -254,6 +257,70 @@ export class Poster extends Prop {
     const flame = this.flicker ? Math.floor(this.scene.engine.time * 20) % 2 : Math.floor(this.scene.engine.time * 3) % 2;
     const s = this.bounce;
     r.image(this.imgs[flame], POSTER.x + POSTER.w / 2, POSTER.y + POSTER.h / 2, { ay: 0.5, scaleX: s, scaleY: s });
+  }
+}
+
+// ------------------------------------------------------- star-sticker board
+// Every star sticker there is: the ones she's found stuck on in colour, the
+// rest as faint outlines, with a count underneath. Tap it to admire them.
+const BOARD_COLS = 5;
+const BOARD_PITCH = 7; // star to star along a row
+const BOARD_ROW_PITCH = 8; // row to row
+const BOARD_PAD = 4; // frame plus a gap above the first row
+const BOARD_COUNT_H = 8; // the "2/5" strip along the bottom
+
+export class StickerBoard extends Prop {
+  constructor(assets) {
+    super();
+    this.assets = assets;
+    this.spot = STICKER_BOARD.spot;
+    this.depth = -10;
+  }
+
+  // One row of stars per BOARD_COLS stickers, plus the count along the bottom.
+  get height() {
+    const rows = Math.ceil(allStickers().length / BOARD_COLS);
+    return BOARD_PAD + rows * BOARD_ROW_PITCH + BOARD_COUNT_H;
+  }
+
+  hitTest(px, py) {
+    const { x, y, w } = STICKER_BOARD;
+    return inRect(px, py, x, y, w, this.height);
+  }
+
+  use() {
+    const { scene } = this;
+    const { found, total } = tally(scene.stickers);
+    const { x, y, w } = STICKER_BOARD;
+    scene.girl.faceToward(x + w / 2);
+    if (found === total) {
+      scene.engine.audio.play('fanfare');
+      scene.girl.act('cheer', 1);
+      scene.hearts(x + w / 2, y, 3);
+    } else {
+      scene.engine.audio.play('peek');
+      scene.girl.act('reach', 0.4);
+    }
+    scene.sparkles(x + w / 2, y + this.height / 2, found ? 8 : 3);
+    scene.toast(found ? `STAR STICKERS ${found}/${total}` : 'FIND THE STAR STICKERS!');
+  }
+
+  draw(r) {
+    const { x, y, w } = STICKER_BOARD;
+    const h = this.height;
+    r.rect(x, y, w, h, '#1b1427');
+    r.rect(x + 1, y + 1, w - 2, h - 2, '#4d5677');
+    r.rect(x + 2, y + 2, w - 4, h - 4, '#2a3150');
+    const slots = shelf(this.scene.stickers);
+    const left = x + w / 2 - ((Math.min(slots.length, BOARD_COLS) - 1) * BOARD_PITCH) / 2;
+    slots.forEach((s, i) => {
+      const sx = left + (i % BOARD_COLS) * BOARD_PITCH;
+      const sy = y + BOARD_PAD + BOARD_ROW_PITCH / 2 + Math.floor(i / BOARD_COLS) * BOARD_ROW_PITCH;
+      const img = s.found ? this.assets.stickers[s.id] : this.assets.stickerSlot;
+      r.image(img, sx, sy, { ay: 0.5, scaleX: this.bounce, scaleY: this.bounce });
+    });
+    const { found, total } = tally(this.scene.stickers);
+    r.image(this.assets.text(`${found}/${total}`, found === total ? '#ffe066' : '#e1e6f2'), x + w / 2, y + h - 2);
   }
 }
 

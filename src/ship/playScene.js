@@ -1,10 +1,12 @@
 import { findReceiver, Scene } from '../engine/scene.js';
+import { ease } from '../engine/tween.js';
 import { Bag } from './bag.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { FLOOR_TOP, WALK, W, H } from './layout.js';
 import { normalizeLook } from './look.js';
 import { loadSave, writeSave } from './save.js';
+import { collect, normalizeFound, tally } from './stickers.js';
 import { add, discard, freshId, normalizeWorld, place, placedIn, setStage, stash } from './world.js';
 
 // Swallows all input (and draws nothing) while a scripted sequence plays.
@@ -22,6 +24,8 @@ export class PlayScene extends Scene {
     const save = loadSave();
     this.world = normalizeWorld(save.world);
     this.look = normalizeLook(save.look); // how she looks, wherever she goes
+    this.stickers = normalizeFound(save.stickers); // ids of the star stickers she's found
+    this.flyingStickers = []; // just-found stickers on their way off screen
     this.bag = new Bag(this);
     this.carried = null; // the carryable being dragged, if any
     this.uiPress = false; // true while the bag owns the current press
@@ -90,6 +94,34 @@ export class PlayScene extends Scene {
     this.look = look;
     this.girl.wear(look);
     writeSave({ ...loadSave(), look });
+  }
+
+  // A star sticker turns up at (x, y): if it's a new one, a fanfare, it pops
+  // up big and flies off to the top with a "+1" banner, and it's remembered.
+  // Returns true if it was new.
+  findSticker(id, x, y) {
+    const found = collect(this.stickers, id);
+    if (found === this.stickers) {
+      return false;
+    }
+    this.stickers = found;
+    writeSave({ ...loadSave(), stickers: found });
+    this.engine.audio.play('fanfare');
+    this.sparkles(x, y, 10);
+    const { found: n, total } = tally(found);
+    this.toast(`+1 STAR STICKER! ${n}/${total}`, 2.5);
+    this.flyOff({ img: this.assets.stickers[id], x, y, scale: 1, alpha: 1 });
+    return true;
+  }
+
+  async flyOff(star) {
+    const { tweens } = this.engine;
+    this.flyingStickers.push(star);
+    await tweens.to(star, { y: star.y - 18, scale: 2 }, 0.35, ease.outBack);
+    await this.engine.wait(0.6);
+    tweens.to(star, { alpha: 0 }, 0.6, ease.inQuad);
+    await tweens.to(star, { x: W / 2, y: 14, scale: 1 }, 0.6, ease.inCubic);
+    this.flyingStickers = this.flyingStickers.filter((s) => s !== star);
   }
 
   // Remembers where a carryable now is (after it moved about by itself), or
@@ -340,6 +372,9 @@ export class PlayScene extends Scene {
     this.bag.draw(r);
     if (this.carried && !this.modal) {
       this.carried.draw(r);
+    }
+    for (const s of this.flyingStickers) {
+      r.image(s.img, s.x, s.y, { ay: 0.5, scaleX: s.scale, scaleY: s.scale, alpha: s.alpha });
     }
     const m = this.toastMsg;
     if (m) {

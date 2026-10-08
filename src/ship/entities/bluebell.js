@@ -368,6 +368,7 @@ export class Rock extends Secret {
     this.bug = { i: n % this.bugImgs.length, dx: 0 }; // index into BUG_KINDS
     engine.audio.play('wriggle');
     this.react('surprised', 'bang');
+    scene.findSticker('bluebell.rock', this.x + this.side * 14, this.y - 8); // stuck to its underside
     if (BUG_KINDS[this.bug.i] !== 'worm') {
       // Beetles scurry about; the worm just wriggles where it is.
       await engine.tweens.to(this.bug, { dx: -4 * this.side }, 0.6, ease.inOutSine);
@@ -432,6 +433,10 @@ export class Bush extends Secret {
       flights.push(this.fly((n + i) % this.birdImgs.length, i ? -1 : 1, i * 0.25));
     }
     this.react('surprised', 'bang');
+    if (count === 2) {
+      // Two birds at once shake loose the sticker hidden in the leaves.
+      scene.findSticker('bluebell.bush', this.x, this.y - 16);
+    }
     await Promise.all(flights);
     engine.audio.play('rustle');
     this.rustle = 0.6;
@@ -504,6 +509,7 @@ export class MoleHole extends Secret {
       engine.audio.play('squeak');
       scene.sparkles(this.x, this.y - 14, 6);
       scene.hearts(this.x, this.y - 18, 2);
+      scene.findSticker('bluebell.mole', this.x, this.y - 20); // it was keeping one safe
       await engine.wait(0.8);
     } else if (n % 3 === 1) {
       // Looks one way, then the other.
@@ -553,6 +559,7 @@ export class Butterfly {
     this.depth = 500;
     this.speed = 18;
     this.flap = Math.random();
+    this.taps = 0;
     this.pickTarget();
   }
 
@@ -569,6 +576,10 @@ export class Butterfly {
     this.target = { x: this.x + (Math.random() - 0.5) * 60, y: 20 + Math.random() * 20 };
     this.speed = 60;
     this.scene.sparkles(this.x, this.y, 4);
+    this.taps += 1;
+    if (this.taps === 3) {
+      this.scene.findSticker('bluebell.butterfly', this.x, this.y); // shaken off its wing
+    }
   }
 
   update(dt) {
@@ -692,6 +703,7 @@ export class Local extends Carryable {
     }
     this.frame = 'idle';
     girl.say('heart', 1.4);
+    scene.findSticker('bluebell.local', this.x, this.y - 26); // a thank-you present
     this.busy = false;
     this.draggable = true;
   }

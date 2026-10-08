@@ -320,3 +320,19 @@ export function drawShipIcon() {
 export function drawSparkle() {
   return Pixmap.fromGrid(['..y..', '..w..', 'ywwwy', '..w..', '..y..'], { y: C.yellow, w: C.white });
 }
+
+const STAR = ['...s...', '..sss..', 'sssssss', '.sssss.', '..sss..', '.ss.ss.', '.s...s.'];
+
+// A star sticker in `color` (with a shine), or, without a colour, the faint
+// dotted outline of one still to find.
+export function drawStarSticker(color) {
+  const pm = new Pixmap(STAR.length + 2, STAR.length + 2); // room for the outline
+  if (!color) {
+    pm.grid(STAR, { s: C.wallDark }, 1, 1);
+    return pm.outline(C.wallLight);
+  }
+  pm.grid(STAR, { s: color }, 1, 1);
+  pm.set(4, 2, C.white);
+  pm.set(3, 3, C.white);
+  return pm.outline(C.outline);
+}

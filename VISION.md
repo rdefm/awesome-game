@@ -45,10 +45,11 @@ store.
 - **Save system**: browser `localStorage` (`src/ship/save.js`). Stores where
   the girl is (ship or planet), her position, the current planet, whether
   the ship has landed, and the **world** (`src/ship/world.js`): where every
-  carryable thing lies in each place, and what's in the bag. No account, no
+  carryable thing lies in each place, and what's in the bag, plus which star
+  stickers she's found (`src/ship/stickers.js`). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, world, drop receivers).
+  tweens, world, stickers, drop receivers).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -73,6 +74,11 @@ store.
   dropped on it (`accepts(item)` / `receive(item)`; the bag still wins).
   Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
   the crystal beside it.
+- **Star stickers**: a gentle "find them all". Stickers hide behind
+  Bluebell's secrets (rock, bush, mole, a butterfly, the alien's thank-you);
+  each one found plays a fanfare and flies off with a "+1" banner. A board
+  under the poster shows found stickers and outlines for the rest, with a
+  count. Each planet lists its own in `src/ship/stickers.js`.
 
 ## Planned later
 - Scenes for the other four planets

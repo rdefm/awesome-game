@@ -14,8 +14,9 @@ import { MEADOW_HORIZON } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
-  drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle,
+  drawPlanet, drawPlant, drawPoster, drawShipIcon, drawSparkle, drawStarSticker,
 } from './art/props.js';
+import { allStickers } from './stickers.js';
 
 // Turns a (possibly nested) structure of Pixmaps into canvas images.
 function bake(value) {
@@ -122,6 +123,9 @@ export function loadAssets() {
     boxIcon: bake(drawBoxIcon()),
     heartIcon: bake(drawHeartIcon()),
     sparkle: bake(drawSparkle()),
+    // Star stickers by id, plus the empty outline of one not found yet.
+    stickers: bake(Object.fromEntries(allStickers().map((s) => [s.id, drawStarSticker(s.color)]))),
+    stickerSlot: bake(drawStarSticker()),
     text(str, color, opts = {}) {
       const key = `${str}|${color}|${opts.scale ?? 1}|${opts.outline ?? ''}`;
       if (!textCache.has(key)) {

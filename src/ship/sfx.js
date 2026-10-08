@@ -148,4 +148,10 @@ export function defineSfx(audio) {
       s.noise({ at: t + i * 0.05, dur: 0.04, filter: 'bandpass', freq: 3000, vol: 0.08, q: 2 });
     }
   });
+  // A star sticker found: a twinkly run up to a held chord.
+  audio.define('fanfare', (s, t) => {
+    [784, 988, 1175, 1568].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.1, type: 'triangle', vol: 0.13 }));
+    [1047, 1319, 1568].forEach((f) => s.tone({ at: t + 0.36, freq: f, dur: 0.5, type: 'triangle', vol: 0.09 }));
+    [2600, 3100, 2800].forEach((f, i) => s.tone({ at: t + 0.4 + i * 0.1, freq: f, to: f * 1.2, dur: 0.05, type: 'sine', vol: 0.06 }));
+  });
 }
