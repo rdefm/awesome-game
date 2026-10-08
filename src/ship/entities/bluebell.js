@@ -1,62 +1,12 @@
 import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
-import { MEADOW_SECRETS, PARKED_SHIP, WALK } from '../layout.js';
+import { MEADOW_SECRETS, WALK } from '../layout.js';
 import { Carryable } from './carryable.js';
 import { isFriendItem, play } from './friends.js';
 import { feed, isSnack } from './items.js';
 import { Secret } from './secret.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-
-// Shared squash-on-tap feedback, like the ship's props.
-class Thing {
-  constructor() {
-    this.squash = 0;
-  }
-
-  boing(amount = 1) {
-    this.squash = amount;
-    this.scene.engine.tweens.to(this, { squash: 0 }, 0.5, ease.outElastic);
-  }
-
-  get bounce() {
-    return 1 + this.squash * 0.12;
-  }
-}
-
-// ------------------------------------------------------------- parked ship
-export class ParkedShip extends Thing {
-  constructor(assets) {
-    super();
-    this.img = assets.shipOutside.open;
-    this.x = PARKED_SHIP.x;
-    this.y = PARKED_SHIP.y;
-    this.spot = PARKED_SHIP.spot;
-    this.depth = 0; // always behind the girl, even as she climbs the ramp
-  }
-
-  hitTest(px, py) {
-    return px >= this.x - 32 && px <= this.x + 32 && py >= this.y - 44 && py <= this.y + 4;
-  }
-
-  onTap() {
-    if (this.scene.busy) {
-      return;
-    }
-    this.scene.engine.audio.play('tap');
-    this.boing(0.6);
-    this.scene.interact(this);
-  }
-
-  use() {
-    this.scene.boardShip();
-  }
-
-  draw(r) {
-    r.rect(this.x - 24, this.y - 2, 48, 3, '#000000', 0.18);
-    r.image(this.img, this.x, this.y, { scaleX: this.bounce, scaleY: 2 - this.bounce });
-  }
-}
 
 // ---------------------------------------------------------- giant bluebell
 // Tap one and its bells swing and chime. Each flower has its own note, so
@@ -547,57 +497,6 @@ export class MoleHole extends Secret {
       r.image(this.moleImgs[this.blink ? 1 : 0][rows], x, y - 2, { ...opts, flipX: this.facing < 0 });
     }
     r.image(this.imgs.front, x, y + 1, opts);
-  }
-}
-
-// ---------------------------------------------------------------- butterfly
-export class Butterfly {
-  constructor(assets, i) {
-    this.imgs = assets.butterflies[i % assets.butterflies.length];
-    this.x = 100 + i * 50;
-    this.y = 80 + i * 12;
-    this.depth = 500;
-    this.speed = 18;
-    this.flap = Math.random();
-    this.taps = 0;
-    this.pickTarget();
-  }
-
-  pickTarget() {
-    this.target = { x: 80 + Math.random() * 170, y: 64 + Math.random() * 64 };
-  }
-
-  hitTest(px, py) {
-    return Math.hypot(px - this.x, py - this.y) < 10;
-  }
-
-  onTap() {
-    this.scene.engine.audio.play('flutter');
-    this.target = { x: this.x + (Math.random() - 0.5) * 60, y: 20 + Math.random() * 20 };
-    this.speed = 60;
-    this.scene.sparkles(this.x, this.y, 4);
-    this.taps += 1;
-    if (this.taps === 3) {
-      this.scene.findSticker('bluebell.butterfly', this.x, this.y); // shaken off its wing
-    }
-  }
-
-  update(dt) {
-    this.flap += dt;
-    const dx = this.target.x - this.x;
-    const dy = this.target.y - this.y;
-    const d = Math.hypot(dx, dy);
-    if (d < 3) {
-      this.speed = 18;
-      this.pickTarget();
-      return;
-    }
-    this.x += (dx / d) * this.speed * dt;
-    this.y += (dy / d) * this.speed * dt + Math.sin(this.flap * 9) * 0.5;
-  }
-
-  draw(r) {
-    r.image(this.imgs[Math.floor(this.flap * 10) % 2], this.x, this.y, { ay: 0.5 });
   }
 }
 

@@ -131,6 +131,43 @@ describe('world', () => {
     expect(find(w, 'critter')).toMatchObject({ x: 160, y: 132 });
   });
 
+  it('gives an old save Ember\'s things, keeping her progress everywhere else', () => {
+    const saved = {
+      placed: {
+        ship: [{ id: 'plant', kind: 'plant', x: 40, y: 130, stage: 2 }, { id: 'critter', kind: 'critter', x: 90, y: 140 }],
+        bluebell: [{ id: 'crystal', kind: 'crystal', x: 120, y: 140 }],
+      },
+      bag: [{ id: 'bluebell1', kind: 'bluebell', v: 1 }],
+    };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'ember').map((e) => e.id).sort()).toEqual(placedIn(defaultWorld(), 'ember').map((e) => e.id).sort());
+    expect(find(w, 'plant')).toMatchObject({ x: 40, y: 130, stage: 2 });
+    expect(find(w, 'critter')).toMatchObject({ x: 90, y: 140 });
+    expect(placedIn(w, 'bluebell').some((e) => e.id === 'critter')).toBe(false);
+    expect(w.bag).toEqual([{ id: 'bluebell1', kind: 'bluebell', v: 1 }]);
+  });
+
+  it('has a friend and things to carry lying about on Ember', () => {
+    const kinds = placedIn(defaultWorld(), 'ember').map((e) => e.kind);
+    expect(kinds).toContain('newt');
+    expect(kinds).toContain('firebloom');
+    expect(kinds).toContain('geode');
+  });
+
+  it('carries Ember things to the ship and to Bluebell, and home again', () => {
+    let w = stash(stash(defaultWorld(), 'geode'), 'newt');
+    expect(placedIn(w, 'ember').some((e) => e.id === 'geode' || e.id === 'newt')).toBe(false);
+    w = place(w, 'geode', 'ship', 90, 130);
+    w = place(w, 'newt', 'bluebell', 120, 140);
+    w = setStage(w, 'geode', 1);
+    w = place(stash(w, 'geode'), 'geode', 'ember', 150, 146);
+    expect(find(w, 'geode')).toEqual({ id: 'geode', kind: 'geode', stage: 1, x: 150, y: 146 });
+    expect(placedIn(w, 'bluebell').some((e) => e.id === 'newt')).toBe(true);
+    w = normalizeWorld(JSON.parse(JSON.stringify(w)));
+    expect(placedIn(w, 'ember').filter((e) => e.id === 'geode')).toHaveLength(1);
+    expect(placedIn(w, 'ember').some((e) => e.id === 'newt')).toBe(false);
+  });
+
   it('drops malformed entries', () => {
     const w = normalizeWorld({ placed: { ship: [{ id: 'plant', kind: 'plant', x: 'a', y: 1 }] }, bag: [{ kind: 'x' }] });
     expect(find(w, 'plant')).toMatchObject({ x: 152, y: 120 });

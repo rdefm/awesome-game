@@ -8,13 +8,13 @@ import { WALK } from '../layout.js';
 export const isFriendItem = (item) => Boolean(item.seatFrame);
 
 // Holds a friend still (and out of reach of fingers) for a reaction.
-function hold(friend) {
+export function hold(friend) {
   friend.stayPut?.();
   friend.busy = true;
   friend.draggable = false;
 }
 
-function letGo(friend) {
+export function letGo(friend) {
   friend.pose?.('idle');
   friend.busy = false;
   friend.draggable = true;

@@ -197,7 +197,7 @@ export class ShipScene extends PlayScene {
     await tw.to(this, { flash: 1 }, 0.25);
 
     // Cut outside.
-    const cutscene = new LandingCutscene(this, this.assets);
+    const cutscene = new LandingCutscene(this, this.assets.backdrops[this.planet.id], this.assets);
     this.modal = cutscene;
     this.shake = 0;
     this.planetZoom = 0;
@@ -275,7 +275,7 @@ export class ShipScene extends PlayScene {
       r.image(this.assets.planetsBig[this.planetIndex], px, py, { ay: 0.5 });
     }
     if (this.ground > 0) {
-      r.image(this.assets.meadowWindow, 0, (1 - this.ground) * H, { ax: 0, ay: 0 });
+      r.image(this.assets.backdrops[this.planet.id].window, 0, (1 - this.ground) * H, { ax: 0, ay: 0 });
     }
     this.door.drawBehind(r);
     this.porthole.drawBehind(r);

@@ -42,8 +42,11 @@ export const PLANET_SPOT = { x: 226, y: 44 };
 // The airlock door on the left wall. It only opens once the ship has landed.
 export const DOOR = { x: 3, y: 66, w: 20, h: 46, spot: { x: 14, y: 124 } };
 
-// Planet Bluebell's meadow (same 256x160 screen and walkable band as the ship).
-export const MEADOW_HORIZON = 100;
+// Out on a planet (same 256x160 screen and walkable band as the ship): where
+// the land meets the sky, and where our ship parks, on every planet.
+export const HORIZON = 100;
 export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };
-// Its secrets (bottom-centres), placed in the gaps between the giant bluebells.
+// Bluebell's secrets (bottom-centres), placed in the gaps between the giant bluebells.
 export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119 }, hole: { x: 192, y: 151 } };
+// Ember's secrets: a steam vent at the back and a lava pool at the front.
+export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };

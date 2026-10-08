@@ -11,6 +11,13 @@ export const STICKERS = {
     { id: 'bluebell.butterfly', color: '#ff8fc8' }, // shaken off a butterfly tapped three times
     { id: 'bluebell.local', color: '#3fd0c9' }, // the local's thank-you for a crystal
   ],
+  ember: [
+    { id: 'ember.geyser', color: '#a9d6f2' }, // blown out of the vent by its first big plume
+    { id: 'ember.fish', color: '#ffb347' }, // flipped off the lava fish's great big leap
+    { id: 'ember.moth', color: '#fff2a0' }, // shaken off a moth tapped three times
+    { id: 'ember.geode', color: '#9a6cf0' }, // inside the geode the newt cracks open
+    { id: 'ember.newt', color: '#ff5a5a' }, // the newt's thank-you for a shady bluebell
+  ],
 };
 
 // Every sticker on every planet, each with the planet it belongs to.

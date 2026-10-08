@@ -23,6 +23,12 @@ export function defaultWorld() {
         { id: 'critter', kind: 'critter', x: 160, y: 132 },
         { id: 'crystal', kind: 'crystal', x: 190, y: 150 },
       ],
+      ember: [
+        { id: 'firebloom0', kind: 'firebloom', x: 100, y: 124, v: 0 },
+        { id: 'firebloom1', kind: 'firebloom', x: 238, y: 126, v: 1 },
+        { id: 'geode', kind: 'geode', x: 136, y: 146 },
+        { id: 'newt', kind: 'newt', x: 214, y: 140 },
+      ],
     },
     bag: [],
   };

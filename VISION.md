@@ -24,8 +24,8 @@ store.
   space plant, and an airlock door. Planets are the scenes you visit.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
   Stripey). Tap the planet in the windshield to land; once landed, the door
-  opens onto that planet's scene. Only Bluebell is landable so far — the
-  others say "too wild to land here yet" until they get a scene.
+  opens onto that planet's scene. Bluebell and Ember are landable so far —
+  the others say "too wild to land here yet" until they get a scene.
 - **Persistence**: saves locally on the tablet (browser storage) so closing
   the app and coming back picks up where she left off.
 - **Audio**: sound effects only (synthesized at runtime). No music yet.
@@ -35,8 +35,10 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `BluebellScene`) sharing a `PlayScene` base (tap-to-walk, particles,
-  banners, fade transitions). Scripted moments (landing, door, cutscenes) are
+  `BluebellScene`, `EmberScene`) sharing a `PlayScene` base (tap-to-walk,
+  particles, banners, fade transitions); planet scenes share an
+  `OutdoorScene` base (backdrop, parked ship, ramp) and are listed in
+  `src/ship/planetScenes.js`. Scripted moments (landing, door, cutscenes) are
   plain `async` sequences that `await` tweens.
 - **Art pipeline**: pixel art only, drawn entirely in code under
   `src/ship/art/` (256x160 internal resolution, scaled up with crisp pixels)
@@ -58,13 +60,18 @@ store.
 ## Built so far
 - Ship interior with all its props and the girl's idle/walk/act behaviour
 - Star map travel between the five planets, blast-off from the poster
-- Landing on Bluebell: chair-bounce, dive toward the planet, outside
-  cutscene of the ship touching down; taking off again via map or poster
+- Landing on Bluebell or Ember: chair-bounce, dive toward the planet,
+  outside cutscene of the ship touching down; taking off again via map or
+  poster
 - Airlock door (locked in space, opens when landed)
 - Bluebell meadow: parked ship to re-board, giant bluebells that each chime
   a note, a hopping puffball critter, butterflies, a friendly pink alien
+- Ember volcanic plain: smouldering sky and a glowing volcano, parked ship,
+  fire flowers that flare when tapped, a geode, a scurrying fire newt,
+  glowing moths, a steam vent that erupts and a lava pool with a leaping fish
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
-  teddy, ball, crystal, giant bluebells) and friends (puffball, pink alien)
+  teddy, ball, crystal, giant bluebells, fire flowers, geode) and friends
+  (puffball, pink alien, newt)
   can be dragged anywhere and dropped onto the bag button (bottom-left).
   Tapping it slides up a tray with two pockets — things and friends — that
   scrolls sideways, no size limit. Drag a slot upward to pull it out under
@@ -73,15 +80,19 @@ store.
 - **Drop-on reactions**: anything can opt in to having a dragged thing
   dropped on it (`accepts(item)` / `receive(item)`; the bag still wins).
   Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
-  the crystal beside it.
+  the crystal beside it. Drop the geode on the newt and its tail cracks it
+  open; bring the always-too-hot newt a giant bluebell from Bluebell and it
+  cools off in the shade.
 - **Star stickers**: a gentle "find them all". Stickers hide behind
-  Bluebell's secrets (rock, bush, mole, a butterfly, the alien's thank-you);
+  Bluebell's secrets (rock, bush, mole, a butterfly, the alien's thank-you)
+  and Ember's (the vent's first big plume, the lava fish's big leap, a moth,
+  inside the geode, the newt's thank-you for a bluebell);
   each one found plays a fanfare and flies off with a "+1" banner. A board
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.
 
 ## Planned later
-- Scenes for the other four planets
+- Scenes for the other three planets
 - **Wants**: characters can want a specific item as optional objectives that
   reward you without punishing you for ignoring them
 

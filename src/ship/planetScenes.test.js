@@ -5,6 +5,7 @@ import { landedOn } from './planetScenes.js';
 describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
     expect(landedOn({ where: 'bluebell', landed: true })).toBe('bluebell');
+    expect(landedOn({ where: 'ember', landed: true })).toBe('ember');
   });
 
   it('puts her back in the ship otherwise', () => {

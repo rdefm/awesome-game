@@ -148,6 +148,29 @@ export function defineSfx(audio) {
       s.noise({ at: t + i * 0.05, dur: 0.04, filter: 'bandpass', freq: 3000, vol: 0.08, q: 2 });
     }
   });
+  // Ember: a fire flower flaring, the newt's hiss of steam, a geode cracking,
+  // the vent rumbling then whooshing, and the lava pool going blorp.
+  audio.define('flare', (s, t) => {
+    s.noise({ at: t, dur: 0.35, filter: 'bandpass', freq: 500, to: 1600, vol: 0.18, q: 1 });
+    s.tone({ at: t, freq: 220, to: 660, dur: 0.25, type: 'triangle', vol: 0.08 });
+  });
+  audio.define('sizzle', (s, t) => {
+    s.noise({ at: t, dur: 0.7, filter: 'highpass', freq: 4000, to: 2500, vol: 0.12 });
+    s.tone({ at: t + 0.5, freq: 520, to: 380, dur: 0.3, type: 'sine', vol: 0.1 });
+  });
+  audio.define('crack', (s, t) => {
+    s.noise({ at: t, dur: 0.12, filter: 'bandpass', freq: 2500, to: 800, vol: 0.3, q: 1.5 });
+    s.tone({ at: t, freq: 180, to: 70, dur: 0.15, type: 'sine', vol: 0.3 });
+  });
+  audio.define('rumble', (s, t) => {
+    s.noise({ at: t, dur: 0.8, filter: 'lowpass', freq: 200, to: 400, vol: 0.35 });
+    s.tone({ at: t, freq: 50, to: 70, dur: 0.8, type: 'sine', vol: 0.25 });
+  });
+  audio.define('whoosh', (s, t) => s.noise({ at: t, dur: 1.2, filter: 'bandpass', freq: 800, to: 3000, vol: 0.25, q: 0.7 }));
+  audio.define('blorp', (s, t) => {
+    s.tone({ at: t, freq: 140, to: 420, dur: 0.12, type: 'sine', vol: 0.3 });
+    s.tone({ at: t + 0.1, freq: 260, to: 120, dur: 0.1, type: 'sine', vol: 0.15 });
+  });
   // A star sticker found: a twinkly run up to a held chord.
   audio.define('fanfare', (s, t) => {
     [784, 988, 1175, 1568].forEach((f, i) => s.tone({ at: t + i * 0.08, freq: f, dur: 0.1, type: 'triangle', vol: 0.13 }));

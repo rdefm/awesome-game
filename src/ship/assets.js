@@ -10,7 +10,11 @@ import {
 import {
   drawBag, drawBall, drawBoxIcon, drawCookie, drawCrystal, drawHeartIcon, drawJuice, drawStarFruit, drawTeddy,
 } from './art/items.js';
-import { MEADOW_HORIZON } from './layout.js';
+import {
+  MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
+  drawVent,
+} from './art/ember.js';
+import { HORIZON } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -75,10 +79,25 @@ export function loadAssets() {
     planetsSmall: PLANETS.map((p) => bake(drawPlanet(p, 9))),
     // Only landable planets get the big close-up used while descending.
     planetsHuge: PLANETS.map((p) => (p.landable ? bake(drawPlanet(p, 60)) : null)),
-    // Planet Bluebell.
-    meadow: bake(drawMeadow({ horizon: MEADOW_HORIZON })),
-    meadowWindow: bake(drawMeadow({ horizon: 52 })),
-    clouds: bake([drawCloud(0), drawCloud(1)]),
+    // Each landable planet's backdrop (see backdrop.js): its ground filling
+    // the screen out there, the same seen out of the ship's windows once
+    // landed, what drifts across its sky, and the colour of its dust.
+    backdrops: {
+      bluebell: bake({
+        ground: drawMeadow({ horizon: HORIZON }),
+        window: drawMeadow({ horizon: 52 }),
+        clouds: [drawCloud(0), drawCloud(1)],
+        dust: '#c9f0b0',
+        puff: '#e8f7ff',
+      }),
+      ember: bake({
+        ground: drawEmberPlain({ horizon: HORIZON }),
+        window: drawEmberPlain({ horizon: 52 }),
+        clouds: [drawSmoke(0), drawSmoke(1)],
+        dust: '#7a4a52',
+        puff: '#8a6a74',
+      }),
+    },
     shipOutside: bake({ closed: drawShipExterior(), open: drawShipExterior({ open: true }) }),
     flame: bake([drawFlame(0), drawFlame(1)]),
     bell,
@@ -98,6 +117,16 @@ export function loadAssets() {
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),
     }),
+    // Planet Ember.
+    newt: bake(Object.fromEntries(['idle', 'blink', 'wave1', 'wave2', 'hop', 'walk'].map((f) => [f, drawNewt(f)]))),
+    // [colour][flicker 0, flicker 1, flared]
+    firebloom: bake([0, 1].map((v) => [drawFirebloom(v, 0), drawFirebloom(v, 1), drawFirebloom(v, 0, true)])),
+    geode: bake([drawGeode(), drawGeode(true)]),
+    vent: bake(drawVent()),
+    steam: bake(drawSteam()),
+    lavaPool: bake([drawLavaPool(0), drawLavaPool(1)]),
+    lavaFish: bake([drawLavaFish(0), drawLavaFish(1)]),
+    moths: MOTH_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
     emotes: bake({
       heart: drawEmote('heart'), bang: drawEmote('bang'), note: drawEmote('note'),
       question: drawEmote('question'), star: drawEmote('star'),

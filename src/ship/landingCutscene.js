@@ -1,13 +1,16 @@
 import { ease } from '../engine/tween.js';
+import { drawBackdrop } from './backdrop.js';
 import { PARKED_SHIP, W, H } from './layout.js';
 
 const START_Y = -10;
 
-// Outside view of the little ship lowering itself onto the meadow, played as
-// a full-screen modal over the ship interior.
+// Outside view of the little ship lowering itself onto the planet (shown by
+// its `backdrop`, see backdrop.js), played as a full-screen modal over the
+// ship interior.
 export class LandingCutscene {
-  constructor(scene, assets) {
+  constructor(scene, backdrop, assets) {
     this.scene = scene;
+    this.backdrop = backdrop;
     this.assets = assets;
     this.shipY = START_Y;
     this.squash = 0;
@@ -47,9 +50,8 @@ export class LandingCutscene {
   draw(r) {
     const a = this.assets;
     const t = this.scene.engine.time;
-    r.image(a.meadow, 0, 0, { ax: 0, ay: 0 });
-    a.clouds.forEach((img, i) => r.image(img, ((i * 120 + 20 + t * 3) % (W + 50)) - 40, 14 + i * 12, { ax: 0, ay: 0 }));
-    // Shadow on the grass grows and darkens as the ship gets close.
+    drawBackdrop(r, this.backdrop, t);
+    // Shadow on the ground grows and darkens as the ship gets close.
     const near = Math.max(0, Math.min(1, (this.shipY - START_Y) / (PARKED_SHIP.y - START_Y)));
     const sw = 14 + near * 30;
     r.rect(PARKED_SHIP.x - sw / 2, PARKED_SHIP.y - 2, sw, 3, '#000000', 0.1 + near * 0.2);
@@ -57,7 +59,7 @@ export class LandingCutscene {
     if (this.thrust) {
       const flame = a.flame[Math.floor(t * 16) % 2];
       r.image(flame, PARKED_SHIP.x + 1 + jiggle, this.shipY - 12, { ay: 0 });
-      // Downwash flattening the grass once the ship is low.
+      // Downwash kicking up dust once the ship is low.
       if (near > 0.6 && Math.random() < 0.6) {
         const dir = Math.random() < 0.5 ? -1 : 1;
         this.puffs.push({ x: PARKED_SHIP.x + 1, y: PARKED_SHIP.y - 1, vx: dir * (30 + Math.random() * 30), vy: -3, age: 0, life: 0.5 });
@@ -66,7 +68,7 @@ export class LandingCutscene {
     const sx = 1 + this.squash * 0.1;
     r.image(a.shipOutside.closed, PARKED_SHIP.x + jiggle, this.shipY, { scaleX: sx, scaleY: 2 - sx });
     for (const p of this.puffs) {
-      r.rect(p.x, p.y, 3, 2, '#e8f7ff', 1 - p.age / p.life);
+      r.rect(p.x, p.y, 3, 2, this.backdrop.puff, 1 - p.age / p.life);
     }
     r.rect(0, 0, W, 10, '#000000');
     r.rect(0, H - 10, W, 10, '#000000');
