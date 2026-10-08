@@ -38,7 +38,7 @@ export class BluebellScene extends PlayScene {
   }
 
   persist() {
-    writeSave({ ...loadSave(), where: 'bluebell', bx: Math.round(this.girl.x), by: Math.round(this.girl.y) });
+    writeSave({ ...loadSave(), where: this.where, bx: Math.round(this.girl.x), by: Math.round(this.girl.y) });
   }
 
   async walkDownRamp() {

@@ -1,6 +1,5 @@
 import { ease } from '../engine/tween.js';
 import { PLANETS } from './art/props.js';
-import { BluebellScene } from './bluebellScene.js';
 import { Girl, clampToFloor } from './entities/girl.js';
 import {
   Chair, ConsoleScreen, Door, Porthole, Poster, SnackLocker, StickerBoard, Wardrobe, WindowPlanet,
@@ -8,6 +7,7 @@ import {
 import { DOOR, PLANET_SPOT, W, H } from './layout.js';
 import { LandingCutscene } from './landingCutscene.js';
 import { PlanetMap } from './planetMap.js';
+import { planetScene } from './planetScenes.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 import { Starfield } from './starfield.js';
@@ -234,7 +234,7 @@ export class ShipScene extends PlayScene {
     girl.say('heart', 1);
     engine.tweens.to(girl, { y: DOOR.spot.y - 6 }, 0.5);
     await engine.tweens.to(girl, { alpha: 0 }, 0.5);
-    await this.leaveTo(() => new BluebellScene(this.assets));
+    await this.leaveTo(() => planetScene(this.planet.id, this.assets));
   }
 
   async walkInFromDoor() {
