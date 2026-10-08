@@ -73,6 +73,14 @@ export function defineSfx(audio) {
   audio.define('close', (s, t) => {
     [784, 523].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.08, vol: 0.08 }));
   });
+  // Chatter blips, one per line said in a chat: the pink alien warbles high,
+  // she babbles a little lower.
+  audio.define('chatAlien', (s, t) => {
+    [1100, 1500, 1250].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, to: f * 1.15, dur: 0.05, type: 'sine', vol: 0.12 }));
+  });
+  audio.define('chatGirl', (s, t) => {
+    [620, 760, 680].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, to: f * 0.95, dur: 0.05, type: 'triangle', vol: 0.12 }));
+  });
   audio.define('select', (s, t) => {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
     s.tone({ at: t + 0.08, freq: 1568, dur: 0.12, vol: 0.1 });

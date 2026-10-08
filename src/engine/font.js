@@ -14,7 +14,13 @@ const GLYPHS = {
   8: '111101111101111', 9: '111101111001110',
   '!': '010010010000010', '?': '110001010000010', '.': '000000000000010', '-': '000000111000000',
   '/': '001001010100100', '+': '000010111010000', ' ': '000000000000000',
+  ',': '000000000010100', "'": '010010000000000',
 };
+
+// True if every character of `text` has a glyph (anything else draws as '?').
+export function canDraw(text) {
+  return [...text.toUpperCase()].every((ch) => ch in GLYPHS);
+}
 
 export const GLYPH_W = 3;
 export const GLYPH_H = 5;

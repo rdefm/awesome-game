@@ -1,6 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
+import { offerChat } from '../chat.js';
 import { MEADOW_SECRETS, WALK } from '../layout.js';
+import { PINK_ALIEN } from '../talks/pinkAlien.js';
 import { Carryable } from './carryable.js';
 import { isFriendItem, play } from './friends.js';
 import { feed, isSnack } from './items.js';
@@ -564,6 +566,17 @@ export class Local extends Carryable {
     this.frame = 'idle';
     girl.say('heart');
     this.busy = false;
+    offerChat(this.scene, this);
+  }
+
+  // Where its chat lines go.
+  get headTop() {
+    return this.y - this.perch - 24 - this.lift;
+  }
+
+  // What it has to say, and whether she's given it the crystal yet.
+  chat() {
+    return { tree: PINK_ALIEN, facts: { gotCrystal: this.scene.stickers.includes('bluebell.local') } };
   }
 
   // It loves shiny crystals: drop one on it and it keeps it beside it. Drop

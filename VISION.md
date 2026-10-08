@@ -58,7 +58,7 @@ store.
   stickers she's found (`src/ship/stickers.js`). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, world, stickers, drop receivers).
+  tweens, world, stickers, drop receivers, chat trees).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -140,6 +140,16 @@ store.
   each one found plays a fanfare and flies off with a "+1" banner. A board
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.
+
+- **Chatting**, Monkey Island style: tap the pink alien and after its
+  wave-and-hop a little speech bubble pops over its head (fading if
+  ignored). Tap the bubble and they chat: each line shows over the
+  speaker's head in their own colour (tap to move on, with a chatter blip),
+  and her replies are big tappable lines along the bottom. "Bye!" is always
+  one of them. While chatting the scene is modal. Chats are plain data
+  trees (`src/ship/talks/`, one per character, walked by `src/ship/talk.js`)
+  that can branch on world facts: the alien hints at wanting a crystal, and
+  is all thank-yous once it has one.
 
 - **The ship's other rooms**: an arrow by each side wall of the cockpit
   (labelled with where it goes) — tap it and she walks off through the

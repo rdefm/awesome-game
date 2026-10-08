@@ -175,6 +175,11 @@ export class Girl {
     }
   }
 
+  // The top of her head (hat and all), where bubbles and chat lines go.
+  get headTop() {
+    return this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (27 + this.lift + this.hatHeight) * this.scale;
+  }
+
   // How far her hat (if any) pokes up above her hair.
   get hatHeight() {
     return hatHeight(this.look?.hat);
@@ -295,7 +300,7 @@ export class Girl {
   // Drawn after everything else so bubbles are never hidden behind props.
   drawOver(r) {
     const s = this.scale;
-    const headY = this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (27 + this.lift + this.hatHeight) * s;
+    const headY = this.headTop;
     if (this.emote) {
       const e = this.emote;
       const pop = Math.min(1, e.t / 0.15);
