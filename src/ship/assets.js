@@ -2,6 +2,7 @@ import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
 import { drawHairSwatch, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
+import { drawBeanbag, drawLamp, drawLampGlow, drawPrinter, drawRug, drawWallPoster } from './art/decor.js';
 import {
   drawBallPitFront, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
 } from './art/shipRooms.js';
@@ -95,6 +96,12 @@ export function loadAssets() {
     storeRoom: bake(drawStoreRoom()),
     playRoom: bake(drawPlayRoom()),
     roomArrow: bake(drawRoomArrow()),
+    // The store room's decor printer [idle, printing], and the decor it prints.
+    printer: bake([drawPrinter(), drawPrinter(true)]),
+    decor: bake({
+      rug: drawRug(), lamp: [drawLamp(), drawLamp(true)], lampGlow: drawLampGlow(), beanbag: drawBeanbag(),
+      wallposter: drawWallPoster(),
+    }),
     ballPit: bake(drawBallPitFront()),
     swing: bake({ frame: drawSwingFrame(), seat: drawSwingSeat() }),
     trampoline: bake([drawTrampoline(), drawTrampoline(true)]),

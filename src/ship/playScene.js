@@ -36,6 +36,7 @@ export class PlayScene extends Scene {
     this.busy = false; // true during a scripted event
     this.fade = 1; // black overlay; scenes fade in on enter
     this.toastMsg = null;
+    this.hasWall = false; // the ship's rooms have a wall to hang decor on
   }
 
   enter() {
@@ -186,10 +187,16 @@ export class PlayScene extends Scene {
     this.putDown(item, item.x, item.y);
   }
 
+  // Where a carryable let go at (x, y) comes to rest: on the floor (or, for
+  // wall decor, up on the wall).
+  restingSpot(item, x, y) {
+    return item.restingSpot?.(x, y) ?? clampToFloor(x, y);
+  }
+
   // Drops a carryable onto the floor at (or near) (x, y) and remembers it there.
   // Resolves once it's landed.
   putDown(item, x, y) {
-    const floor = clampToFloor(x, y);
+    const floor = this.restingSpot(item, x, y);
     this.world = place(this.world, item.id, this.where, floor.x, floor.y);
     this.saveWorld();
     return item.fall(floor);
@@ -227,11 +234,13 @@ export class PlayScene extends Scene {
   placeFromBag(entry) {
     const girl = this.girl;
     const maxY = this.bag.isOpen ? 130 : WALK.maxY; // keep it clear of the open tray
-    const spot = clampToFloor(girl.x + girl.facing * 20, Math.min(girl.y + 2, maxY));
-    const item = makeCarryable(this.assets, { ...entry, x: spot.x, y: spot.y - 16 });
+    const floor = clampToFloor(girl.x + girl.facing * 20, Math.min(girl.y + 2, maxY));
+    const item = makeCarryable(this.assets, { ...entry, x: floor.x, y: floor.y - 16 });
     if (!item) {
       return;
     }
+    item.scene = this;
+    const spot = this.restingSpot(item, floor.x, floor.y);
     this.world = place(this.world, item.id, this.where, spot.x, spot.y);
     this.saveWorld();
     this.add(item);

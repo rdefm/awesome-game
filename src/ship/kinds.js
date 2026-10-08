@@ -1,4 +1,5 @@
 import { Bluebell, Critter, Local } from './entities/bluebell.js';
+import { Beanbag, Lamp, Rug, WallPoster } from './entities/decor.js';
 import { Ginger, Gumdrop, GummyBear, Lollipop } from './entities/candy.js';
 import { Firebloom, Geode, Newt } from './entities/ember.js';
 import { LavaBaby, LavaDad, LavaMum } from './entities/lavaHouse.js';
@@ -35,6 +36,10 @@ export const KINDS = {
   lavaBaby: { friend: true, make: (a, s) => new LavaBaby(a, s), icon: (a) => a.lavaBaby.idle },
   stripestone: { make: (a, s) => new StripeStone(a, s), icon: (a, s) => a.stripeStone[(s.v ?? 0) % a.stripeStone.length] },
   stripecactus: { make: (a, s) => new StripeCactus(a, s), icon: (a, s) => a.stripeCactus[s.stage ? 1 : 0] },
+  rug: { make: (a, s) => new Rug(a, s), icon: (a) => a.decor.rug },
+  lamp: { make: (a, s) => new Lamp(a, s), icon: (a, s) => a.decor.lamp[s.stage === 1 ? 1 : 0] },
+  beanbag: { make: (a, s) => new Beanbag(a, s), icon: (a) => a.decor.beanbag },
+  wallposter: { make: (a, s) => new WallPoster(a, s), icon: (a) => a.decor.wallposter },
   zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 

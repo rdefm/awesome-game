@@ -115,3 +115,11 @@ export const BALL_PIT = { x: 26, w: 76, back: 112, rim: 121, top: 133, bottom: 1
 export const SWING = { x: 142, top: 30, rope: 86, y: 127, spot: { x: 142, y: 136 } };
 // A round trampoline; its mat is `mat` above the floor at y.
 export const TRAMPOLINE = { x: 206, y: 134, rx: 22, mat: 8, spot: { x: 206, y: 147 } };
+
+// Where wall decor (a poster, say) can hang in the ship's rooms: the band its
+// bottom-centre stays inside. Dropped lower, it snaps up to the bottom of it.
+export const WALL_HANG = { minX: 14, maxX: 242, minY: 40, maxY: 96 };
+
+// The store room's decor printer, standing against the back wall
+// (bottom-centre), and the floor in front where what it prints lands.
+export const PRINTER = { x: 128, y: 118, w: 36, h: 42, spot: { x: 102, y: 124 }, out: { x: 132, y: 134 } };

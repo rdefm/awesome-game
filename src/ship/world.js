@@ -96,12 +96,22 @@ export function normalizeWorld(raw) {
   return world;
 }
 
+// Every thing in the world, wherever it is.
+function allEntries(world) {
+  return [...Object.values(world.placed).flat(), ...world.bag];
+}
+
 function allIds(world) {
-  return [...Object.values(world.placed).flat(), ...world.bag].map((e) => e.id);
+  return allEntries(world).map((e) => e.id);
 }
 
 export function find(world, id) {
-  return [...Object.values(world.placed).flat(), ...world.bag].find((e) => e.id === id) ?? null;
+  return allEntries(world).find((e) => e.id === id) ?? null;
+}
+
+// How many things of `kind` there are, anywhere (lying about or in the bag).
+export function countKind(world, kind) {
+  return allEntries(world).filter((e) => e.kind === kind).length;
 }
 
 export function placedIn(world, where) {

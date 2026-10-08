@@ -162,7 +162,14 @@ store.
   (labelled with where it goes) — tap it and she walks off through the
   wall into the next room; tap the arrow there to come back. Drop anything
   on an arrow and it's sent through on its own. The **store room** (left)
-  starts empty: painted bays on the floor for keeping things in. The
+  has painted bays on the floor for keeping things in, and the **decor
+  printer**: tap it and a picker slides up with a rug, a lamp, a beanbag
+  and a wall poster; pick one and the printer whirrs and pops it out (up
+  to three of each). Decor is carryable like everything else — arrange it
+  anywhere in the ship (or take it to a planet in the bag) and it stays
+  put across reloads. Rugs lie flat under everything; wall pieces snap up
+  onto the wall. Tap the lamp to switch it on; drop a friend on the
+  beanbag and they flop right in. The
   **playroom** (right) has a ball pit (she hops in, dives right under and
   pops up in a splash of balls), a swing (higher and higher) and a
   trampoline (each bounce higher than the last). Drop a friend on any of

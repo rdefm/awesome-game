@@ -16,7 +16,7 @@ const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + p
 
 // Shared "you touched me" feedback: a quick squash so every tap feels answered
 // even while the girl is still walking over.
-class Prop {
+export class Prop {
   constructor() {
     this.squash = 0;
   }

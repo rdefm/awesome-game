@@ -29,6 +29,7 @@ export class ShipScene extends PlayScene {
     this.planetZoom = 0; // 0..1 while diving down toward the planet
     this.fromDoor = fromDoor;
     this.entering = enter;
+    this.hasWall = true; // for hanging wall decor on
 
     const save = loadSave();
     this.planetIndex = Number.isInteger(save.planet) && PLANETS[save.planet] ? save.planet : 0;

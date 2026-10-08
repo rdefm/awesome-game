@@ -89,7 +89,10 @@ export class RoomArrow {
 
   receive(item) {
     const { scene } = this;
-    const spot = clampToFloor(entryX(-this.side) + (Math.random() - 0.5) * 16, WALK.minY + 4 + Math.random() * 24);
+    const x = entryX(-this.side) + (Math.random() - 0.5) * 16;
+    const y = WALK.minY + 4 + Math.random() * 24;
+    // (Every ship room has a wall, so wall decor goes straight up on it.)
+    const spot = item.restingSpot?.(x, y) ?? clampToFloor(x, y);
     scene.remove(item);
     scene.engine.tweens.cancel(item);
     scene.world = place(scene.world, item.id, this.to, spot.x, spot.y);

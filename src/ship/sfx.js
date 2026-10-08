@@ -263,4 +263,14 @@ export function defineSfx(audio) {
     [1047, 1319, 1568].forEach((f) => s.tone({ at: t + 0.36, freq: f, dur: 0.5, type: 'triangle', vol: 0.09 }));
     [2600, 3100, 2800].forEach((f, i) => s.tone({ at: t + 0.4 + i * 0.1, freq: f, to: f * 1.2, dur: 0.05, type: 'sine', vol: 0.06 }));
   });
+  // Decor: the printer whirring away, and a lamp's switch.
+  audio.define('whirr', (s, t) => {
+    s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });
+    s.noise({ at: t, dur: 0.9, filter: 'bandpass', freq: 1200, to: 1800, vol: 0.12, q: 4, attack: 0.1 });
+    [0.2, 0.45, 0.7].forEach((d) => s.tone({ at: t + d, freq: 660, to: 880, dur: 0.05, type: 'triangle', vol: 0.08 }));
+  });
+  audio.define('click', (s, t) => {
+    s.noise({ at: t, dur: 0.03, filter: 'highpass', freq: 3000, vol: 0.2 });
+    s.tone({ at: t, freq: 1400, to: 900, dur: 0.03, type: 'square', vol: 0.06 });
+  });
 }
