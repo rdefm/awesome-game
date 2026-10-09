@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isShipRoom, roomBeside } from './shipRooms.js';
+import { LIFT_STOPS, isShipRoom, roomBeside } from './shipRooms.js';
 
 describe('roomBeside', () => {
   it('has the store room to the left of the cockpit and the playroom to the right', () => {
@@ -21,5 +21,18 @@ describe('roomBeside', () => {
     expect(roomBeside('candy', 1)).toBe(null);
     expect(isShipRoom('candy')).toBe(false);
     expect(isShipRoom('playroom')).toBe(true);
+  });
+});
+
+describe('the lift', () => {
+  it('goes between the store room and the bunk room', () => {
+    expect(LIFT_STOPS).toContain('storeroom');
+    expect(LIFT_STOPS).toContain('bunkroom');
+  });
+
+  it('is the only way into the bunk room: no rooms through its walls', () => {
+    expect(isShipRoom('bunkroom')).toBe(true);
+    expect(roomBeside('bunkroom', -1)).toBe(null);
+    expect(roomBeside('bunkroom', 1)).toBe(null);
   });
 });

@@ -303,4 +303,19 @@ export function defineSfx(audio) {
     s.noise({ at: t, dur: 0.03, filter: 'highpass', freq: 3000, vol: 0.2 });
     s.tone({ at: t, freq: 1400, to: 900, dur: 0.03, type: 'square', vol: 0.06 });
   });
+  // The lift: its doors sliding, and a gentle hum on the way up or down.
+  audio.define('liftDoors', (s, t) => s.noise({ at: t, dur: 0.45, filter: 'bandpass', freq: 900, to: 1400, vol: 0.12, q: 2, attack: 0.05 }));
+  audio.define('liftHum', (s, t) => {
+    s.tone({ at: t, freq: 110, to: 165, dur: 1, type: 'triangle', vol: 0.1, attack: 0.2 });
+    s.noise({ at: t, dur: 1, filter: 'lowpass', freq: 500, to: 700, vol: 0.08, attack: 0.2 });
+  });
+  // The bunk room: a soft snore (in, then a whistly out), and a big yawn.
+  audio.define('snore', (s, t) => {
+    s.noise({ at: t, dur: 0.6, filter: 'lowpass', freq: 300, to: 500, vol: 0.12, attack: 0.25 });
+    s.tone({ at: t + 0.75, freq: 900, to: 700, dur: 0.35, type: 'sine', vol: 0.03, attack: 0.1 });
+  });
+  audio.define('yawn', (s, t) => {
+    s.tone({ at: t, freq: 330, to: 520, dur: 0.35, type: 'triangle', vol: 0.1, attack: 0.08 });
+    s.tone({ at: t + 0.35, freq: 520, to: 220, dur: 0.6, type: 'triangle', vol: 0.1 });
+  });
 }

@@ -37,9 +37,10 @@ export class Carryable {
     return this.held || this.falling ? 1000 : this.y;
   }
 
-  // How far it's raised up off the floor: onto the cushion, while sat in the chair.
+  // How far it's raised up off the floor: onto the cushion, while sat in the
+  // chair (or as high as whatever else it's sat in says).
   get perch() {
-    return this.seat ? CHAIR.cushion : 0;
+    return this.seat ? this.seat.perch ?? CHAIR.cushion : 0;
   }
 
   get bounce() {

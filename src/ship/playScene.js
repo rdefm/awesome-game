@@ -1,7 +1,6 @@
 import { findReceiver, Scene } from '../engine/scene.js';
 import { ease } from '../engine/tween.js';
 import { Bag } from './bag.js';
-import { normalizeDecor, seen, tally as decorTally, unlock } from './decor.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { MusicButton } from './musicButton.js';
@@ -27,7 +26,6 @@ export class PlayScene extends Scene {
     this.world = normalizeWorld(save.world);
     this.look = normalizeLook(save.look); // how she looks, wherever she goes
     this.stickers = normalizeFound(save.stickers); // ids of the star stickers she's found
-    this.decor = normalizeDecor(save.decor); // the decor pieces she's unlocked
     // Things friends remember happening that leave no sticker behind (like
     // a cuddle), for their chats to mention: a list of names.
     this.memories = Array.isArray(save.memories) ? save.memories.filter((m) => typeof m === 'string') : [];
@@ -140,31 +138,6 @@ export class PlayScene extends Scene {
     this.toast(`+1 STAR STICKER! ${n}/${total}`, 2.5);
     this.flyOff({ img: this.assets.stickers[id], x, y, scale: 1, alpha: 1 });
     return true;
-  }
-
-  // She's unlocked a new decor piece for the printer: if it really is new, a
-  // fanfare and a banner, it's remembered, and it wiggles in the printer's
-  // picker next time that opens. Returns true if it was new.
-  unlockDecor(kind) {
-    const decor = unlock(this.decor, kind);
-    if (decor === this.decor) {
-      return false;
-    }
-    this.decor = decor;
-    writeSave({ ...loadSave(), decor });
-    this.engine.audio.play('fanfare');
-    const { found, total } = decorTally(decor);
-    this.toast(`NEW DECOR TO PRINT! ${found}/${total}`, 2.5);
-    return true;
-  }
-
-  // The printer's picker has shown off the newly unlocked pieces.
-  sawNewDecor() {
-    const decor = seen(this.decor);
-    if (decor !== this.decor) {
-      this.decor = decor;
-      writeSave({ ...loadSave(), decor });
-    }
   }
 
   async flyOff(star) {

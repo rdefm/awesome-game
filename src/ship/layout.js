@@ -273,3 +273,25 @@ export const WALL_HANG = { minX: 14, maxX: 242, minY: 40, maxY: 96 };
 // (bottom-centre), where she stands to use it and where a new crewmate hops out to.
 export const CREW_POD = { x: 214, y: 118, w: 30, h: 46, spot: { x: 190, y: 126 }, out: { x: 206, y: 138 } };
 export const PRINTER = { x: 128, y: 118, w: 36, h: 42, spot: { x: 102, y: 124 }, out: { x: 132, y: 134 } };
+
+// The lift, a door in the back wall of the store room and the bunk room (the
+// same spot in each): its doorway's bottom-centre on the floor line, `w` wide
+// and `h` high; the call button beside it; where she stands to use it.
+export const LIFT = { x: 40, y: FLOOR_TOP, w: 26, h: 44, button: { x: 62, y: 84 }, spot: { x: 42, y: 124 } };
+
+// The bunk room, up the lift. Her bed by the back wall, and a bunk bed for
+// friends (a lower and an upper bunk). Each bunk: bottom-centre on the floor
+// at (x, y), `w` wide, its mattress `deck` above the floor; `spot`, where she
+// stands by it (and where a friend in it is remembered as being).
+export const HER_BUNK = { x: 118, y: 128, w: 54, deck: 12, spot: { x: 118, y: 138 } };
+export const FRIEND_BUNKS = [
+  { x: 202, y: 128, w: 52, deck: 10, spot: { x: 194, y: 140 } },
+  { x: 202, y: 128, w: 52, deck: 42, spot: { x: 210, y: 140 } },
+];
+// The bunk bed's ladder, up its right-hand end.
+export const BUNK_LADDER = { x: 233, top: 70 };
+// The light switch on the wall, the night light plugged in low down, and the
+// porthole the stars come out in.
+export const LIGHT_SWITCH = { x: 78, y: 78, spot: { x: 78, y: 124 } };
+export const NIGHT_LIGHT = { x: 160, y: 101 };
+export const BUNK_PORTHOLE = { x: 118, y: 46, r: 12 };

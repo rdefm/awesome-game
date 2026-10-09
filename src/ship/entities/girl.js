@@ -37,7 +37,7 @@ export class Girl {
     this.priority = 10;
     this.hugging = false;
     this.greeting = false; // saying hello to a friend dropped on her
-    this.riding = null; // playground kit that's drawing her (she's down in the ball pit)
+    this.riding = null; // what's drawing her (playground kit, the lift, her bed)
     this.draggable = true;
   }
 
@@ -201,6 +201,10 @@ export class Girl {
       this.scene.chair.spin();
       return;
     }
+    if (this.riding?.wakeUp) {
+      this.riding.wakeUp(); // tucked up in bed
+      return;
+    }
     this.cancelWalk();
     this.scene.engine.audio.play('giggle');
     this.say('heart');
@@ -228,7 +232,7 @@ export class Girl {
   // Drop the teddy on her and she gives it a big hug, then sets it down
   // beside her. Drop a friend on her and they say hello.
   accepts(item) {
-    const free = !this.hugging && !this.greeting && this.onFeet && !this.scene.busy;
+    const free = !this.hugging && !this.greeting && this.onFeet && !this.riding && !this.scene.busy;
     return free && (item.kind === 'teddy' || isFriendItem(item));
   }
 

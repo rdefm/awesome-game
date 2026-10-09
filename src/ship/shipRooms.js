@@ -1,3 +1,4 @@
+import { BunkRoomScene } from './bunkRoomScene.js';
 import { PlayRoomScene } from './playRoomScene.js';
 import { ShipScene } from './shipScene.js';
 import { StoreRoomScene } from './storeRoomScene.js';
@@ -7,10 +8,18 @@ import { StoreRoomScene } from './storeRoomScene.js';
 // playroom. An arrow by each side wall goes through to the room beside.
 const ROOMS = ['storeroom', 'ship', 'playroom'];
 
-// What the arrow going to each room says.
-export const ROOM_NAMES = { storeroom: 'STORE ROOM', ship: 'COCKPIT', playroom: 'PLAYROOM' };
+// The ship's other decks, reached by the lift (a door in the store room):
+// every stop it makes, as listed on its panel, top to bottom. A new deck is a
+// stop here, its name and scene below, and a lift in that scene.
+export const LIFT_STOPS = ['bunkroom', 'storeroom'];
 
-export const isShipRoom = (where) => ROOMS.includes(where);
+// What the arrow (or lift button) going to each room says.
+export const ROOM_NAMES = { storeroom: 'STORE ROOM', ship: 'COCKPIT', playroom: 'PLAYROOM', bunkroom: 'BUNK ROOM' };
+
+// Each room's scene (the cockpit's is the one for anywhere else).
+const SCENES = { storeroom: StoreRoomScene, playroom: PlayRoomScene, bunkroom: BunkRoomScene };
+
+export const isShipRoom = (where) => ROOMS.includes(where) || LIFT_STOPS.includes(where);
 
 // The room through the wall on `side` (-1 left, 1 right) of room `where`,
 // or null if that's the outside of the ship.
@@ -21,11 +30,6 @@ export function roomBeside(where, side) {
 
 // The scene for room `where` (the cockpit, unless it's one of the others).
 export function shipRoomScene(where, assets, opts) {
-  if (where === 'storeroom') {
-    return new StoreRoomScene(assets, opts);
-  }
-  if (where === 'playroom') {
-    return new PlayRoomScene(assets, opts);
-  }
-  return new ShipScene(assets, opts);
+  const Room = Object.hasOwn(SCENES, where) ? SCENES[where] : ShipScene;
+  return new Room(assets, opts);
 }

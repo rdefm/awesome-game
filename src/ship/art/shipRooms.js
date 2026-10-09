@@ -2,7 +2,9 @@ import { Pixmap, seededRandom } from '../../engine/pixmap.js';
 import { drawText, measureText } from '../../engine/font.js';
 import { C } from './palette.js';
 import { drawShell } from './room.js';
-import { BALL_PIT, FLOOR_TOP, SWING, TRAMPOLINE, W } from '../layout.js';
+import {
+  BALL_PIT, BUNK_LADDER, BUNK_PORTHOLE, FLOOR_TOP, FRIEND_BUNKS, HER_BUNK, LIFT, NIGHT_LIGHT, SWING, TRAMPOLINE, W,
+} from '../layout.js';
 
 export const BALL_COLORS = ['#ff5a5a', '#ffe066', '#4fa8f0', '#7cf28a', '#ff8fc8', '#ff9d3c'];
 const PAD = { face: '#4fa8f0', light: '#8fd2ff', dark: '#2f68b8' };
@@ -58,10 +60,10 @@ export function drawStoreRoom() {
   for (const [x, y] of [[net.x0, net.y0], [net.x1, net.y0], [net.x0, net.y1], [net.x1, net.y1]]) {
     pm.rect(x - 1, y - 1, 3, 3, C.metalLight);
   }
-  // A rail of hooks on the left-hand wall.
-  pm.rect(18, 70, 66, 3, C.metalDark);
-  pm.hline(18, 83, 70, C.metalLight);
-  for (let x = 24; x < 84; x += 14) {
+  // A rail of hooks between the lift and the printer.
+  pm.rect(72, 70, 32, 3, C.metalDark);
+  pm.hline(72, 103, 70, C.metalLight);
+  for (let x = 78; x < 104; x += 12) {
     pm.vline(x, 73, 77, C.metalLight);
     pm.hline(x, x + 2, 78, C.metalLight);
     pm.set(x + 2, 77, C.metalLight);
@@ -236,6 +238,217 @@ export function drawPlayRoom() {
   // Contact shadows so things sit on the floor.
   pm.dither(BALL_PIT.x - 2, BALL_PIT.bottom - 1, BALL_PIT.w + 4, 3, C.floorDark, 0.7);
   pm.dither(TRAMPOLINE.x - TRAMPOLINE.rx, TRAMPOLINE.y - 2, TRAMPOLINE.rx * 2, 3, C.floorDark, 0.6);
+  pm.hline(0, W - 1, FLOOR_TOP, C.metalDark);
+  return pm;
+}
+
+// ---------------------------------------------------------------------- lift
+// The lift's door frame, with the floor indicator over it (its bottom-centre
+// is the doorway's, on the floor line). The doorway itself is left empty:
+// the lift draws its car and sliding doors in there.
+export const LIFT_FRAME = { w: LIFT.w + 10, h: LIFT.h + 12 };
+
+export function drawLiftFrame() {
+  const { w, h } = LIFT_FRAME;
+  const pm = new Pixmap(w, h);
+  pm.rect(1, 1, w - 2, h - 1, C.metalDark);
+  pm.rect(2, 2, w - 4, h - 2, C.metal);
+  pm.hline(2, w - 3, 2, C.metalLight);
+  pm.vline(2, 2, h - 1, C.metalLight);
+  // The indicator: a little screen with an up and a down arrow.
+  const cx = Math.floor(w / 2);
+  pm.rect(cx - 7, 4, 14, 6, C.screen);
+  for (let i = 0; i < 3; i++) {
+    pm.hline(cx - 4 - i, cx - 4 + i, 5 + i, C.yellow);
+    pm.hline(cx + 4 - i, cx + 4 + i, 8 - i, C.teal);
+  }
+  for (let y = 12; y < h; y++) {
+    for (let x = 5; x < 5 + LIFT.w; x++) {
+      pm.clear(x, y);
+    }
+  }
+  return pm.outline(C.outline);
+}
+
+// The call button beside the lift; `lit` once it's been pressed.
+export function drawLiftButton(lit = false) {
+  const pm = new Pixmap(9, 13);
+  pm.rect(1, 1, 7, 11, C.metalLight);
+  pm.rect(2, 2, 5, 9, C.metal);
+  pm.circle(4, 6, 2, lit ? C.yellow : C.metalDark);
+  pm.set(3, 5, lit ? C.white : C.metal);
+  return pm.outline(C.outline);
+}
+
+// ----------------------------------------------------------------- bunk room
+const WOOD = { face: '#b5835a', dark: '#7a4f33', light: '#d9a877' };
+const SHEET = { face: '#e8ecf6', shade: '#b8c2dc' };
+
+// Her bed (bottom-centre on the floor): a big headboard on the left, a
+// footboard on the right, and a mattress `deck` up, with a pillow on it.
+export function drawBed(w, deck) {
+  const h = deck + 18;
+  const pm = new Pixmap(w + 2, h);
+  const floor = h - 2;
+  const top = floor - deck;
+  for (const x of [4, w - 3]) {
+    pm.rect(x - 1, floor - 3, 3, 4, WOOD.dark); // legs
+  }
+  pm.rect(2, top + 3, w - 2, deck - 6, WOOD.face);
+  pm.hline(2, w - 1, top + 3, WOOD.light);
+  pm.hline(2, w - 1, top + deck - 4, WOOD.dark);
+  pm.rect(2, top, w - 2, 3, SHEET.face);
+  pm.hline(2, w - 1, top + 2, SHEET.shade);
+  // Headboard, with a heart on it.
+  pm.rect(1, 1, 5, floor, WOOD.face);
+  pm.vline(1, 1, floor, WOOD.light);
+  pm.hline(1, 5, 1, WOOD.light);
+  pm.rect(2, 5, 3, 2, C.pink);
+  pm.set(3, 7, C.pink);
+  // Footboard.
+  pm.rect(w - 4, top - 6, 4, floor - top + 7, WOOD.face);
+  pm.vline(w - 4, top - 6, floor, WOOD.light);
+  // A pillow against the headboard.
+  pm.ellipse(13, top - 1, 6, 2, C.white);
+  pm.hline(9, 16, top + 1, SHEET.shade);
+  return pm.outline(C.outline);
+}
+
+// One bunk of the bunk bed: a mattress on a wooden board, a pillow at the
+// left-hand end. BUNK_DECK.top is how far down it the top of the mattress is.
+export const BUNK_DECK = { top: 4 };
+
+export function drawBunkDeck(w) {
+  const pm = new Pixmap(w + 2, 12);
+  const { top } = BUNK_DECK;
+  pm.rect(1, top, w, 3, SHEET.face);
+  pm.hline(1, w, top + 2, SHEET.shade);
+  pm.rect(1, top + 3, w, 4, WOOD.face);
+  pm.hline(1, w, top + 3, WOOD.light);
+  pm.hline(1, w, top + 6, WOOD.dark);
+  pm.ellipse(10, top - 1, 6, 2, C.white);
+  return pm.outline(C.outline);
+}
+
+// The bunk bed's frame: a post at each end from the floor up past the top
+// bunk, and the ladder up its right-hand end. Its bottom-left is at
+// BUNK_FRAME.x, on the floor.
+const [LOWER_BUNK, UPPER_BUNK] = FRIEND_BUNKS;
+export const BUNK_FRAME = { x: LOWER_BUNK.x - LOWER_BUNK.w / 2 - 2, h: LOWER_BUNK.y - BUNK_LADDER.top + 2 };
+
+export function drawBunkFrame() {
+  const left = BUNK_FRAME.x;
+  const w = BUNK_LADDER.x + 7 - left;
+  const { h } = BUNK_FRAME;
+  const pm = new Pixmap(w, h);
+  const floor = h - 2;
+  const postTop = floor - UPPER_BUNK.deck - 12;
+  for (const x of [1, LOWER_BUNK.w]) {
+    pm.rect(x, postTop, 3, floor - postTop + 1, WOOD.face);
+    pm.vline(x, postTop, floor, WOOD.light);
+    pm.rect(x - 1, postTop - 1, 5, 2, WOOD.dark);
+  }
+  // The ladder.
+  const lx = BUNK_LADDER.x - left;
+  for (const x of [lx - 4, lx + 4]) {
+    pm.vline(x, 1, floor, WOOD.face);
+  }
+  for (let y = floor - 5; y > 2; y -= 7) {
+    pm.hline(lx - 3, lx + 3, y, WOOD.light);
+  }
+  return pm.outline(C.outline);
+}
+
+// A blanket `w` wide, for the right-hand end of a bed: smooth and flat, or
+// (`tucked`) humped up over whoever's tucked in under it. Drawn with its
+// bottom a little below the top of the mattress.
+export function drawBlanket(w, color, tucked = false) {
+  const h = 10;
+  const pm = new Pixmap(w + 2, h);
+  const bottom = h - 2;
+  for (let x = 1; x <= w; x++) {
+    const k = (x - 1) / (w - 1);
+    const hump = tucked ? Math.round(Math.sin(Math.min(1, k * 1.4) * Math.PI) * 3 + 2) : 0;
+    pm.vline(x, bottom - 3 - hump, bottom, color.face);
+    pm.set(x, bottom - 3 - hump, color.light);
+  }
+  pm.hline(1, w, bottom, color.dark);
+  pm.vline(1, bottom - 3, bottom, color.light); // the turned-down hem
+  for (let x = 5; x < w; x += 6) {
+    pm.set(x, bottom - 1, color.light); // little spots
+  }
+  return pm.outline(C.outline);
+}
+
+export const BLANKET_W = 32;
+export const BLANKETS = {
+  her: { face: '#9a6cf0', light: '#c4a6ff', dark: '#6244b0' },
+  lower: { face: '#4fa8f0', light: '#8fd2ff', dark: '#2f68b8' },
+  upper: { face: '#4fbf6a', light: '#84e29a', dark: '#2f8a4c' },
+};
+
+// The light switch on the wall: flicked up (lights on) or down (night).
+export function drawLightSwitch(on = true) {
+  const pm = new Pixmap(9, 13);
+  pm.rect(1, 1, 7, 11, C.white);
+  pm.rect(3, 3, 3, 7, C.metalLight);
+  pm.rect(3, on ? 3 : 6, 3, 4, on ? C.yellow : C.metal);
+  return pm.outline(C.outline);
+}
+
+// The soft round glow off the night light, drawn over the dimmed room:
+// a warm middle, fading out in a dither.
+export function drawNightGlow(r = 24) {
+  const pm = new Pixmap(r * 2 + 1, r * 2 + 1);
+  for (let y = -r; y <= r; y++) {
+    for (let x = -r; x <= r; x++) {
+      const d = Math.hypot(x, y) / r;
+      if (d <= 0.45 || (d <= 0.75 && (x + y) % 2 === 0) || (d <= 1 && x % 2 === 0 && y % 2 === 0)) {
+        pm.set(r + x, r + y, d <= 0.45 ? '#ffe9b0' : '#ffcf7a');
+      }
+    }
+  }
+  return pm;
+}
+
+// The bunk room: deep blue walls with painted moons and stars, a round rug,
+// a porthole onto space and a night light plugged in low on the wall.
+export function drawBunkRoom() {
+  const pm = drawShell();
+  for (let y = 12; y < 94; y++) {
+    pm.dither(0, y, W, 1, '#24305e', 0.6);
+  }
+  const rand = seededRandom(31);
+  for (let i = 0; i < 16; i++) {
+    const x = 92 + Math.floor(rand() * (W - 100));
+    const y = 22 + Math.floor(rand() * 62);
+    if (i % 4) {
+      paintedStar(pm, x, y, ['#ffe066', '#8fd2ff', '#ff8fc8'][i % 3]);
+    } else {
+      pm.circle(x, y, 3, '#ffe066'); // a moon
+      pm.circle(x + 2, y - 1, 3, '#2e3a6a');
+    }
+  }
+  stencil(pm, 'SLEEPY', 190, 30, '#c4a6ff');
+  // The porthole, onto deep space (the stars come out in it at night).
+  const { x: px, y: py, r } = BUNK_PORTHOLE;
+  pm.circle(px + 1, py + 2, r + 5, C.wallDark);
+  pm.ring(px, py, r + 5, r, C.metalDark);
+  pm.ring(px, py, r + 4, r + 1, C.metal);
+  pm.ring(px, py, r + 3, r + 2, C.metalLight);
+  pm.circle(px, py, r, C.space);
+  pm.dither(px - r, py - r, r * 2, r, C.nebula, 0.35);
+  // The night light: a little moon on a plug.
+  const { x: nx, y: ny } = NIGHT_LIGHT;
+  pm.rect(nx - 3, ny, 7, 5, C.white);
+  pm.circle(nx, ny - 3, 3, '#ffe9b0');
+  pm.circle(nx + 2, ny - 4, 2, C.white);
+  // A round rug in front of the beds.
+  pm.ellipse(HER_BUNK.x + 40, 147, 40, 8, '#6244b0');
+  pm.ellipse(HER_BUNK.x + 40, 147, 34, 6, '#9a6cf0');
+  // Contact shadows under the beds.
+  pm.dither(HER_BUNK.x - HER_BUNK.w / 2, HER_BUNK.y - 2, HER_BUNK.w, 3, C.floorDark, 0.7);
+  pm.dither(LOWER_BUNK.x - LOWER_BUNK.w / 2, LOWER_BUNK.y - 2, LOWER_BUNK.w + 14, 3, C.floorDark, 0.7);
   pm.hline(0, W - 1, FLOOR_TOP, C.metalDark);
   return pm;
 }

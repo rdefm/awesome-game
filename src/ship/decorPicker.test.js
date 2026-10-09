@@ -1,23 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DECOR, STARTERS, normalizeDecor, seen, unlock } from './decor.js';
+import { DECOR } from './decor.js';
 import { DecorPicker } from './decorPicker.js';
 import { MAX_COPIES } from './entities/decor.js';
 import { add, defaultWorld } from './world.js';
 
-const locked = DECOR.find((kind) => !STARTERS.includes(kind));
-
 // Just enough of the store room for the picker to work with.
-function fakeScene(world = defaultWorld(), decor = normalizeDecor(undefined)) {
-  const scene = {
+function fakeScene(world = defaultWorld()) {
+  return {
     world,
-    decor,
     modal: null,
     engine: { audio: { play: vi.fn() }, tweens: { to: vi.fn(() => Promise.resolve()) } },
-    sawNewDecor: vi.fn(() => {
-      scene.decor = seen(scene.decor);
-    }),
   };
-  return scene;
 }
 
 // Middle of the button for this piece, found by scanning the screen.
@@ -80,33 +73,13 @@ describe('decor picker', () => {
     expect(scene.engine.audio.play).toHaveBeenCalledWith('denied');
   });
 
-  it('stays open with a "no" sound for a piece not unlocked yet', () => {
-    const scene = fakeScene();
-    const picker = new DecorPicker(scene);
-    picker.open();
-    picker.show = 1;
-    tap(picker, centreOf(picker, locked));
-    expect(picker.closing).toBe(false);
-    expect(scene.engine.audio.play).toHaveBeenCalledWith('denied');
-  });
-
-  it('prints a piece once it is unlocked', async () => {
-    const scene = fakeScene(defaultWorld(), unlock(normalizeDecor(undefined), locked));
-    const picker = new DecorPicker(scene);
-    const picked = picker.open();
-    picker.show = 1;
-    tap(picker, centreOf(picker, locked));
-    await expect(picked).resolves.toBe(locked);
-  });
-
-  it('shows off newly unlocked pieces the next time it opens, and only then', async () => {
-    const scene = fakeScene(defaultWorld(), unlock(normalizeDecor(undefined), locked));
-    const picker = new DecorPicker(scene);
-    picker.open();
-    expect(picker.fresh).toEqual([locked]);
-    expect(scene.decor.fresh).toEqual([]);
-    await picker.close();
-    picker.open();
-    expect(picker.fresh).toEqual([]);
+  it('prints any piece from the start', async () => {
+    for (const kind of DECOR) {
+      const picker = new DecorPicker(fakeScene());
+      const picked = picker.open();
+      picker.show = 1;
+      tap(picker, centreOf(picker, kind));
+      await expect(picked).resolves.toBe(kind);
+    }
   });
 });

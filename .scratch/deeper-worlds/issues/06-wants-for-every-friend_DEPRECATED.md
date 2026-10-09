@@ -6,7 +6,7 @@
 
 **Relevant files:** `src/ship/wants.js`, `src/ship/talks/`, `src/ship/entities/*.js` (friends), `src/ship/world.js`, `src/ship/decor.js`, `VISION.md`
 
-**Status:** ready-for-agent
+**Status:** deprecated — playtesting showed this isn't wanted (2026-10-09)
 
 - [ ] Every friend has 2+ Wants, explained in their chat
 - [ ] At most one Want per friend at a time; a new one appears after the last is met

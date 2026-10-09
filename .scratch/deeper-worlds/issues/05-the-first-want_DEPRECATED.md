@@ -11,7 +11,7 @@
 - Wants sit alongside the existing drop-on reactions; those stay as they are.
 - Reward = a decor unlock.
 
-**Status:** ready-for-agent
+**Status:** deprecated — playtesting showed this isn't wanted (2026-10-09)
 
 - [ ] One friend has a Want, shown as an occasional thought bubble with the item in it
 - [ ] Their chat has a branch explaining the Want

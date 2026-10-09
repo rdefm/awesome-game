@@ -23,6 +23,9 @@ store.
   spinning pilot chair, star map to fly between planets, blast-off poster,
   space plant, and an airlock door. Arrows by the cockpit's side walls lead
   to the ship's other rooms: a store room (left) and a playroom (right).
+  A lift in the store room goes up to the ship's other decks (for now, the
+  bunk room); new rooms are added as lift stops, not by squeezing more
+  doors into the cockpit.
   Planets are the scenes you visit.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
   Stripey). Tap the planet in the windshield to land; once landed, the door
@@ -47,7 +50,7 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects and music sequencer, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
+  `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
   `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
@@ -65,12 +68,11 @@ store.
   the girl is (ship or planet), her position, the current planet, whether
   the ship has landed, and the **world** (`src/ship/world.js`): where every
   carryable thing lies in each place, and what's in the bag, plus which star
-  stickers she's found (`src/ship/stickers.js`), which decor pieces she's
-  unlocked (`src/ship/decor.js`) and the **memories** friends
+  stickers she's found (`src/ship/stickers.js`) and the **memories** friends
   chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, music sequencer, world, stickers, decor unlocks, drop receivers, chat trees).
+  tweens, music sequencer, world, stickers, decor, drop receivers, chat trees).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -263,13 +265,10 @@ store.
   on an arrow and it's sent through on its own. The **store room** (left)
   has painted bays on the floor for keeping things in, and the **decor
   printer**: tap it and a picker slides up with every decor piece; pick one
-  and the printer whirrs and pops it out (up to three of each). She starts
-  with a rug, a lamp, a beanbag and a wall poster; the rest (a star rug, a
-  rocket lamp, a big cushion, a fish tank, fairy lights, a planet mobile)
-  show as outlines with a found/total count until unlocked. Unlocking is
-  one call (`unlockDecor`, for Wants and friends' thank-yous to use): a
-  fanfare, it's saved (`src/ship/decor.js`), and the new piece wiggles in
-  a gold frame the next time the picker opens. Decor is carryable like
+  and the printer whirrs and pops it out (up to three of each). Every piece
+  is there from the start: a rug, a lamp, a beanbag, a wall poster, a star
+  rug, a rocket lamp, a big cushion, a fish tank, fairy lights and a planet
+  mobile (`src/ship/decor.js`). Decor is carryable like
   everything else — arrange it anywhere in the ship (or take it to a
   planet in the bag) and it stays put across reloads. Rugs lie flat under
   everything; wall pieces snap up onto the wall. Tap a lamp to switch it
@@ -289,12 +288,22 @@ store.
   **playroom** (right) has a ball pit (she hops in, dives right under and
   pops up in a splash of balls), a swing (higher and higher) and a
   trampoline (each bounce higher than the last). Drop a friend on any of
-  them and they have a go. A reload puts her back in whichever room she
-  was in.
-
-## Planned later
-- **Wants**: characters can want a specific item as optional objectives that
-  reward you without punishing you for ignoring them
+  them and they have a go. The store room's **lift** (a door in its back
+  wall) goes up to the ship's other decks: tap it and she presses the call
+  button — ding, the doors slide open; tap again and in she steps, the doors
+  shut and a panel of floors slides up (every stop it makes, marking where
+  she is). Pick one and up (or down) she goes; there's a lift in every room
+  it stops at to come back. The stops are a list in `src/ship/shipRooms.js`
+  (`LIFT_STOPS`): a new deck is a new stop, its name and scene there, and a
+  lift in it. The **bunk room**
+  (up the lift) has her own bed and a bunk bed for friends. Tap her bed and
+  she climbs in, yawns and snoozes (zzz) until woken by a tap; drop a friend
+  on a bunk and they're tucked in and fall asleep (pick them up to wake
+  them). The light switch turns the room to night — it goes dark, stars come
+  out in the porthole, the night light glows and the sleepers snore softly
+  (she can be tucked up in bed first: then the switch just flicks). Flick it
+  back for morning, and everyone in bed sits up for a stretch and a yawn and
+  hops out. A reload puts her back in whichever room she was in.
 
 ## Explicitly deferred
 - Packaging as an installable native app (via Capacitor or similar)

@@ -245,34 +245,6 @@ export function drawPlanetMobile() {
   return pm.outline(C.outline);
 }
 
-// ---------------------------------------------------------------- picker
-// Every piece's picture, as the printer's picker shows it.
-export const DECOR_ICONS = {
-  rug: drawRug,
-  lamp: () => drawLamp(),
-  beanbag: drawBeanbag,
-  wallposter: drawWallPoster,
-  starrug: drawStarRug,
-  rocketlamp: () => drawRocketLamp(),
-  bigcushion: drawBigCushion,
-  fishtank: () => drawFishTank(),
-  fairylights: () => drawFairyLights(),
-  planetmobile: drawPlanetMobile,
-};
-
-// Just the outline of a picture, for a piece not unlocked yet.
-export function drawSilhouette(pm, color = '#8f9cc8') {
-  const out = new Pixmap(pm.width, pm.height);
-  for (let y = 0; y < pm.height; y++) {
-    for (let x = 0; x < pm.width; x++) {
-      if (pm.isSet(x, y) && !(pm.isSet(x - 1, y) && pm.isSet(x + 1, y) && pm.isSet(x, y - 1) && pm.isSet(x, y + 1))) {
-        out.set(x, y, color);
-      }
-    }
-  }
-  return out;
-}
-
 // ---------------------------------------------------------------- printer
 // The decor printer: a chunky machine with a little screen, a row of
 // lights (which flash while it's `printing`) and a slot at the front for what

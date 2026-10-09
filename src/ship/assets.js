@@ -6,11 +6,12 @@ import {
 } from './art/crew.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
-  DECOR_ICONS, drawBeanbag, drawBigCushion, drawFairyLights, drawFishTank, drawLamp, drawLampGlow, drawPlanetMobile,
-  drawPrinter, drawRocketLamp, drawRug, drawSilhouette, drawStarRug, drawWallPoster,
+  drawBeanbag, drawBigCushion, drawFairyLights, drawFishTank, drawLamp, drawLampGlow, drawPlanetMobile,
+  drawPrinter, drawRocketLamp, drawRug, drawStarRug, drawWallPoster,
 } from './art/decor.js';
 import {
-  drawBallPitFront, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
+  BLANKETS, BLANKET_W, drawBallPitFront, drawBed, drawBlanket, drawBunkDeck, drawBunkFrame, drawBunkRoom, drawLiftButton, drawLiftFrame,
+  drawLightSwitch, drawNightGlow, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
 } from './art/shipRooms.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
@@ -62,7 +63,7 @@ import {
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawBounceShroom, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, POD, ZIG_HUT, distanceScale } from './layout.js';
+import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, POD, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -154,11 +155,19 @@ export function loadAssets() {
       bigcushion: drawBigCushion(), fishtank: [drawFishTank(0), drawFishTank(1)],
       fairylights: [drawFairyLights(0), drawFairyLights(1)], planetmobile: drawPlanetMobile(),
     }),
-    // The outline the printer's picker shows for a piece not unlocked yet.
-    decorLocked: bake(Object.fromEntries(Object.entries(DECOR_ICONS).map(([kind, draw]) => [kind, drawSilhouette(draw())]))),
     ballPit: bake(drawBallPitFront()),
     swing: bake({ frame: drawSwingFrame(), seat: drawSwingSeat() }),
     trampoline: bake([drawTrampoline(), drawTrampoline(true)]),
+    // The lift (in the store room and the bunk room): its frame, and its call button [unlit, lit].
+    lift: bake({ frame: drawLiftFrame(), button: [drawLiftButton(), drawLiftButton(true)] }),
+    // The bunk room, its beds and blankets [flat, tucked in], and the light switch [night, on].
+    bunkRoom: bake(drawBunkRoom()),
+    bed: bake({ her: drawBed(HER_BUNK.w, HER_BUNK.deck), deck: drawBunkDeck(FRIEND_BUNKS[0].w), frame: drawBunkFrame() }),
+    blankets: bake(Object.fromEntries(Object.entries(BLANKETS).map(([k, color]) => [
+      k, [drawBlanket(BLANKET_W, color), drawBlanket(BLANKET_W, color, true)],
+    ]))),
+    lightSwitch: bake([drawLightSwitch(false), drawLightSwitch(true)]),
+    nightGlow: bake(drawNightGlow()),
     space: bake(drawSpace()),
     poster: bake([drawPoster(0), drawPoster(1)]),
     // [stage][glow]
