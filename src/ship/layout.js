@@ -68,6 +68,9 @@ export const POSY_PATCH = { x: 352, y: 140, half: 15, h: 10 };
 // The puffball burrow in a grassy bank at the back of the far stretch
 // (bottom-centre), between two giant bluebells.
 export const PUFF_BURROW = { x: 290, y: 123 };
+// The giant dandelion clock at the back of the far stretch (bottom-centre of
+// its stalk), behind the posy patch.
+export const DANDELION = { x: 362, y: 121 };
 // The little stream across the far end of the meadow, running down out of
 // the hills towards the viewer: where its middle is, and how wide it is
 // either side of that, where it starts at the back (y = HORIZON) and at the

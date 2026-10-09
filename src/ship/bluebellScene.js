@@ -1,6 +1,7 @@
 import { Bush, MoleHole, Rock } from './entities/bluebell.js';
 import { PuffBurrow } from './entities/burrow.js';
 import { Carryable } from './entities/carryable.js';
+import { Dandelion } from './entities/dandelion.js';
 import { Butterfly } from './entities/outdoors.js';
 import { W, floorMaxX } from './layout.js';
 import { Basket, Blanket } from './entities/picnic.js';
@@ -19,8 +20,9 @@ import { PodScene } from './podScene.js';
 // the view follows her along it, and the far stretch has more bluebells and
 // butterflies of its own, a picnic (a checked blanket to sit on and a
 // basket of sandwiches and berry juice), a patch of little bluebells to
-// pick posies from, a burrow of baby puffballs in a grassy bank, and a
-// little stream at the far end with stepping stones across it.
+// pick posies from, a burrow of baby puffballs in a grassy bank, a giant
+// dandelion clock to blow, and a little stream at the far end with
+// stepping stones across it.
 export class BluebellScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'bluebell', opts);
@@ -34,6 +36,7 @@ export class BluebellScene extends OutdoorScene {
     this.add(new Basket(assets));
     this.add(new PosyPatch(assets));
     this.add(new PuffBurrow(assets));
+    this.add(new Dandelion(assets));
     this.add(new Stream(assets));
     this.stones = streamStones(assets).map((stone) => this.add(stone));
     this.addPlaced();

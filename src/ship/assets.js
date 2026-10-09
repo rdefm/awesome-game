@@ -15,7 +15,7 @@ import {
 } from './art/shipRooms.js';
 import {
   BABY_PUFF_COLORS, BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBabyPuff, drawBell, drawBird,
-  drawBluebellStem, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
+  drawBluebellStem, drawDandelionFluff, drawDandelionSeed, drawDandelionStalk, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
   drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch, drawStream,
 } from './art/bluebell.js';
 import {
@@ -320,6 +320,8 @@ export function loadAssets() {
     // The stream across the far end of the meadow, and its stepping stones (dry / just hopped on).
     stream: bake(drawStream()),
     streamStone: bake([drawStreamStone(), drawStreamStone(true)]),
+    // The giant dandelion clock: its stalk (bald head and all), the fluff on it, and one seed.
+    dandelion: bake({ stalk: drawDandelionStalk(), fluff: drawDandelionFluff(), seed: drawDandelionSeed() }),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),

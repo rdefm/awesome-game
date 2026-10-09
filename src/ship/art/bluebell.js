@@ -611,6 +611,75 @@ export function drawBabyPuff({ body, dark }) {
   return pm.outline(C.outline);
 }
 
+// ------------------------------------------------------- giant dandelion clock
+// A dandelion gone to seed, taller than she is. Painted in three parts so the
+// fluff can blow away and grow back: the stalk (bottom-centre anchor, its
+// bald head at the top, centred DANDELION_HEAD above the ground), the round
+// clock of fluff over that head (centre anchor), and one seed.
+export const FLUFF = { white: '#ffffff', soft: '#e4ecf6', shade: '#b9c6d8', seed: '#8a6a3a', head: '#c9c27a' };
+export const DANDELION_HEAD = 44;
+export const DANDELION_W = 24;
+export const FLUFF_R = 11; // the clock's radius
+export function drawDandelionStalk() {
+  const h = DANDELION_HEAD + 4;
+  const pm = new Pixmap(DANDELION_W, h + 1);
+  const cx = DANDELION_W / 2;
+  pm.rect(cx - 1, 4, 2, h - 4, BB.stem);
+  pm.vline(cx - 1, 6, h - 1, BB.grassDark);
+  // Jaggedy lion's-tooth leaves splaying out at the base.
+  for (const side of [-1, 1]) {
+    pm.line(cx, h - 1, cx + side * 10, h - 6, BB.grassDark, 2);
+    for (let i = 3; i <= 9; i += 3) {
+      pm.set(cx + side * i, h - 3 - Math.round(i / 2), BB.grassDark);
+      pm.set(cx + side * (i + 1), h - 4 - Math.round(i / 2), BB.grassLight);
+    }
+  }
+  // The bald head the seeds grow from.
+  pm.ellipse(cx - 0.5, 3, 3.5, 2.5, FLUFF.head);
+  pm.set(cx - 2, 2, FLUFF.seed);
+  pm.set(cx + 1, 2, FLUFF.seed);
+  pm.set(cx - 1, 4, FLUFF.seed);
+  return pm.outline(C.outline);
+}
+
+// The clock itself: a fuzzy white ball of seeds, each one's tuft at its rim.
+export function drawDandelionFluff() {
+  const r = FLUFF_R;
+  const pm = new Pixmap(r * 2 + 1, r * 2 + 1);
+  const rand = seededRandom(23);
+  for (let y = 0; y <= r * 2; y++) {
+    for (let x = 0; x <= r * 2; x++) {
+      const d = Math.hypot(x - r, y - r) / r;
+      if (d > 1 || (d > 0.85 && bayer(x, y) > 0.6)) {
+        continue;
+      }
+      const shade = d + (y - r) / (r * 4) + (bayer(x, y) - 0.5) * 0.25;
+      pm.set(x, y, shade < 0.55 ? FLUFF.white : shade < 0.9 ? FLUFF.soft : FLUFF.shade);
+    }
+  }
+  // Faint seed stalks out from the middle, and the tufts at their tips.
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2 + rand() * 0.2;
+    pm.line(r, r, Math.round(r + Math.cos(a) * (r - 3)), Math.round(r + Math.sin(a) * (r - 3)), FLUFF.soft);
+    pm.set(Math.round(r + Math.cos(a) * r), Math.round(r + Math.sin(a) * r), FLUFF.white);
+  }
+  pm.rect(r - 1, r - 1, 2, 2, FLUFF.shade);
+  return pm;
+}
+
+// One seed, floating: a little white parasol of fluff on a stalk, the seed
+// hanging off the bottom.
+export function drawDandelionSeed() {
+  const pm = new Pixmap(7, 9);
+  pm.hline(1, 5, 0, FLUFF.soft);
+  pm.hline(0, 6, 1, FLUFF.white);
+  pm.set(1, 2, FLUFF.soft);
+  pm.set(5, 2, FLUFF.soft);
+  pm.vline(3, 2, 6, FLUFF.shade);
+  pm.rect(3, 7, 1, 2, FLUFF.seed);
+  return pm;
+}
+
 // ------------------------------------------------------------------ stream
 // The little stream across the far end of the meadow (see STREAM), painted
 // as one picture whose bottom-left sits at (STREAM_ART.x, H): clear water,

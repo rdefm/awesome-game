@@ -320,6 +320,11 @@ export function defineSfx(audio) {
   audio.define('shake', (s, t) => {
     [0, 0.07, 0.14, 0.21, 0.28].forEach((d) => s.noise({ at: t + d, dur: 0.06, filter: 'bandpass', freq: 2600, to: 1600, vol: 0.14, q: 1 }));
   });
+  // Bluebell's dandelion clock: her big breathy blow, the seeds scattering.
+  audio.define('blow', (s, t) => {
+    s.noise({ at: t, dur: 0.7, filter: 'bandpass', freq: 1200, to: 500, vol: 0.2, q: 0.6, attack: 0.08 });
+    [1760, 2093, 2349, 2637].forEach((f, i) => s.tone({ at: t + 0.25 + i * 0.07, freq: f, dur: 0.18, type: 'sine', vol: 0.05 }));
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });

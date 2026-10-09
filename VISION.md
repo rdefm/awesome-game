@@ -118,7 +118,12 @@ store.
   in a ring, or bouncing together higher and higher). Drop the puffball on
   it and it wriggles in for a nap (snoring, zzzs drifting up), popping back
   out when the burrow's tapped or after a while (nothing saved: napping when
-  she leaves, it's just back out next time). At the far end, a little stream
+  she leaves, it's just back out next time). Behind the posies, a giant
+  dandelion clock taller than she is: tap it and she blows, the seeds
+  puffing off across the sky, and one she holds onto lifts her gently off
+  the ground, drifts her along and lets her down again. The bald stalk grows
+  its fluff back after a little while (tapped before then, it just gives a
+  little "nothing left" wiggle; nothing saved). At the far end, a little stream
   runs down out of the hills (she can splash straight through it). Tap one
   of the stepping stones across it and she hops over them all, each ringing
   a note higher than the last, there and back. Drop a thing in the water and
