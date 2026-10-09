@@ -161,8 +161,12 @@ store.
   flower (tap it in flower and the bluebells ring, then their seeds blow
   off to start again); and a bubble bath to swish (bubbles float up and
   pop; drop a friend in and it splashes about, then shakes off and hops
-  out). The pink alien lives outside, but she can bring it in. The door
-  goes back out
+  out); and a round, cushioned bed nook in the wall under the window, with
+  a little curtain (tap it and she climbs in and snoozes, zzz, the pod
+  dimming and its string of lights glowing softly, till she's tapped awake;
+  drop a friend in and it's tucked in for a nap till it's picked up;
+  nothing saved). The pink alien lives outside, but she can bring it in.
+  The door goes back out
 - Ember volcanic plain: smouldering sky and a glowing volcano, parked ship,
   fire flowers that flare when tapped, a geode, a scurrying fire newt,
   glowing moths, a steam vent that erupts and a lava pool with a leaping fish.

@@ -129,59 +129,64 @@ export class HerBunk extends Bunk {
 
   use() {
     if (!this.sleeper && !this.scene.busy) {
-      return this.scene.scripted(() => this.tuckIn());
+      return this.scene.scripted(() => tuckHerIn(this));
     }
   }
 
-  // In she climbs: a sit up, a yawn, and down she snuggles.
-  async tuckIn() {
-    const { scene } = this;
+  wakeUp() {
+    return wakeHer(this);
+  }
+}
+
+// In she climbs into `bed` (a bed she sleeps in, like her bunk): a sit up, a
+// yawn, and down she snuggles. It draws her from then on.
+export async function tuckHerIn(bed) {
+  const { scene } = bed;
+  const { engine, girl } = scene;
+  girl.cancelWalk();
+  girl.mode = 'act';
+  girl.pose = null;
+  girl.draggable = false;
+  girl.riding = bed;
+  girl.x = bed.at.x;
+  girl.y = bed.at.y + 1;
+  bed.sleeper = girl;
+  bed.stretching = true;
+  engine.audio.play('yawn');
+  await engine.wait(0.8);
+  bed.stretching = false;
+  engine.audio.play('rustle');
+  scene.persist();
+}
+
+// She sits up in `bed` for a big stretch and a yawn, then hops out of it.
+export async function wakeHer(bed) {
+  const { scene } = bed;
+  if (bed.sleeper !== scene.girl || bed.stretching) {
+    return;
+  }
+  await scene.scripted(async () => {
     const { engine, girl } = scene;
-    girl.cancelWalk();
-    girl.mode = 'act';
-    girl.pose = null;
-    girl.draggable = false;
-    girl.riding = this;
-    girl.x = this.at.x;
-    girl.y = this.at.y + 1;
-    this.sleeper = girl;
-    this.stretching = true;
+    bed.stretching = true;
     engine.audio.play('yawn');
-    await engine.wait(0.8);
-    this.stretching = false;
-    engine.audio.play('rustle');
+    await engine.wait(0.9);
+    bed.sleeper = null;
+    bed.stretching = false;
+    girl.riding = null;
+    girl.draggable = true;
+    girl.x = bed.spot.x;
+    girl.y = bed.spot.y;
+    girl.facing = 1;
+    girl.pose = { frame: 'cheer', token: {} };
+    girl.lift = 12;
+    await engine.tweens.to(girl, { lift: 0 }, 0.25, ease.inQuad);
+    engine.audio.play('land');
+    scene.dust(girl.x, girl.y);
+    girl.pose = null;
+    girl.mode = 'idle';
+    girl.say('heart', 1.2);
     scene.persist();
-  }
-
-  // She sits up for a big stretch and a yawn, then hops out of bed.
-  async wakeUp() {
-    const { scene } = this;
-    if (this.sleeper !== scene.girl || this.stretching) {
-      return;
-    }
-    await scene.scripted(async () => {
-      const { engine, girl } = scene;
-      this.stretching = true;
-      engine.audio.play('yawn');
-      await engine.wait(0.9);
-      this.sleeper = null;
-      this.stretching = false;
-      girl.riding = null;
-      girl.draggable = true;
-      girl.x = this.spot.x;
-      girl.y = this.spot.y;
-      girl.facing = 1;
-      girl.pose = { frame: 'cheer', token: {} };
-      girl.lift = 12;
-      await engine.tweens.to(girl, { lift: 0 }, 0.25, ease.inQuad);
-      engine.audio.play('land');
-      scene.dust(girl.x, girl.y);
-      girl.pose = null;
-      girl.mode = 'idle';
-      girl.say('heart', 1.2);
-      scene.persist();
-    });
-  }
+  });
 }
 
 // ---------------------------------------------------------------- friend bunk
@@ -191,8 +196,9 @@ export class HerBunk extends Bunk {
 // easy to grab wherever they're lying.
 export class FriendBunk extends Bunk {
   // `upper`: the top bunk (the lower one draws the bunk bed's frame too).
-  constructor(assets, at, upper) {
-    super(assets, at, assets.blankets[upper ? 'upper' : 'lower']);
+  // `blankets`: [flat, tucked in], if not the bunk's own.
+  constructor(assets, at, upper, blankets = assets.blankets[upper ? 'upper' : 'lower']) {
+    super(assets, at, blankets);
     this.imgs = assets.bed;
     this.upper = upper;
     this.blanketEnd = at.w - 1;

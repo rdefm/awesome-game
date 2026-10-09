@@ -1,12 +1,12 @@
 import { Pixmap, bayer, fractalNoise, seededRandom } from '../../engine/pixmap.js';
 import { C } from './palette.js';
 import { BB, LOCAL_COLORS } from './bluebell.js';
-import { FLOOR_TOP, HOUSE_DOOR, SEED_TRAY, STAR_WINDOW, W, H } from '../layout.js';
+import { BED_NOOK, FLOOR_TOP, HOUSE_DOOR, SEED_TRAY, STAR_WINDOW, W, H } from '../layout.js';
 
 // Everything painted for the pink alien's pod on Bluebell: the round pod far
 // off in the meadow and the stepping-stone path up to it; and inside: the
 // cosy round room, its round-topped door, the telescope and the window it
-// looks out of, the seed tray, and the bubble bath.
+// looks out of, the seed tray, the bubble bath, and the bed nook.
 
 // The pod's soft pink shell, and the cosy things inside.
 export const PD = {
@@ -35,7 +35,29 @@ export const PD = {
   nightLow: '#2a3070',
   lens: '#bfe3ff',
   bubble: '#e8f4ff',
+  nook: '#7a3468',
+  curtain: '#8adcc8',
+  curtainDark: '#58a894',
+  dimmed: '#2a1040',
 };
+
+// How far down the string of little lights swagged across the top of the
+// room hangs at x.
+function lightString(x) {
+  return Math.round(16 + Math.abs(Math.sin(((x - 30) / (W - 60)) * Math.PI * 3)) * 8);
+}
+
+// Where each bulb on the string hangs, and its colour (picked with `rand`).
+function podLights(rand) {
+  const lights = [];
+  for (let x = 35; x < W - 30; x += 10) {
+    lights.push({ x, y: lightString(x) + 2, color: rand() < 0.5 ? PD.glow : BB.bellLight });
+  }
+  return lights;
+}
+
+const ROOM_SEED = 52;
+export const POD_LIGHTS = podLights(seededRandom(ROOM_SEED));
 
 // ---------------------------------------------------------------- the house
 // The pod as seen from far off, bottom-centre on its doorstep: a round pink
@@ -134,7 +156,7 @@ export function drawPodPath(path, scaleAt) {
 // seed tray sits on; and a soft lilac rug of a floor.
 export function drawPodRoom() {
   const pm = new Pixmap(W, H);
-  const rand = seededRandom(52);
+  const rand = seededRandom(ROOM_SEED);
   // The walls, darker up into the dome and out to the sides.
   for (let y = 0; y < FLOOR_TOP; y++) {
     for (let x = 0; x < W; x++) {
@@ -155,11 +177,10 @@ export function drawPodRoom() {
   }
   // A string of little lights swagged across the top.
   for (let x = 30; x < W - 30; x++) {
-    const y = Math.round(16 + Math.abs(Math.sin(((x - 30) / (W - 60)) * Math.PI * 3)) * 8);
-    pm.set(x, y, PD.shellDeep);
-    if ((x - 30) % 10 === 5) {
-      pm.circle(x, y + 2, 1.5, rand() < 0.5 ? PD.glow : BB.bellLight);
-    }
+    pm.set(x, lightString(x), PD.shellDeep);
+  }
+  for (const { x, y, color } of podLights(rand)) {
+    pm.circle(x, y, 1.5, color);
   }
   // The round window onto the sky, in a thick frame.
   const { x: wx, y: wy, r } = STAR_WINDOW;
@@ -365,3 +386,78 @@ export function drawBubbleBath(back = false) {
   }
   return pm.outline(C.outline);
 }
+
+// The bed nook: a round-topped hollow in the wall, lined with cushions, with
+// a soft mattress at the bottom (BED_NOOK.deck up) and a pillow at its
+// left-hand end. Bottom-centre on the floor, with NOOK.floor rows below its
+// floor. `curtain` is just its little curtain, drawn in front of whoever's in
+// it: a scalloped valance across the top, and the rest gathered up at the
+// right, tied back with a brass band.
+export const NOOK = { w: BED_NOOK.w + 12, h: 46, floor: 2 };
+export function drawBedNook({ curtain = false } = {}) {
+  const { w, h } = NOOK;
+  const pm = new Pixmap(w, h);
+  const cx = (w - 1) / 2;
+  const floor = h - 1 - NOOK.floor;
+  const top = floor - BED_NOOK.deck;
+  const rx = cx - 3;
+  const ry = 16;
+  const archY = ry + 3;
+  const inArch = (x, y, pad) =>
+    y <= floor && (y >= archY ? Math.abs(x - cx) <= rx + pad : ((x - cx) / (rx + pad)) ** 2 + ((y - archY) / (ry + pad)) ** 2 <= 1);
+  if (curtain) {
+    // The valance, scalloped along its bottom, round the top of the arch.
+    for (let y = 0; y < archY; y++) {
+      for (let x = 0; x < w; x++) {
+        const scallop = archY - 5 + Math.round(Math.abs(Math.sin((x * Math.PI) / 7)) * 3);
+        if (inArch(x, y, 0) && !inArch(x, y, -5) && y <= scallop) {
+          pm.set(x, y, (x + y) % 5 === 0 ? PD.curtainDark : PD.curtain);
+        }
+      }
+    }
+    // The drape at the right, gathered in its tie-back, flaring to the floor.
+    const tie = archY + 8;
+    for (let y = archY - 4; y <= floor; y++) {
+      const flare = y < tie ? (tie - y) / 3 : (y - tie) / 4;
+      const left = Math.round(w - 9 - flare);
+      for (let x = left; x <= w - 4; x++) {
+        if (inArch(x, y, 0)) {
+          pm.set(x, y, (x - left) % 3 === 1 ? PD.curtainDark : PD.curtain);
+        }
+      }
+    }
+    pm.rect(w - 10, tie, 7, 2, PD.brass);
+    pm.set(w - 9, tie, PD.glow);
+    return pm.outline(C.outline);
+  }
+  // The thick pink rim, and the deep hollow inside it (shadowed at the top).
+  for (let y = 0; y <= floor; y++) {
+    for (let x = 0; x < w; x++) {
+      if (inArch(x, y, 0)) {
+        pm.set(x, y, y < archY - 6 && bayer(x, y) < 0.5 ? PD.shellDeep : PD.nook);
+      } else if (inArch(x, y, 2)) {
+        pm.set(x, y, PD.shellDeep);
+      }
+    }
+  }
+  // Round cushions all along the back.
+  for (let x = 6, i = 0; x < w - 5; x += 8, i++) {
+    pm.circle(x, top - 4, 4.5, i % 2 ? PD.rugLight : PD.shellLight);
+    pm.set(x - 1, top - 6, '#ffffff');
+  }
+  // The mattress: plump and buttoned, its front rounded off.
+  const left = Math.round(cx - BED_NOOK.w / 2);
+  pm.rect(left, top, BED_NOOK.w, floor - top + 1 + NOOK.floor, PD.rug);
+  pm.hline(left, left + BED_NOOK.w - 1, top, PD.rugLight);
+  pm.hline(left, left + BED_NOOK.w - 1, h - 1, PD.rugDark);
+  for (let x = left + 5; x < left + BED_NOOK.w - 3; x += 7) {
+    pm.set(x, top + 4, PD.rugDark);
+  }
+  // A pillow at the left-hand end.
+  pm.ellipse(left + 9, top - 1, 6, 2, '#ffffff');
+  pm.hline(left + 5, left + 12, top + 1, PD.rugLight);
+  return pm.outline(C.outline);
+}
+
+// The quilt over whoever's in the nook (see drawBlanket).
+export const NOOK_QUILT = { face: '#ff7fbf', light: '#ffb8dc', dark: '#c8508e' };

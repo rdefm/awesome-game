@@ -1,8 +1,9 @@
 import { ease } from '../../engine/tween.js';
 import { seededRandom } from '../../engine/pixmap.js';
 import { BB } from '../art/bluebell.js';
-import { BATH, PD, SCOPE, TRAY } from '../art/pod.js';
-import { BUBBLE_BATH, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE } from '../layout.js';
+import { BATH, NOOK, PD, POD_LIGHTS, SCOPE, TRAY } from '../art/pod.js';
+import { BED_NOOK, BUBBLE_BATH, H, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W } from '../layout.js';
+import { FriendBunk, tuckHerIn, wakeHer } from './bunkroom.js';
 import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
 
 // ---------------------------------------------------------------- the house
@@ -255,5 +256,89 @@ export class SeedTray extends HouseProp {
   draw(r) {
     const s = this.bounce;
     r.image(this.imgs[this.stage], SEED_TRAY.x, SEED_TRAY.y, { scaleX: s, scaleY: 2 - s });
+  }
+}
+
+const DIM_RATE = 1.25; // how fast the pod dims as she nods off (and brightens as she wakes), per second
+
+// The bed nook, round and cushioned, in the wall under the window, with its
+// little curtain. Tap it and she climbs in and snoozes (zzz) till she's
+// woken (a tap on her, the nook, or anywhere else), the pod dimming round
+// her and its string of lights glowing softly. Drop a friend in and it's
+// tucked in for a nap; pick it up out of it and it wakes. Nothing's saved (a
+// friend napping in it is remembered on the floor beside it).
+export class BedNook extends FriendBunk {
+  constructor(assets) {
+    super(assets, BED_NOOK, false, assets.bedNook.quilt);
+    this.imgs = assets.bedNook;
+    this.blanketEnd = BED_NOOK.w - 3;
+    this.dim = 0; // how dim the pod is, 0..1
+  }
+
+  get herAsleep() {
+    return Boolean(this.sleeper) && this.sleeper === this.scene.girl;
+  }
+
+  // A friend napping in it can be lifted out; she can't.
+  get draggable() {
+    return super.draggable && !this.herAsleep;
+  }
+
+  hitTest(px, py) {
+    const { x, y } = BED_NOOK;
+    return inRect(px, py, x - NOOK.w / 2, y + NOOK.floor - NOOK.h, NOOK.w, NOOK.h, 1);
+  }
+
+  onTap(p) {
+    if (this.herAsleep) {
+      this.scene.engine.audio.play('tap');
+      this.wakeUp();
+      return;
+    }
+    super.onTap(p);
+  }
+
+  // In she climbs, or (with a friend napping in it) she pats it.
+  use() {
+    if (this.sleeper) {
+      return super.use();
+    }
+    if (!this.scene.busy) {
+      return this.scene.scripted(() => tuckHerIn(this));
+    }
+  }
+
+  wakeUp() {
+    return wakeHer(this);
+  }
+
+  update(dt) {
+    const to = this.herAsleep ? 1 : 0;
+    this.dim = to > this.dim ? Math.min(to, this.dim + dt * DIM_RATE) : Math.max(to, this.dim - dt * DIM_RATE);
+  }
+
+  drawBed(r) {
+    const s = this.bounce;
+    r.image(this.imgs.nook, BED_NOOK.x, BED_NOOK.y + NOOK.floor, { scaleX: s, scaleY: 2 - s });
+  }
+
+  draw(r) {
+    super.draw(r);
+    r.image(this.imgs.curtain, BED_NOOK.x, BED_NOOK.y + NOOK.floor);
+  }
+
+  // The pod dimmed while she naps, its lights glowing softly through it.
+  drawOver(r) {
+    const k = this.dim;
+    if (k > 0) {
+      const t = this.scene.engine.time;
+      r.rect(0, 0, W, H, PD.dimmed, 0.5 * k);
+      POD_LIGHTS.forEach(({ x, y, color }, i) => {
+        const glow = k * (0.55 + 0.15 * Math.sin(t * 1.5 + i));
+        r.rect(x - 2, y - 2, 5, 5, color, glow * 0.3);
+        r.rect(x - 1, y - 1, 3, 3, color, glow);
+      });
+    }
+    super.drawOver(r);
   }
 }

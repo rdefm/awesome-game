@@ -299,11 +299,15 @@ export const CAMPFIRE = {
 
 // Inside the pink alien's pod: the same front door, a telescope on the
 // floor pointing up at a round window onto the sky (stars come out in it),
-// a seed tray on a little table, and a bubble bath on the right.
+// a seed tray on a little table, a bubble bath on the right, and a bed nook
+// in the wall under the window: its bed bottom-centre at (x, y), `w` wide,
+// its mattress `deck` above the floor; `spot`, where she stands by it (and
+// where a friend napping in it is remembered as being).
 export const STAR_WINDOW = { x: 112, y: 44, r: 20 };
 export const TELESCOPE = { x: 76, y: 120, spot: { x: 58, y: 126 } };
 export const SEED_TRAY = { x: 168, y: 98, spot: { x: 168, y: 124 } };
 export const BUBBLE_BATH = { x: 216, y: 144, spot: { x: 184, y: 140 } };
+export const BED_NOOK = { x: 119, y: 116, w: 44, deck: 10, spot: { x: 119, y: 128 } };
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.

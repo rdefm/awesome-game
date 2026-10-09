@@ -50,8 +50,8 @@ import {
   drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
 } from './art/iceCave.js';
 import {
-  TRAY, drawBubble, drawBubbleBath, drawNightSky, drawPod, drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray,
-  drawTelescope,
+  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawNightSky, drawPod, drawPodDoor, drawPodPath, drawPodRoom,
+  drawSeedTray, drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawGonzo, drawMonkey } from './art/shipFriends.js';
@@ -367,6 +367,12 @@ export function loadAssets() {
     seedTray: bake([...Array(TRAY.stages).keys()].map((stage) => drawSeedTray(stage))),
     bubbleBath: bake({ back: drawBubbleBath(true), front: drawBubbleBath() }),
     bubble: bake(drawBubble()),
+    // The bed nook, its curtain, and its quilt [flat, tucked in].
+    bedNook: bake({
+      nook: drawBedNook(),
+      curtain: drawBedNook({ curtain: true }),
+      quilt: [drawBlanket(BLANKET_W, NOOK_QUILT), drawBlanket(BLANKET_W, NOOK_QUILT, true)],
+    }),
     // Planet Frosty.
     mumYeti: strollerFrames((f) => drawYeti(f, 'mum')),
     babyYeti: strollerFrames((f) => drawYeti(f, 'baby')),
