@@ -16,3 +16,9 @@ export function writeSave(data) {
     // ignore: the game still works, it just won't remember
   }
 }
+
+// Is the music on? It is unless she (or a parent) switched it off; saves
+// from before the button have no setting, so they get music.
+export function musicOn(save) {
+  return save.music !== false;
+}

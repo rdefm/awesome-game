@@ -4,6 +4,7 @@ import { Bag } from './bag.js';
 import { normalizeDecor, seen, tally as decorTally, unlock } from './decor.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
+import { MusicButton } from './musicButton.js';
 import { FLOOR_TOP, WALK, W, H } from './layout.js';
 import { normalizeLook } from './look.js';
 import { loadSave, writeSave } from './save.js';
@@ -34,6 +35,9 @@ export class PlayScene extends Scene {
     this.bag = new Bag(this);
     this.carried = null; // the carryable being dragged, if any
     this.uiPress = false; // true while the bag owns the current press
+    this.musicButton = new MusicButton(this);
+    this.musicPress = false; // true while the music button owns the current press
+    this.tune = null; // name of the tune this place plays (see tunes.js); none by default
     this.particles = [];
     this.busy = false; // true during a scripted event
     this.fade = 1; // black overlay; scenes fade in on enter
@@ -43,6 +47,7 @@ export class PlayScene extends Scene {
 
   enter() {
     this.engine.tweens.to(this, { fade: 0 }, 0.5);
+    this.engine.music.setTune(this.tune);
   }
 
   // Fades to black, then swaps to the scene `makeScene` builds. Input is held
@@ -288,6 +293,10 @@ export class PlayScene extends Scene {
 
   // The bag gets first look at every press; the rest goes to the scene.
   pointerDown(p) {
+    if (this.musicButton.hitTest(p)) {
+      this.musicPress = true;
+      return;
+    }
     if (!this.modal && this.bag.hitTest(p)) {
       this.uiPress = true;
       this.bag.pointerDown(p);
@@ -297,6 +306,9 @@ export class PlayScene extends Scene {
   }
 
   pointerMove(p) {
+    if (this.musicPress) {
+      return;
+    }
     if (this.uiPress) {
       this.bag.pointerMove(p);
       return;
@@ -305,6 +317,13 @@ export class PlayScene extends Scene {
   }
 
   pointerUp(p) {
+    if (this.musicPress) {
+      this.musicPress = false;
+      if (this.musicButton.hitTest(p)) {
+        this.musicButton.toggle();
+      }
+      return;
+    }
     if (this.uiPress) {
       this.uiPress = false;
       this.bag.pointerUp(p);
@@ -427,6 +446,7 @@ export class PlayScene extends Scene {
   // whole scene.
   drawOverlay(r) {
     this.bag.draw(r);
+    this.musicButton.draw(r);
     if (this.carried && !this.modal) {
       this.carried.draw(r);
     }

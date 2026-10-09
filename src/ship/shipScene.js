@@ -20,6 +20,7 @@ export class ShipScene extends PlayScene {
   // come through the wall on `enter.side` from the room next door.
   constructor(assets, { fromDoor = false, enter = null } = {}) {
     super(assets, 'ship');
+    this.tune = 'cosy';
     this.stars = new Starfield();
     this.shake = 0;
     this.alert = false;

@@ -14,6 +14,7 @@ export class SideRoomScene extends PlayScene {
     this.room = room;
     this.entering = enter;
     this.hasWall = true; // for hanging wall decor on
+    this.tune = 'cosy';
   }
 
   // Adds the arrows, what's lying about, and her. Call once the room's own

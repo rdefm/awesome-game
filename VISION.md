@@ -37,12 +37,15 @@ store.
   back to the ship.
 - **Persistence**: saves locally on the tablet (browser storage) so closing
   the app and coming back picks up where she left off.
-- **Audio**: sound effects only (synthesized at runtime). No music yet.
+- **Audio**: sound effects and gentle background music, all synthesized at
+  runtime. A small music note button in the top-right corner of every place
+  turns the music on and off (a slash through it when off); the choice is
+  saved. Music only starts after the first tap (browser autoplay rules).
 
 ## Tech stack
 - **Engine**: a small custom engine written from scratch in plain JavaScript
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
-  sound effects, pixel font). No game framework.
+  sound effects and music sequencer, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
   `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
@@ -67,7 +70,7 @@ store.
   chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, world, stickers, decor unlocks, drop receivers, chat trees).
+  tweens, music sequencer, world, stickers, decor unlocks, drop receivers, chat trees).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a
@@ -181,6 +184,13 @@ store.
   (it dings when the sand's all through); a shelf of goggles to try on, one
   pair after another; and a hammock that swings when tapped (drop a friend
   in and it's swung off to sleep). The door goes back out
+- **Music**: tunes are plain data (`src/ship/tunes.js`: tempo, loop length,
+  and voices of `[beat, note, length]` with an instrument each) played by a
+  sequencer (`src/engine/sequencer.js`, pure; `Music` in
+  `src/engine/audio.js` feeds it to the synth through its own quieter volume
+  bus). A place picks its tune with `tune` on its scene; the ship and its
+  side rooms play a slow, cosy loop, and the planets are quiet for now.
+  The on/off choice is saved as `music` (old saves get music on).
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,
   frost flowers, lollipops, gumdrops, cupcakes, lava cakes, stripe stones,
@@ -282,7 +292,6 @@ store.
   reward you without punishing you for ignoring them
 
 ## Explicitly deferred
-- Background music
 - Packaging as an installable native app (via Capacitor or similar)
 - Cloud save / accounts
 - Any real quest/progression system beyond light optional goals

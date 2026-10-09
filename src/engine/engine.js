@@ -1,4 +1,4 @@
-import { Synth } from './audio.js';
+import { Music, Synth } from './audio.js';
 import { Tweens } from './tween.js';
 
 // Converts a Pixmap into something the canvas can draw quickly.
@@ -70,6 +70,7 @@ export class Engine {
     this.ctx.imageSmoothingEnabled = false;
     this.renderer = new Renderer(this.ctx);
     this.audio = new Synth();
+    this.music = new Music(this.audio);
     this.tweens = new Tweens();
     this.time = 0;
     this.scene = null;
