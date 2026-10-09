@@ -6,7 +6,8 @@
 //
 // `id` is unique across the whole world, `kind` picks the art and behaviour,
 // `v` is an optional variant (e.g. which of the giant bluebells it is), and
-// `stage` is how far it has grown (the space plant). Some things come and go:
+// `stage` is how far it has grown (the space plant), and `hat` is the hat a
+// friend wears (absent = bareheaded). Some things come and go:
 // snacks are added fresh from the locker and discarded once eaten.
 
 export function defaultWorld() {
@@ -131,9 +132,27 @@ function without(world, id) {
 }
 
 // Just the identity of a thing (and how grown it is), not where it is.
-function identity({ id, kind, v, stage }) {
+function identity({ id, kind, v, stage, hat }) {
   return {
-    id, kind, ...(v === undefined ? {} : { v }), ...(stage === undefined ? {} : { stage }),
+    id, kind, ...(v === undefined ? {} : { v }), ...(stage === undefined ? {} : { stage }), ...(hat ? { hat } : {}),
+  };
+}
+
+// The same friend, now wearing `hat` ("none" takes it off), wherever it is.
+export function setHat(world, id, hat) {
+  if (!find(world, id)) {
+    return world;
+  }
+  const dress = (e) => {
+    if (e.id !== id) {
+      return e;
+    }
+    const { hat: _old, ...rest } = e;
+    return hat && hat !== 'none' ? { ...rest, hat } : rest;
+  };
+  return {
+    placed: Object.fromEntries(Object.entries(world.placed).map(([where, list]) => [where, list.map(dress)])),
+    bag: world.bag.map(dress),
   };
 }
 

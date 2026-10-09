@@ -1,5 +1,7 @@
 import { ease } from '../../engine/tween.js';
+import { dress } from '../friendHats.js';
 import { CHAIR } from '../layout.js';
+import { LOOK_OPTIONS } from '../look.js';
 import { clampToFloor } from './girl.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -22,6 +24,12 @@ export class Carryable {
     this.reach = 16; // how far to the side the girl stands to use it
     this.seat = null; // the chair it's sitting in, if any (friends only)
     this.turn = 0; // how far round a twirl it is, 0..1 (friends only)
+    this.hat = LOOK_OPTIONS.hat.includes(state.hat) ? state.hat : 'none'; // (friends only)
+  }
+
+  // A picture of this friend, wearing its hat (if it has one).
+  dressed(img) {
+    return this.hat === 'none' ? img : dress(img, this.kind, this.hat, this.scene.assets.hats[this.hat]);
   }
 
   // Lifted things float above everything else.

@@ -195,6 +195,12 @@ store.
   frost flower, snowball, lollipop or gumdrop) and it twirls round into
   that planet's colours, and stays that way. A stripe cactus drinks a juice
   from the ship's snack locker and bursts into flower for good.
+- **Hats for friends**: drop any friend on the ship's wardrobe and the door
+  swings open with a hats-only picker (the same hats she can wear). Tap one
+  and it pops onto the friend's head, sitting on that friend's own head
+  (`src/ship/friendHats.js` says where, and how big, for each kind). The hat
+  is kept on the friend's world entry (`hat`), so it stays on through drags,
+  the bag, the chair, beds and reloads; old saves have bareheaded friends.
 - **Star stickers**: a gentle "find them all". Stickers hide behind
   Bluebell's secrets (rock, bush, mole, a butterfly, the alien's thank-you)
   and Ember's (the vent's first big plume, the lava fish's big leap, a moth,

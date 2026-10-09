@@ -1,11 +1,34 @@
 import { describe, expect, it } from 'vitest';
 import {
-  add, bagContents, defaultWorld, discard, find, freshId, normalizeWorld, place, placedIn, setStage, stash,
+  add, bagContents, defaultWorld, discard, find, freshId, normalizeWorld, place, placedIn, setHat, setStage, stash,
 } from './world.js';
 
 const isFriend = (kind) => kind === 'critter';
 
 describe('world', () => {
+  it('puts a hat on a friend and keeps it through the bag and back out', () => {
+    let w = setHat(defaultWorld(), 'critter', 'crown');
+    expect(find(w, 'critter')).toMatchObject({ kind: 'critter', hat: 'crown' });
+    w = stash(w, 'critter');
+    expect(w.bag[0]).toEqual({ id: 'critter', kind: 'critter', hat: 'crown' });
+    w = place(w, 'critter', 'ship', 90, 130);
+    expect(find(w, 'critter')).toEqual({ id: 'critter', kind: 'critter', hat: 'crown', x: 90, y: 130 });
+  });
+
+  it('takes a hat off again with "none"', () => {
+    const w = setHat(setHat(defaultWorld(), 'critter', 'bow'), 'critter', 'none');
+    expect(find(w, 'critter')).not.toHaveProperty('hat');
+  });
+
+  it('leaves the world alone for a hat on something that is not there', () => {
+    const w = defaultWorld();
+    expect(setHat(w, 'nobody', 'bow')).toBe(w);
+  });
+
+  it('loads an old save with friends bareheaded', () => {
+    const w = normalizeWorld(JSON.parse(JSON.stringify(defaultWorld())));
+    expect(find(w, 'critter')).not.toHaveProperty('hat');
+  });
   it('stashes a placed thing at the front of the bag', () => {
     let w = defaultWorld();
     w = stash(w, 'ball');

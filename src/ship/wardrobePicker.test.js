@@ -69,3 +69,36 @@ describe('wardrobe picker', () => {
     expect(scene.saveLook).not.toHaveBeenCalled();
   });
 });
+
+describe('wardrobe picker for a friend', () => {
+  function friendPicker() {
+    const scene = fakeScene();
+    scene.saveHat = vi.fn((friend, hat) => {
+      friend.hat = hat;
+    });
+    const friend = { x: 80, y: 130, hat: 'none', boing: vi.fn(), pose: vi.fn() };
+    const picker = WardrobePicker.forFriends(scene);
+    picker.friend = friend;
+    picker.show = 1;
+    return { scene, friend, picker };
+  }
+
+  it('offers just the hats', () => {
+    const { picker } = friendPicker();
+    for (const hat of LOOK_OPTIONS.hat) {
+      expect(centreOf(picker, 'hat', hat), hat).not.toBeNull();
+    }
+    expect(centreOf(picker, 'hair', LOOK_OPTIONS.hair[0])).toBeNull();
+    expect(centreOf(picker, 'suit', LOOK_OPTIONS.suit[0])).toBeNull();
+  });
+
+  it('puts the tapped hat on the friend, not on her', () => {
+    const { scene, friend, picker } = friendPicker();
+    const p = centreOf(picker, 'hat', 'party');
+    picker.pointerDown(p);
+    picker.pointerUp(p);
+    expect(scene.saveHat).toHaveBeenCalledWith(friend, 'party');
+    expect(friend.hat).toBe('party');
+    expect(scene.saveLook).not.toHaveBeenCalled();
+  });
+});

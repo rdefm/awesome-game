@@ -94,6 +94,22 @@ export const HATS = {
 // How many px a hat pokes up above the top of her hair.
 export const hatHeight = (hat) => Math.max(0, -(HATS[hat]?.y ?? 0));
 
+// Just this hat on its own (outlined), for putting on a friend. Null for
+// "none" and anything unknown.
+export function drawHatPiece(hat) {
+  const spec = HATS[hat];
+  if (!spec) {
+    return null;
+  }
+  const pm = new Pixmap(spec.rows[0].length + 2, spec.rows.length + 2);
+  pm.grid(spec.rows, spec.palette, 1, 1);
+  return pm.outline(C.outline);
+}
+
+// How far right of the middle of her head a hat's own middle sits (the bow
+// is off to one side), in pixels.
+export const hatOffset = (hat) => (HATS[hat] ? HATS[hat].x + HATS[hat].rows[0].length / 2 - 8 : 0);
+
 function drawHat(pm, ox, oy, hat) {
   const spec = HATS[hat];
   if (spec) {

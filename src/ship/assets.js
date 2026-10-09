@@ -1,6 +1,6 @@
 import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
-import { drawHairSwatch, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
+import { drawHairSwatch, drawHatPiece, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
   DECOR_ICONS, drawBeanbag, drawBigCushion, drawFairyLights, drawFishTank, drawLamp, drawLampGlow, drawPlanetMobile,
@@ -403,6 +403,8 @@ export function loadAssets() {
         h, Object.fromEntries(LOOK_OPTIONS.hat.map((hat) => [hat, drawHatSwatch(hat, h)])),
       ])),
     }),
+    // Each hat on its own, for friends to wear.
+    hats: bake(Object.fromEntries(LOOK_OPTIONS.hat.filter((hat) => hat !== 'none').map((hat) => [hat, drawHatPiece(hat)]))),
     bag: bake({ shut: drawBag(), open: drawBag(true) }),
     boxIcon: bake(drawBoxIcon()),
     heartIcon: bake(drawHeartIcon()),

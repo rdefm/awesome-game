@@ -140,7 +140,7 @@ export class Stroller extends Carryable {
 
   // How it looks sitting in the pilot chair (which draws it, so it spins too).
   seatFrame() {
-    return this.imgs[this.frame];
+    return this.dressed(this.imgs[this.frame]);
   }
 
   draw(r) {
@@ -148,7 +148,7 @@ export class Stroller extends Carryable {
       return;
     }
     this.shadow(r, this.width);
-    r.image(this.imgs[this.frame], this.x, this.y + 1 - this.lift, {
+    r.image(this.dressed(this.imgs[this.frame]), this.x, this.y + 1 - this.lift, {
       flipX: this.facing < 0, scaleX: this.bounce * this.twirl, scaleY: 2 - this.bounce,
     });
   }

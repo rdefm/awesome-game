@@ -399,7 +399,7 @@ export class Cradle extends HouseProp {
     r.image(this.imgs.back, x, CRADLE.y, { scaleX: s, scaleY: 2 - s });
     const { baby } = this;
     if (baby) {
-      r.image(baby.imgs[baby.frame], x, CRADLE.y - 5, { flipX: baby.facing < 0 });
+      r.image(baby.seatFrame(), x, CRADLE.y - 5, { flipX: baby.facing < 0 });
       if (this.sleepy) {
         const t = this.scene.engine.time;
         for (let i = 0; i < 2; i++) {

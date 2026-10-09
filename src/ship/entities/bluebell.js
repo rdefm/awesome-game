@@ -290,7 +290,7 @@ export class Critter extends Carryable {
   }
 
   currentFrame() {
-    return this.imgs[this.held || this.lift > 1 ? 'jump' : this.landed > 0 ? 'squish' : 'idle'];
+    return this.dressed(this.imgs[this.held || this.lift > 1 ? 'jump' : this.landed > 0 ? 'squish' : 'idle']);
   }
 
   // How it looks sitting in the pilot chair (which draws it, so it spins too).
@@ -657,7 +657,7 @@ export class Local extends Carryable {
 
   // How it looks sitting in the pilot chair (which draws it, so it spins too).
   seatFrame() {
-    return this.imgs[this.frame];
+    return this.dressed(this.imgs[this.frame]);
   }
 
   draw(r) {
@@ -666,7 +666,7 @@ export class Local extends Carryable {
     }
     const bob = this.frame === 'idle' ? Math.round(Math.sin(this.scene.engine.time * 3) * 0.6) : 0;
     this.shadow(r, 12);
-    r.image(this.imgs[this.frame], this.x, this.y + 1 - this.lift + bob, {
+    r.image(this.dressed(this.imgs[this.frame]), this.x, this.y + 1 - this.lift + bob, {
       scaleX: this.bounce * this.twirl, scaleY: 2 - this.bounce,
     });
   }

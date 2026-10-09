@@ -8,7 +8,7 @@ import { FLOOR_TOP, WALK, W, H } from './layout.js';
 import { normalizeLook } from './look.js';
 import { loadSave, writeSave } from './save.js';
 import { collect, normalizeFound, tally } from './stickers.js';
-import { add, discard, freshId, normalizeWorld, place, placedIn, setStage, stash } from './world.js';
+import { add, discard, freshId, normalizeWorld, place, placedIn, setHat, setStage, stash } from './world.js';
 
 // Swallows all input (and draws nothing) while a scripted sequence plays.
 export const BLOCK_INPUT = { draw() {} };
@@ -102,6 +102,13 @@ export class PlayScene extends Scene {
     this.look = look;
     this.girl.wear(look);
     writeSave({ ...loadSave(), look });
+  }
+
+  // A friend's put a hat on (or taken it off, with "none"): show it and remember it.
+  saveHat(friend, hat) {
+    friend.hat = hat;
+    this.world = setHat(this.world, friend.id, hat);
+    this.saveWorld();
   }
 
   // Remembers that `memory` has happened (see `memories`).

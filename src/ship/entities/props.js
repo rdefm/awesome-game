@@ -7,7 +7,7 @@ import {
 import { allStickers, shelf, tally } from '../stickers.js';
 import { WardrobePicker } from '../wardrobePicker.js';
 import { Carryable } from './carryable.js';
-import { isFriendItem } from './friends.js';
+import { hold, isFriendItem, letGo } from './friends.js';
 import { LOCKER_SNACKS } from './items.js';
 
 const HEADROOM = 16;
@@ -481,6 +481,37 @@ export class Wardrobe extends Prop {
       return;
     }
     scene.scripted(() => this.change());
+  }
+
+  // A friend dropped on it gets dressed up.
+  accepts(item) {
+    return isFriendItem(item) && !this.scene.busy;
+  }
+
+  receive(friend) {
+    this.scene.scripted(() => this.dressUp(friend));
+  }
+
+  // Sets the friend down by the open wardrobe and picks it a hat.
+  async dressUp(friend) {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    hold(friend);
+    girl.faceToward(WARDROBE.x + WARDROBE.w / 2);
+    girl.act('reach', 0.4);
+    await this.swing(true);
+    await scene.putDown(friend, WARDROBE.spot.x - 22, WARDROBE.spot.y + 8);
+    friend.facing = 1;
+    engine.audio.play('rustle');
+    this.wobble();
+    this.friendPicker ??= WardrobePicker.forFriends(scene);
+    await this.friendPicker.open(friend);
+    letGo(friend);
+    scene.settle(friend);
+    engine.audio.play('giggle');
+    scene.hearts(friend.x, friend.y - 24, 2);
+    girl.say('star', 1.2);
+    await this.swing(false);
   }
 
   async change() {

@@ -7,6 +7,7 @@ import { Firebloom, Geode, Newt } from './entities/ember.js';
 import { LavaBaby, LavaDad, LavaMum } from './entities/lavaHouse.js';
 import { BabyYeti, FrostFlower, MumYeti, Snowball } from './entities/frosty.js';
 import { StripeCactus, StripeStone, Zig } from './entities/stripey.js';
+import { dress } from './friendHats.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
 
@@ -59,5 +60,7 @@ export function makeCarryable(assets, state) {
 }
 
 export function iconFor(assets, entry) {
-  return KINDS[entry.kind]?.icon(assets, entry) ?? assets.sparkle;
+  const icon = KINDS[entry.kind]?.icon(assets, entry) ?? assets.sparkle;
+  // A friend's hat shows in its bag slot too.
+  return isFriend(entry.kind) && entry.hat ? dress(icon, entry.kind, entry.hat, assets.hats[entry.hat]) : icon;
 }
