@@ -9,6 +9,7 @@ import { MUM_YETI } from './mumYeti.js';
 import { NEWT } from './newt.js';
 import { PINK_ALIEN } from './pinkAlien.js';
 import { PUFFBALL } from './puffball.js';
+import { SHROOM } from './shroom.js';
 import { TREE_DAD, TREE_KID, TREE_MUM } from './treeFamily.js';
 import { ZIG } from './zig.js';
 
@@ -33,4 +34,5 @@ export const TALKS = {
   treeDad: TREE_DAD,
   treeMum: TREE_MUM,
   treeKid: TREE_KID,
+  shroom: SHROOM,
 };

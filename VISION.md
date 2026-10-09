@@ -152,7 +152,12 @@ store.
   just another mushroom when she comes near, pops back out when she steps
   away, and when tapped peeks out and giggles, then looks all round and
   blushes, then at last comes right out for a little dance in a cloud of
-  spores
+  spores. From that first dance on it's her friend for good: it stays out
+  and pads about, and like any friend she can carry it, put it in the bag
+  and take it anywhere, sit it in chairs, feed it snacks and give it hats.
+  Tapped, it ducks under its cap in a fit of giggles, peeks out and does its
+  little dance, then has a shy, whispery chat about being shy and about the
+  grove (missing the glowing moss a little when it's far from home)
 - Inside the pod: a cosy round room, ribbed like a seed pod and strung with
   little lights. A telescope pointing up at a round window: look through it
   and night falls in the window, the stars come out and twinkle, and a

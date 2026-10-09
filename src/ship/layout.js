@@ -189,14 +189,13 @@ export const HOVERBIKE = {
 
 // The mushroom grove on Bluebell: two giant mushrooms to bounce on (bottom-
 // centre x, y; `top` how high above its foot the middle of its cap is, `rx`
-// how wide the cap is), and the shy mushroom creature standing among them,
-// which hides under its cap when she's within `shy` pixels.
+// how wide the cap is), and how near she can get to the shy mushroom
+// creature (see world.js) before it hides under its cap: `shy` pixels.
 export const MUSHROOM_GROVE = {
   shrooms: [
     { x: 118, y: 138, top: 27, rx: 17 },
     { x: 196, y: 146, top: 31, rx: 19 },
   ],
-  creature: { x: 156, y: 128 },
   shy: 40,
 };
 

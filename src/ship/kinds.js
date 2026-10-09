@@ -13,6 +13,7 @@ import { Crew } from './entities/crew.js';
 import { Ball, Crystal, DRAWER_THINGS, SNACKS, Snack, Teddy, Trinket } from './entities/items.js';
 import { Posy } from './entities/posies.js';
 import { Plant, plantStage } from './entities/props.js';
+import { MushroomCreature } from './entities/mushroomGrove.js';
 import { Gonzo, Monkey } from './entities/shipFriends.js';
 import { Sprout, TreeDad, TreeKid, TreeMum } from './entities/treeHouse.js';
 
@@ -64,6 +65,7 @@ export const KINDS = {
   treeMum: { friend: true, make: (a, s) => new TreeMum(a, s), icon: (a) => a.treeMum.idle },
   treeKid: { friend: true, make: (a, s) => new TreeKid(a, s), icon: (a) => a.treeKid.idle },
   sprout: { friend: true, make: (a, s) => new Sprout(a, s), icon: (a) => a.sprout.idle },
+  shroom: { friend: true, make: (a, s) => new MushroomCreature(a, s), icon: (a) => a.shroomCreature.idle },
   zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 

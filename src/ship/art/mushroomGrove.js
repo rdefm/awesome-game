@@ -100,10 +100,11 @@ export function drawBounceShroom(variant = 0) {
 }
 
 // The shy mushroom creature: a little round fellow with a spotted cap and
-// stubby legs, facing right. frame: 'out' | 'blink' | 'peek' (cap lifted, one
-// eye showing) | 'hide' (pulled right down: just a mushroom) | 'dance1' |
-// 'dance2' (arms up, glowing).
-export function drawMushroomCreature(frame = 'out') {
+// stubby legs, facing right. frame: 'idle' | 'blink' | 'peek' (cap lifted,
+// one eye showing) | 'hide' (pulled right down: just a mushroom) | 'dance1' |
+// 'dance2' (arms up, glowing) | 'wave1' | 'wave2' (one arm waving) | 'hop'
+// (arms up) | 'walk' (mid-step).
+export function drawMushroomCreature(frame = 'idle') {
   const k = MG.caps[2];
   const pm = new Pixmap(18, 22);
   const hidden = frame === 'hide';
@@ -111,7 +112,7 @@ export function drawMushroomCreature(frame = 'out') {
   const lift = peek ? 3 : 0;
   // Legs.
   if (!hidden) {
-    const step = frame === 'dance2' ? 1 : 0;
+    const step = frame === 'dance2' || frame === 'walk' ? 1 : 0;
     pm.rect(5 - step, 19, 3, 3, MG.stemShade);
     pm.rect(10 + step, 19, 3, 3, MG.stemShade);
   }
@@ -139,6 +140,11 @@ export function drawMushroomCreature(frame = 'out') {
     if (frame.startsWith('dance')) {
       pm.line(3, 14, 1, frame === 'dance1' ? 8 : 10, MG.stem, 1);
       pm.line(15, 14, 17, frame === 'dance1' ? 10 : 8, MG.stem, 1);
+    } else if (frame === 'hop') {
+      pm.line(3, 14, 1, 9, MG.stem, 1);
+      pm.line(15, 14, 17, 9, MG.stem, 1);
+    } else if (frame.startsWith('wave')) {
+      pm.line(15, 14, frame === 'wave1' ? 16 : 17, 8, MG.stem, 1);
     }
   }
   // The cap, big and spotted; pulled down over everything when hiding.

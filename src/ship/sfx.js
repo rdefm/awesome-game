@@ -106,6 +106,7 @@ export function defineSfx(audio) {
   chatter('chatTreeDad', [110, 98, 123], { gap: 0.14, dur: 0.12, bend: 0.92, type: 'triangle', vol: 0.22 });
   chatter('chatTreeMum', [523, 587, 494], { gap: 0.09, dur: 0.09, bend: 1.04, type: 'triangle', vol: 0.12 });
   chatter('chatTreeKid', [900, 1100, 1000], { gap: 0.05, dur: 0.05, bend: 1.15, type: 'triangle', vol: 0.12 });
+  chatter('chatShroom', [1240, 1100, 1320], { gap: 0.09, dur: 0.035, bend: 0.9, vol: 0.05 });
   // Monkey or Gonzo smacking into a tree trunk off the rope swing: a big
   // thwack, and a wobbly boinggg.
   audio.define('smack', (s, t) => {

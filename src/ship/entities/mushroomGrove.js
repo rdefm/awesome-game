@@ -1,10 +1,16 @@
 import { ease } from '../../engine/tween.js';
 import { MG } from '../art/mushroomGrove.js';
+import { offerChat } from '../chat.js';
 import { MUSHROOM_GROVE, W, spooks } from '../layout.js';
+import { SHROOM } from '../talks/shroom.js';
+import { hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor } from './girl.js';
+import { isSnack } from './items.js';
+import { Stroller } from './stroller.js';
 
-// The things at the mushroom grove on Bluebell. None of them can be picked
-// up, but they all do something when tapped.
+// The things at the mushroom grove on Bluebell. They all do something when
+// tapped; only the mushroom creature can ever be picked up (once it's her
+// friend).
 
 // ---------------------------------------------------------- bounce mushroom
 // A giant spotted mushroom. Tap it and she hops up on the cap and bounces,
@@ -209,48 +215,55 @@ export class Spores {
 // down and is just another mushroom; step away and it pops back out. Tap it
 // and she goes over: the first time it only peeks out and giggles, the second
 // it looks all round and blushes, and the third it's so brave it comes right
-// out and does a little dance in a cloud of spores (and stays out for a bit,
-// even with her close by).
-export class MushroomCreature {
-  constructor(assets) {
-    this.imgs = assets.shroomCreature;
-    this.x = MUSHROOM_GROVE.creature.x;
-    this.y = MUSHROOM_GROVE.creature.y;
-    this.hidden = false;
-    this.frame = 'out';
+// out and does a little dance in a cloud of spores. From then on (`stage` 1
+// in its world entry) it's a friend like any other: it stays out, wanders
+// about, and she can carry it, take it anywhere, sit it in chairs, feed it
+// and give it hats. Tapped then, it hides its face in a giggle, peeks out and
+// does its little dance, and has a whispery chat.
+export class MushroomCreature extends Stroller {
+  constructor(assets, state) {
+    super(state, assets.shroomCreature, { speed: 12, wander: 50, width: 16, height: 21 });
+    this.friendly = (state.stage ?? 0) >= 1;
+    this.draggable = this.friendly;
+    this.reach = this.friendly ? 16 : 22;
     this.facing = 1;
-    this.lift = 0;
-    this.brave = 0; // seconds left that it'll stay out however near she is
+    this.hidden = false;
     this.away = 0; // seconds she's been far away
-    this.blinkIn = 2;
     this.visits = 0;
-    this.busy = false;
   }
 
-  get depth() {
-    return this.y;
-  }
-
-  // Beside it, on whichever side she's on.
-  get spot() {
-    const side = this.scene.girl.x < this.x ? -1 : 1;
-    return clampToFloor(this.x + side * 22, this.y + 2);
+  get free() {
+    return this.friendly && super.free;
   }
 
   hitTest(px, py) {
+    if (this.friendly) {
+      return super.hitTest(px, py);
+    }
     return Math.abs(px - this.x) <= 10 && py >= this.y - 22 && py <= this.y + 2;
   }
 
-  onTap() {
+  async onTap() {
     const { scene } = this;
-    scene.engine.audio.play('tap');
-    if (!this.busy && !scene.busy) {
-      scene.interact(this);
+    if (!this.friendly) {
+      scene.engine.audio.play('tap');
+      if (!this.busy && !scene.busy) {
+        scene.interact(this);
+      }
+      return;
+    }
+    if (this.seat) {
+      this.seat.spin();
+      return;
+    }
+    if (this.free) {
+      await this.giggle();
     }
   }
 
+  // Shy, still: she goes over to it (see onTap) and it peeks out, or dances.
   async use() {
-    if (this.busy) {
+    if (this.busy || this.friendly) {
       return;
     }
     this.busy = true;
@@ -263,23 +276,15 @@ export class MushroomCreature {
     girl.act('reach', 0.6);
     await engine.wait(0.4);
     if (n % 3 === 2) {
-      // Brave at last: out it comes, for a dance.
+      // Brave at last: out it comes, for a dance, and it's her friend now.
       this.hidden = false;
-      this.brave = 8;
       engine.audio.play('pop');
       scene.bits(this.x, this.y - 12, 10, MG.glow);
-      for (let i = 0; i < 6; i++) {
-        this.frame = i % 2 ? 'dance2' : 'dance1';
-        engine.audio.play(i % 2 ? 'plink' : 'tinkle');
-        scene.sparkles(this.x, this.y - 18, 3);
-        scene.musicNote(this.x, this.y - 22);
-        await engine.tweens.to(this, { lift: 4 }, 0.12, ease.outQuad);
-        await engine.tweens.to(this, { lift: 0 }, 0.12, ease.inQuad);
-      }
-      this.frame = 'out';
+      await this.dance(6);
       girl.say('heart', 1.4);
       girl.act('cheer', 0.8);
       scene.hearts(this.x, this.y - 22, 4);
+      this.befriend();
     } else {
       // Just a peek.
       this.frame = 'peek';
@@ -297,26 +302,95 @@ export class MushroomCreature {
       girl.say('heart', 1);
       await engine.wait(0.5);
       engine.audio.play('hide');
-      this.frame = 'out';
+      this.frame = 'idle';
     }
     this.busy = false;
   }
 
+  befriend() {
+    this.friendly = true;
+    this.draggable = true;
+    this.reach = 16;
+    this.scene.saveStage(this, 1);
+  }
+
+  // `steps` bobs of its little dance, arms up, sparkles and notes all round.
+  async dance(steps) {
+    const { scene } = this;
+    const { engine } = scene;
+    for (let i = 0; i < steps; i++) {
+      this.frame = i % 2 ? 'dance2' : 'dance1';
+      engine.audio.play(i % 2 ? 'plink' : 'tinkle');
+      scene.sparkles(this.x, this.headTop + 3, 3);
+      scene.musicNote(this.x, this.headTop - 1);
+      await engine.tweens.to(this, { lift: 4 }, 0.12, ease.outQuad);
+      await engine.tweens.to(this, { lift: 0 }, 0.12, ease.inQuad);
+    }
+    this.frame = 'idle';
+  }
+
+  // A friend now, but still a bit shy: it ducks under its cap in a fit of
+  // giggles, peeks out, then does its little dance for her.
+  async giggle() {
+    hold(this);
+    const { scene } = this;
+    const { engine, girl } = scene;
+    this.facing = girl.x < this.x ? -1 : 1;
+    girl.faceToward(this.x);
+    engine.audio.play('hide');
+    this.frame = 'hide';
+    await engine.wait(0.4);
+    engine.audio.play('giggle');
+    for (let i = 0; i < 3; i++) {
+      this.boing(0.5);
+      await engine.wait(0.18);
+    }
+    this.frame = 'peek';
+    engine.audio.play('peek');
+    await engine.wait(0.4);
+    await this.dance(4);
+    scene.hearts(this.x, this.headTop - 2, 2);
+    girl.say('heart', 1.2);
+    letGo(this);
+    offerChat(scene, this);
+  }
+
+  // Whispery chat, and whether it's at home in the grove.
+  chat() {
+    return { tree: SHROOM, facts: { home: this.scene.where === 'mushroomgrove' } };
+  }
+
+  onPickUp() {
+    super.onPickUp();
+    this.scene.engine.audio.play('giggle');
+  }
+
+  accepts(item) {
+    return this.free && (isSnack(item) || isFriendItem(item));
+  }
+
+  receive(item) {
+    return isFriendItem(item) ? play(item, this) : this.eat(item);
+  }
+
   update(dt) {
+    if (this.friendly) {
+      super.update(dt);
+      return;
+    }
     this.blinkIn -= dt;
     if (this.blinkIn < -0.15) {
       this.blinkIn = 2 + Math.random() * 3;
     }
-    this.brave = Math.max(0, this.brave - dt);
     if (this.busy) {
       return;
     }
     const near = spooks(this.scene.girl, this);
-    if (near && !this.hidden && this.brave <= 0) {
+    if (near && !this.hidden) {
       this.hidden = true;
       this.away = 0;
       this.scene.engine.audio.play('hide');
-    } else if (!near || this.brave > 0) {
+    } else if (!near) {
       this.away += dt;
       if (this.hidden && this.away > 1.5) {
         this.hidden = false;
@@ -328,13 +402,17 @@ export class MushroomCreature {
   }
 
   draw(r) {
+    if (this.friendly) {
+      super.draw(r);
+      return;
+    }
     let frame = this.frame;
-    if (this.hidden && frame === 'out') {
+    if (this.hidden && frame === 'idle') {
       frame = 'hide';
-    } else if (frame === 'out' && this.blinkIn < 0) {
+    } else if (frame === 'idle' && this.blinkIn < 0) {
       frame = 'blink';
     }
-    r.rect(this.x - 6, this.y, 12, 1, '#000000', 0.15);
+    this.shadow(r, 12);
     r.image(this.imgs[frame], this.x, this.y + 1 - this.lift, { flipX: this.facing < 0 });
   }
 }

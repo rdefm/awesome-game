@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { PLANETS } from './art/props.js';
-import { H, MUSHROOM_GROVE, W, spooks } from './layout.js';
+import { H, W, spooks } from './layout.js';
 import { arrivingBy, landedOn, placesOn, planetOf, tuneOf } from './planetScenes.js';
 import { TUNES } from './tunes.js';
+import { defaultWorld, find } from './world.js';
 
 describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
@@ -226,7 +227,7 @@ describe('the mushroom grove on Bluebell', () => {
   });
 
   it('keeps the shy creature hiding only when she is close', () => {
-    const at = MUSHROOM_GROVE.creature;
+    const at = find(defaultWorld(), 'shroom');
     expect(spooks({ x: at.x + 10, y: at.y + 4 }, at)).toBe(true);
     expect(spooks({ x: at.x + 90, y: at.y }, at)).toBe(false);
     expect(spooks({ x: at.x, y: at.y + 40 }, at)).toBe(false);

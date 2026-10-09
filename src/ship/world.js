@@ -76,6 +76,11 @@ export function defaultWorld() {
         { id: 'treeKid', kind: 'treeKid', x: 186, y: 146 },
         { id: 'sprout', kind: 'sprout', x: 214, y: 148 },
       ],
+      // Bluebell's mushroom grove: the shy mushroom creature (`stage` 1
+      // once it's danced for her and become her friend).
+      mushroomgrove: [
+        { id: 'shroom', kind: 'shroom', x: 156, y: 128 },
+      ],
     },
     bag: [],
   };

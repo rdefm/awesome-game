@@ -428,7 +428,7 @@ export function loadAssets() {
     // The mushroom grove on Bluebell: the bouncy mushrooms, and the shy creature.
     bounceShrooms: bake([drawBounceShroom(0), drawBounceShroom(1)]),
     shroomCreature: bake(Object.fromEntries(
-      ['out', 'blink', 'peek', 'hide', 'dance1', 'dance2'].map((f) => [f, drawMushroomCreature(f)]),
+      ['idle', 'blink', 'peek', 'hide', 'dance1', 'dance2', 'wave1', 'wave2', 'hop', 'walk'].map((f) => [f, drawMushroomCreature(f)]),
     )),
     furNest: bake({ back: drawFurNest(true), front: drawFurNest() }),
     // [flicker 0, flicker 1, flared 0, flared 1]
