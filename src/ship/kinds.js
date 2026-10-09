@@ -7,7 +7,9 @@ import { Firebloom, Geode, Newt } from './entities/ember.js';
 import { LavaBaby, LavaDad, LavaMum } from './entities/lavaHouse.js';
 import { BabyYeti, FrostFlower, MumYeti, Snowball } from './entities/frosty.js';
 import { StripeCactus, StripeStone, Zig } from './entities/stripey.js';
+import { normalizeCrew } from './crew.js';
 import { dress } from './friendHats.js';
+import { Crew } from './entities/crew.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
 
@@ -49,6 +51,7 @@ export const KINDS = {
   fishtank: { make: (a, s) => new FishTank(a, s), icon: (a) => a.decor.fishtank[0] },
   fairylights: { make: (a, s) => new FairyLights(a, s), icon: (a) => a.decor.fairylights[0] },
   planetmobile: { make: (a, s) => new PlanetMobile(a, s), icon: (a) => a.decor.planetmobile },
+  crew: { friend: true, make: (a, s) => new Crew(a, s), icon: (a, s) => a.crewFrames(normalizeCrew(s.crew)).idle },
   zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 

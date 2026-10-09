@@ -9,7 +9,7 @@ export const HAT_SPOTS = {
   critter: { x: 0, y: 3, scale: 0.5 },
   local: { x: 0, y: 3, scale: 1 },
   newt: { x: 6, y: 3, scale: 0.5 },
-  mumYeti: { x: 1, y: 4, scale: 1 },
+  mumYeti: { x: 1, y: 5, scale: 1 },
   babyYeti: { x: 0, y: 3, scale: 0.5 },
   gummy: { x: 0, y: 3, scale: 0.5 },
   ginger: { x: 0, y: 4, scale: 1 },
@@ -17,6 +17,7 @@ export const HAT_SPOTS = {
   lavaMum: { x: 0, y: 4, scale: 1 },
   lavaBaby: { x: 1, y: 3, scale: 0.5 },
   zig: { x: 0, y: 4, scale: 0.5 },
+  crew: { x: 0, y: 8, scale: 1 },
 };
 
 export const hatSpot = (kind) => HAT_SPOTS[kind] ?? null;

@@ -189,13 +189,14 @@ export class PlayScene extends Scene {
 
   // A brand-new carryable of `kind` (a snack off the shelf, say) appears at
   // (x, y), with an id nothing else has. Remembered on the floor below.
-  spawn(kind, x, y) {
+  // `extra`: anything else its world entry holds (a crewmate's look and hat).
+  spawn(kind, x, y, extra = {}) {
     const id = freshId(this.world, kind, this.entities.map((e) => e.id));
-    const item = makeCarryable(this.assets, { id, kind, x, y });
+    const item = makeCarryable(this.assets, { id, kind, x, y, ...extra });
     if (!item) {
       return null;
     }
-    this.world = add(this.world, this.where, { id, kind, ...clampToFloor(x, y) });
+    this.world = add(this.world, this.where, { id, kind, ...extra, ...clampToFloor(x, y) });
     this.saveWorld();
     this.add(item);
     return item;

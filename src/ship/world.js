@@ -6,8 +6,9 @@
 //
 // `id` is unique across the whole world, `kind` picks the art and behaviour,
 // `v` is an optional variant (e.g. which of the giant bluebells it is), and
-// `stage` is how far it has grown (the space plant), and `hat` is the hat a
-// friend wears (absent = bareheaded). Some things come and go:
+// `stage` is how far it has grown (the space plant), `hat` is the hat a
+// friend wears (absent = bareheaded) and `crew` is how a crewmate looks
+// ({ body, eyes, ears }). Some things come and go:
 // snacks are added fresh from the locker and discarded once eaten.
 
 export function defaultWorld() {
@@ -132,9 +133,10 @@ function without(world, id) {
 }
 
 // Just the identity of a thing (and how grown it is), not where it is.
-function identity({ id, kind, v, stage, hat }) {
+function identity({ id, kind, v, stage, hat, crew }) {
   return {
     id, kind, ...(v === undefined ? {} : { v }), ...(stage === undefined ? {} : { stage }), ...(hat ? { hat } : {}),
+    ...(crew ? { crew: { ...crew } } : {}),
   };
 }
 

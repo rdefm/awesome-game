@@ -248,6 +248,17 @@ store.
   everything; wall pieces snap up onto the wall. Tap a lamp to switch it
   on; tap the beanbag or the big cushion and she flops right in (or drop a
   friend on it and they do); tap the fish tank and the fish darts about. The
+  store room also has the **crew pod**, in front of the cargo net: tap it and
+  a creator slides up, Avatar World style, with rows of buttons for body
+  colour, eyes, ears or antennae and a hat (the same hats as hers) and the
+  crewmate itself beside them, changing as she taps. Tap DONE and the pod
+  whirrs, hisses open and the new crewmate hops out (the X backs out).
+  Crewmates are ordinary friends (`Crew` in `src/ship/entities/crew.js`, art
+  in `src/ship/art/crew.js`, drawn in code from parts): they stroll, greet
+  her, play, sit in chairs, ride in the bag, eat snacks, wear hats from the
+  wardrobe and have a friendly chat. Their look is on their world entry
+  (`crew`), so they survive reloads. There's room for six in all (bag
+  included); at six the pod just hums. The
   **playroom** (right) has a ball pit (she hops in, dives right under and
   pops up in a splash of balls), a swing (higher and higher) and a
   trampoline (each bounce higher than the last). Drop a friend on any of

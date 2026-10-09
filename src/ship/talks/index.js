@@ -1,4 +1,5 @@
 import { BABY_YETI } from './babyYeti.js';
+import { CREW } from './crew.js';
 import { GINGER } from './ginger.js';
 import { GUMMY_BEAR } from './gummyBear.js';
 import { LAVA_BABY, LAVA_DAD, LAVA_MUM } from './lavaFamily.js';
@@ -19,6 +20,7 @@ export const TALKS = {
   gummyBear: GUMMY_BEAR,
   ginger: GINGER,
   zig: ZIG,
+  crew: CREW,
   lavaDad: LAVA_DAD,
   lavaMum: LAVA_MUM,
   lavaBaby: LAVA_BABY,

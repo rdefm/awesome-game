@@ -1,6 +1,9 @@
 import { toImage } from '../engine/engine.js';
 import { textPixmap } from '../engine/font.js';
 import { drawHairSwatch, drawHatPiece, drawHatSwatch, drawSuitSwatch, girlFrames } from './art/girl.js';
+import {
+  CREW_BODIES, CREW_EARS, CREW_EYES, CREW_FRAMES, drawCrew, drawCrewBodySwatch, drawCrewEarsSwatch, drawCrewEyesSwatch, drawCrewPod,
+} from './art/crew.js';
 import { drawLockerDoor, drawRoom, drawSpace, drawWardrobeDoor } from './art/room.js';
 import {
   DECOR_ICONS, drawBeanbag, drawBigCushion, drawFairyLights, drawFishTank, drawLamp, drawLampGlow, drawPlanetMobile,
@@ -107,6 +110,7 @@ const strollerFrames = (draw) => bake(Object.fromEntries(STROLLER_FRAMES.map((f)
 export function loadAssets() {
   const textCache = new Map();
   const girlCache = new Map();
+  const crewCache = new Map();
   const bell = bake(drawBell());
   const stems = [[40, 3], [52, 3], [34, 2], [44, 3]].map(([h, n]) => bake(drawBluebellStem(h, n)));
   return {
@@ -118,6 +122,23 @@ export function loadAssets() {
       }
       return girlCache.get(key);
     },
+    // A crewmate's frames for its body, eyes and ears (see crew.js), baked the first time one's seen.
+    crewFrames(crew) {
+      const key = `${crew.body}|${crew.eyes}|${crew.ears}`;
+      if (!crewCache.has(key)) {
+        crewCache.set(key, bake(Object.fromEntries(CREW_FRAMES.map((f) => [f, drawCrew(f, crew)]))));
+      }
+      return crewCache.get(key);
+    },
+    crewPod: bake({ shut: drawCrewPod(), open: drawCrewPod(true) }),
+    // The crew pod's picker buttons (ears are shown in each body colour).
+    crewSwatches: bake({
+      body: Object.fromEntries(Object.keys(CREW_BODIES).map((b) => [b, drawCrewBodySwatch(b)])),
+      eyes: Object.fromEntries(CREW_EYES.map((e) => [e, drawCrewEyesSwatch(e)])),
+      ears: Object.fromEntries(Object.keys(CREW_BODIES).map((b) => [
+        b, Object.fromEntries(CREW_EARS.map((e) => [e, drawCrewEarsSwatch(e, b)])),
+      ])),
+    }),
     room: bake(drawRoom()),
     // The ship's other rooms, either side of the cockpit, and the arrows through.
     storeRoom: bake(drawStoreRoom()),

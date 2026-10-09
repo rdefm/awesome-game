@@ -249,4 +249,7 @@ export const WALL_HANG = { minX: 14, maxX: 242, minY: 40, maxY: 96 };
 
 // The store room's decor printer, standing against the back wall
 // (bottom-centre), and the floor in front where what it prints lands.
+// The crew pod beside it, in front of the cargo net: where it stands
+// (bottom-centre), where she stands to use it and where a new crewmate hops out to.
+export const CREW_POD = { x: 214, y: 118, w: 30, h: 46, spot: { x: 190, y: 126 }, out: { x: 206, y: 138 } };
 export const PRINTER = { x: 128, y: 118, w: 36, h: 42, spot: { x: 102, y: 124 }, out: { x: 132, y: 134 } };

@@ -99,6 +99,7 @@ export function defineSfx(audio) {
   chatter('chatZig', [800, 1000, 900], { gap: 0.05, dur: 0.05, bend: 1.2, type: 'square', vol: 0.04 });
   chatter('chatLavaDad', [150, 175, 140], { gap: 0.1, dur: 0.09, bend: 0.9, type: 'triangle', vol: 0.2 });
   chatter('chatLavaMum', [392, 440, 392], { gap: 0.09, dur: 0.08, bend: 1.05, vol: 0.14 });
+  chatter('chatCrew', [980, 1180, 1050], { gap: 0.06, dur: 0.05, bend: 1.1, type: 'triangle', vol: 0.12 });
   chatter('chatLavaBaby', [700, 840, 760], { gap: 0.06, dur: 0.05, bend: 1.2, vol: 0.14 });
   audio.define('select', (s, t) => {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
