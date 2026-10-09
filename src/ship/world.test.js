@@ -261,6 +261,17 @@ describe('world', () => {
     expect(placedIn(defaultWorld(), 'lavahouse').map((e) => e.kind)).toEqual(['lavaDad', 'lavaMum', 'lavaBaby']);
   });
 
+  it('has the tree family and Sprout, their pet, at home in their tree on Mr Monkey', () => {
+    expect(placedIn(defaultWorld(), 'treehouse').map((e) => e.kind)).toEqual(['treeDad', 'treeMum', 'treeKid', 'sprout']);
+  });
+
+  it('gives an old save the tree family, keeping her progress everywhere else', () => {
+    const saved = { placed: { ship: [{ id: 'monkey', kind: 'monkey', x: 60, y: 140 }] }, bag: [] };
+    const w = normalizeWorld(saved);
+    expect(placedIn(w, 'treehouse').map((e) => e.id)).toEqual(['treeDad', 'treeMum', 'treeKid', 'sprout']);
+    expect(find(w, 'monkey')).toMatchObject({ x: 60, y: 140 });
+  });
+
   it('gives an old save the lava family, keeping her progress everywhere else', () => {
     const saved = {
       placed: { ember: [{ id: 'newt', kind: 'newt', x: 120, y: 140 }] },

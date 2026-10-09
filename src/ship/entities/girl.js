@@ -30,6 +30,7 @@ export class Girl {
     this.y = y;
     this.facing = 1;
     this.lift = 0; // visual hop height above her feet
+    this.perch = 0; // how high up she's standing, off the floor (up a tree, say)
     this.alpha = 1; // fades out/in when going through a door
     this.scale = 1; // smaller when she's far off in the distance
     this.mode = 'idle';
@@ -144,7 +145,7 @@ export class Girl {
     }
 
     // Left alone for a while, she potters about on her own and hums.
-    if (this.mode === 'idle' && !this.scene.busy) {
+    if (this.mode === 'idle' && !this.scene.busy && !this.perch) {
       this.boredIn -= dt;
       if (this.boredIn <= 0) {
         this.boredIn = 8 + Math.random() * 8;
@@ -184,7 +185,7 @@ export class Girl {
 
   // The top of her head (hat and all), where bubbles and chat lines go.
   get headTop() {
-    return this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (27 + this.lift + this.hatHeight) * this.scale;
+    return this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (27 + this.lift + this.perch + this.hatHeight) * this.scale;
   }
 
   // How far her hat (if any) pokes up above her hair.
@@ -198,8 +199,8 @@ export class Girl {
   }
 
   hitTest(px, py) {
-    const top = (this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift) - this.hatHeight;
-    const bottom = this.mode === 'seated' ? this.y - 12 : this.y + 2;
+    const top = (this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift - this.perch) - this.hatHeight;
+    const bottom = this.mode === 'seated' ? this.y - 12 : this.y + 2 - this.perch;
     return px >= this.x - 11 && px <= this.x + 11 && py >= top && py <= bottom;
   }
 
@@ -227,6 +228,7 @@ export class Girl {
     this.pose = null;
     this.mode = 'held';
     this.lift = 0;
+    this.perch = 0;
     this.scene.engine.audio.play('pickup');
   }
 
@@ -240,7 +242,7 @@ export class Girl {
   // beside her. Drop a friend on her and they say hello. Drop a posy on her
   // (till she's made her flower crown) and she weaves it in.
   accepts(item) {
-    const free = !this.hugging && !this.greeting && !this.weaving && this.onFeet && !this.riding && !this.scene.busy;
+    const free = !this.hugging && !this.greeting && !this.weaving && this.onFeet && !this.riding && !this.perch && !this.scene.busy;
     const posy = item.kind === 'posy' && weavesPosies(this.scene);
     return free && (item.kind === 'teddy' || isFriendItem(item) || posy);
   }
@@ -307,8 +309,10 @@ export class Girl {
     const s = this.scale;
     const shadowW = (this.mode === 'held' ? 8 : 12) * s;
     const shadowY = this.mode === 'held' ? clampToFloor(this.x, this.y + 30).y : this.y;
-    r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, Math.max(1, 2 * s), '#000000', 0.25 * this.alpha);
-    r.image(this.currentFrame(), this.x, this.y + 1 - this.lift * s, {
+    if (!this.perch) {
+      r.rect(this.x - shadowW / 2, shadowY - 1, shadowW, Math.max(1, 2 * s), '#000000', 0.25 * this.alpha);
+    }
+    r.image(this.currentFrame(), this.x, this.y + 1 - (this.lift + this.perch) * s, {
       flipX: this.facing < 0, alpha: this.alpha, scaleX: s, scaleY: s,
     });
   }

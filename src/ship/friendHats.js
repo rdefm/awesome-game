@@ -20,6 +20,10 @@ export const HAT_SPOTS = {
   crew: { x: 0, y: 8, scale: 1 },
   monkey: { x: -1, y: 4, scale: 0.75 },
   gonzo: { x: -1, y: 4, scale: 0.75 },
+  treeDad: { x: 0, y: 3, scale: 1 },
+  treeMum: { x: 0, y: 5, scale: 1 },
+  treeKid: { x: 0, y: 4, scale: 0.5 },
+  sprout: { x: 5, y: 4, scale: 0.5 },
 };
 
 export const hatSpot = (kind) => HAT_SPOTS[kind] ?? null;

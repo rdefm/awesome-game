@@ -9,9 +9,11 @@ import { MUM_YETI } from './mumYeti.js';
 import { NEWT } from './newt.js';
 import { PINK_ALIEN } from './pinkAlien.js';
 import { PUFFBALL } from './puffball.js';
+import { TREE_DAD, TREE_KID, TREE_MUM } from './treeFamily.js';
 import { ZIG } from './zig.js';
 
-// Every friend's chat, by name (one file each, the lava family together),
+// Every friend's chat, by name (one file each, the lava family and the tree
+// family each together),
 // so they can all be checked.
 export const TALKS = {
   pinkAlien: PINK_ALIEN,
@@ -28,4 +30,7 @@ export const TALKS = {
   lavaDad: LAVA_DAD,
   lavaMum: LAVA_MUM,
   lavaBaby: LAVA_BABY,
+  treeDad: TREE_DAD,
+  treeMum: TREE_MUM,
+  treeKid: TREE_KID,
 };

@@ -55,6 +55,10 @@ import {
   drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
+import {
+  FOREST_BUTTERFLY_COLORS, drawBranch, drawClimbTree, drawForest, drawForestFluff, drawLogPath, drawTreeHouse,
+} from './art/mrMonkey.js';
+import { drawFireflyJar, drawSprout, drawTreeDoor, drawTreeFolk, drawTreeRoom } from './art/treeHouse.js';
 import { drawGonzo, drawMonkey } from './art/shipFriends.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
@@ -66,7 +70,10 @@ import {
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawBounceShroom, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, PICNIC, POD, ZIG_HUT, distanceScale } from './layout.js';
+import {
+  CANOPY, FOREST_W, FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, PICNIC, POD, TREE_HOUSE, ZIG_HUT,
+  distanceScale,
+} from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -244,6 +251,14 @@ export function loadAssets() {
         clouds: [drawStripeyCloud(0), drawStripeyCloud(1)],
         dust: '#f8e2b4',
         puff: '#ffe8d0',
+      }),
+      // Two screens of tall forest.
+      mrmonkey: bake({
+        ground: drawForest({ horizon: HORIZON, width: FOREST_W }),
+        window: drawForest({ horizon: 52 }),
+        clouds: [drawForestFluff(0), drawForestFluff(1)],
+        dust: '#8fd06a',
+        puff: '#e8f7d8',
       }),
       // Not a planet: the frozen lake on Frosty (snowing there too).
       frozenlake: bake({
@@ -442,6 +457,25 @@ export function loadAssets() {
     houseDoor: bake({ shut: drawHouseDoor(), open: drawHouseDoor(true) }),
     oven: bake([drawOven(), drawOven(true)]),
     jar: bake([drawJar(), drawJar(true)]),
+    // Planet Mr Monkey: the tree family's house, the climbing trees (ladder,
+    // then vine) and the branch the rope swings from.
+    treeHouse: bake({
+      shut: drawTreeHouse(),
+      open: drawTreeHouse({ open: true }),
+      path: drawLogPath(TREE_HOUSE.path, (y) => distanceScale(y, TREE_HOUSE)),
+    }),
+    climbTrees: bake(CANOPY.trees.map((tree) => drawClimbTree(tree.side, tree.climb))),
+    ropeBranch: bake(drawBranch()),
+    forestButterflies: FOREST_BUTTERFLY_COLORS.map((c) => bake([drawButterfly(c, 0), drawButterfly(c, 1)])),
+    // Inside the tree house: the room, its door, the family, Sprout their
+    // pet leaf dragon, and the firefly jar [out, in].
+    treeRoom: bake(drawTreeRoom()),
+    treeDoor: bake({ shut: drawTreeDoor(), open: drawTreeDoor(true) }),
+    treeDad: strollerFrames((f) => drawTreeFolk(f, 'dad')),
+    treeMum: strollerFrames((f) => drawTreeFolk(f, 'mum')),
+    treeKid: strollerFrames((f) => drawTreeFolk(f, 'kid')),
+    sprout: strollerFrames(drawSprout),
+    fireflyJar: bake([drawFireflyJar(false), drawFireflyJar(true)]),
     // Planet Stripey. Zig comes in every planet's stripes: [stripes][frame].
     zig: ZIG_STRIPES.map((_, way) => strollerFrames((f) => drawZig(f, way))),
     stripeStone: bake(STONE_COLORS.map((_, v) => drawStripeStone(v))),

@@ -3,11 +3,12 @@ import { PLANETS } from './art/props.js';
 
 const PANEL = { x: 24, y: 14, w: 208, h: 132 };
 const SPOTS = [
-  { x: 62, y: 64 },
-  { x: 106, y: 108 },
-  { x: 132, y: 58 },
-  { x: 168, y: 106 },
-  { x: 200, y: 62 },
+  { x: 52, y: 64 },
+  { x: 86, y: 108 },
+  { x: 118, y: 58 },
+  { x: 152, y: 106 },
+  { x: 184, y: 62 },
+  { x: 208, y: 106 },
 ];
 const CLOSE = { x: PANEL.x + PANEL.w - 13, y: PANEL.y + 4, s: 9 };
 

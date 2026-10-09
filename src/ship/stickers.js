@@ -39,6 +39,13 @@ export const STICKERS = {
     { id: 'stripey.stripes', color: '#6fb8e8' }, // Zig's thank-you for new stripes from another planet
     { id: 'stripey.bloom', color: '#ff7ab8' }, // in the flower of a stripe cactus given a juice
   ],
+  mrmonkey: [
+    { id: 'mrmonkey.swing', color: '#e0c080' }, // up on the far platform, the first time she swings across on the rope
+    { id: 'mrmonkey.smack', color: '#ff9d3c' }, // knocked loose when Monkey or Gonzo smacks into a tree off the rope
+    { id: 'mrmonkey.butterfly', color: '#8fd3ff' }, // shaken off a forest butterfly tapped three times
+    { id: 'mrmonkey.cuddle', color: '#7cc85a' }, // a thank-you for bringing Twiggy to mum or dad for a cuddle
+    { id: 'mrmonkey.pet', color: '#ff8fc8' }, // sneezed out with the petals by Sprout the leaf dragon
+  ],
 };
 
 // Every sticker on every planet, each with the planet it belongs to.

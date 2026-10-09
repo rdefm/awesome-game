@@ -145,6 +145,35 @@ const stripey = {
   ],
 };
 
+// Mr Monkey: jungly. A bouncy marimba-ish tune of plucks and chimes, over a
+// hand-drum bass that hops about (C major pentatonic).
+const mrmonkey = {
+  tempo: 112,
+  beats: 16,
+  voices: [
+    {
+      instrument: chime,
+      notes: [
+        [0, 'E5', 0.5], [0.5, 'G5', 0.5], [1, 'A5', 1], [2.5, 'G5', 0.5], [3, 'E5', 1],
+        [4, 'D5', 0.5], [4.5, 'E5', 0.5], [5, 'G5', 1.5], [6.5, 'E5', 0.5], [7, 'D5', 1],
+        [8, 'C5', 0.5], [8.5, 'D5', 0.5], [9, 'E5', 0.5], [9.5, 'G5', 0.5], [10, 'A5', 1], [11, 'C6', 1],
+        [12, 'A5', 0.5], [12.5, 'G5', 0.5], [13, 'E5', 1], [14, 'D5', 0.5], [14.5, 'E5', 0.5], [15, 'C5', 1],
+      ],
+    },
+    {
+      instrument: pluck,
+      notes: [...run(0.5, ['C6', 'C6', 'A5', 'C6'], 2, 0.25), ...run(8.5, ['C6', 'D6', 'C6', 'A5'], 2, 0.25)],
+    },
+    {
+      instrument: bass,
+      notes: [
+        ...run(0, ['C3', 'C3', 'G2'], 1, 0.4), ...run(4, ['A2', 'A2', 'E2'], 1, 0.4),
+        ...run(8, ['F2', 'F2', 'C3'], 1, 0.4), ...run(12, ['G2', 'G2', 'D3', 'G2'], 1, 0.4),
+      ],
+    },
+  ],
+};
+
 // Inside any house: cosy. A slow lullaby in three-time, soft and close (F major).
 const indoors = {
   tempo: 66,
@@ -162,7 +191,7 @@ const indoors = {
   ],
 };
 
-export const TUNES = { cosy, bluebell, ember, frosty, candy, stripey, indoors };
+export const TUNES = { cosy, bluebell, ember, frosty, candy, stripey, mrmonkey, indoors };
 
 // Little stings, played once (not looped) with `engine.music.sting(name)`.
 const landed = {

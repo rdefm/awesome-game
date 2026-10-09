@@ -226,6 +226,11 @@ const SKINS = {
     const band = mod3(Math.floor((v * 3.2 + n * 0.8 + 3) * 1.2));
     return [['#7a4a2a', '#c07a3e', '#e8b070'], ['#a88a5a', '#e8d2a0', '#fff4d8'], ['#8a3a2a', '#d0603a', '#f09a6a']][band];
   },
+  // Treetops all over, in clumps of light and dark green.
+  forest: (u, v, n) => {
+    const clump = Math.sin(u * 14 + n * 6) * Math.cos(v * 13 - n * 5);
+    return clump > 0.3 ? ['#2a6a36', '#3f9a48', '#7cc85a'] : clump < -0.4 ? ['#1e4a2a', '#2a6a36', '#4f8f5a'] : ['#24582e', '#357f40', '#62ad50'];
+  },
 };
 
 export const PLANETS = [
@@ -234,6 +239,7 @@ export const PLANETS = [
   { id: 'frosty', name: 'FROSTY', skin: 'frosty', seed: 5, ring: null, landable: true },
   { id: 'candy', name: 'CANDY', skin: 'candy', seed: 8, ring: '#ffe066', landable: true },
   { id: 'stripey', name: 'STRIPEY', skin: 'stripey', seed: 21, ring: '#c9b6ff', landable: true },
+  { id: 'mrmonkey', name: 'MR MONKEY', skin: 'forest', seed: 13, ring: null, landable: true },
 ];
 
 export function drawPlanet(def, r) {

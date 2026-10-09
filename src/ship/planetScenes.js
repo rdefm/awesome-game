@@ -8,10 +8,12 @@ import { IceCaveScene } from './iceCaveScene.js';
 import { LavaFallsScene } from './lavaFallsScene.js';
 import { LavaHouseScene } from './lavaHouseScene.js';
 import { MilkshakeLakeScene } from './milkshakeLakeScene.js';
+import { MrMonkeyScene } from './mrMonkeyScene.js';
 import { MushroomGroveScene } from './mushroomGroveScene.js';
 import { OasisScene } from './oasisScene.js';
 import { PodScene } from './podScene.js';
 import { StripeyScene } from './stripeyScene.js';
+import { TreeHouseScene } from './treeHouseScene.js';
 import { ZigHutScene } from './zigHutScene.js';
 
 // Every place she can be on each planet (by its id in PLANETS), for the
@@ -48,6 +50,11 @@ const PLACES = {
     { where: 'stripey', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: StripeyScene },
     { where: 'zighut', name: "Zig's hut", kind: 'house', spot: { x: 176, y: 72 }, scene: ZigHutScene },
     { where: 'oasis', name: 'Oasis', kind: 'site', spot: { x: 196, y: 128 }, scene: OasisScene },
+  ],
+  // No hoverbike here (yet), so no town map: these spots are for when there is one.
+  mrmonkey: [
+    { where: 'mrmonkey', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: MrMonkeyScene },
+    { where: 'treehouse', name: 'Tree house', kind: 'house', spot: { x: 176, y: 72 }, scene: TreeHouseScene },
   ],
 };
 

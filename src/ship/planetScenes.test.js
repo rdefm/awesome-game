@@ -99,6 +99,16 @@ describe('placesOn', () => {
     expect(placesOn('stripey').find((place) => place.where === 'zighut').kind).toBe('house');
     expect(placesOn('frosty').find((place) => place.where === 'icecave').kind).toBe('house');
     expect(placesOn('bluebell').find((place) => place.where === 'pod').kind).toBe('house');
+    expect(placesOn('mrmonkey').find((place) => place.where === 'treehouse').kind).toBe('house');
+  });
+
+  it('has the tree family\'s house on Mr Monkey, with the forest\'s own tune outside and the cosy one in', () => {
+    expect(placesOn('mrmonkey').map((place) => place.where)).toEqual(['mrmonkey', 'treehouse']);
+    expect(planetOf('treehouse')).toBe('mrmonkey');
+    expect(landedOn({ where: 'treehouse', landed: true })).toBe('treehouse');
+    expect(tuneOf('mrmonkey')).toBe('mrmonkey');
+    expect(tuneOf('treehouse')).toBe('indoors');
+    expect(TUNES.mrmonkey).toBeDefined();
   });
 
   it('has the milkshake lake on Candy, out of doors with no ship', () => {

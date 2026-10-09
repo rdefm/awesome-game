@@ -32,17 +32,17 @@ store.
   and the bunk room); new rooms are added as lift stops, not by squeezing more
   doors into the cockpit.
   Planets are the scenes you visit.
-- **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
-  Stripey). Tap the planet in the windshield to land; once landed, the door
-  opens onto that planet's scene. All five are landable. A planet can have
+- **Planets**: six on the star map (Bluebell, Ember, Frosty, Candy,
+  Stripey, Mr Monkey). Tap the planet in the windshield to land; once landed, the door
+  opens onto that planet's scene. All six are landable. A planet can have
   places to go inside (the pink alien's pod on Bluebell, Candy's
-  gingerbread house, the lava family's house on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
+  gingerbread house, the lava family's house on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey, the tree family's house on Mr Monkey) and other places out of doors (Candy's milkshake lake, Ember's
   lava falls, Stripey's oasis, Frosty's frozen lake, Bluebell's mushroom grove). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
   places popping now and then to show they can be tapped); tap a place and
   she zooms there. Every outdoor place has the bike, so she can always ride
-  back to the ship.
+  back to the ship (Mr Monkey has no outdoor site yet, so no bike either).
 - **Persistence**: saves locally on the tablet (browser storage) so closing
   the app and coming back picks up where she left off.
 - **Audio**: sound effects and gentle background music, all synthesized at
@@ -55,8 +55,8 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects and music sequencer, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `GalleyScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
+  `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `GalleyScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`, `MrMonkeyScene`,
+  `GingerbreadScene`, `TreeHouseScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions, and the view along a place wider
   than the screen: its `width` and `camX`, with the pure panning maths in
   `src/ship/camera.js`); planet scenes share an
@@ -253,13 +253,45 @@ store.
   (it dings when the sand's all through); a shelf of goggles to try on, one
   pair after another; and a hammock that swings when tapped (drop a friend
   in and it's swung off to sleep). The door goes back out
+- Mr Monkey: a deep forest of tall, tall trees under a leafy canopy, two
+  screens wide, fluffy seeds drifting through it, parked ship, and forest
+  butterflies. Far off at the back is the tree family's house, a great big
+  tree with a round door in its roots and windows glowing up its trunk: tap
+  it and she walks up the path of log slices, getting smaller, and in
+  through the door. On the far stretch stand two climbing trees with
+  platforms up high, a rope hanging from a branch between them: tap the
+  first and she climbs its ladder (the second has a vine: up hand over hand,
+  and down with a slide); tap the rope and she climbs up to it if she needs
+  to, grabs it and swings right across to the other tree's platform (the
+  rope stays over there with her, and swings back to her when she wants it
+  again). Up a tree, tap anywhere else and she climbs down first. Drop a
+  friend on the rope and it scrambles up and swings across too, landing on
+  the far platform and hopping down, except Monkey and Gonzo, who go much
+  too fast and SMACK flat into the far tree's trunk, slide all the way down
+  it and sit there seeing stars (Monkey laughs it off, Gonzo goes "TA-DA!"
+  as if he meant it). While anyone's on the rope, the view swings over to
+  show both trees (nothing saved)
+- Inside the tree house: the hollow of a great big tree, its rings showing
+  round the walls, roots arching over the ceiling, a round window onto the
+  forest, shelves of acorn cups. The tree family live there: dad, a big old
+  oak with mossy eyebrows (a creaky stretch when tapped, then an acorn drops
+  BONK on his head and he laughs), mum, a willow with a flower in her
+  trailing leaves (sways and hums), and Twiggy, their little sapling
+  (giggles and spins; toddles after them). Bring Twiggy to mum or dad for a
+  cuddle. Their pet is Sprout, a little leaf dragon with leaf wings and a
+  vine of a tail, who pads about after Twiggy: tap it and it flaps up, loops
+  the loop and sneezes out a great puff of flower petals (every third time,
+  so hard it shoots up to the ceiling). A jar of fireflies hangs from a
+  branch: tap it and out they all fly, twinkling round the room, then home
+  into the jar. The door goes back out
 - **Music**: tunes are plain data (`src/ship/tunes.js`: tempo, loop length,
   and voices of `[beat, note, length]` with an instrument each) played by a
   sequencer (`src/engine/sequencer.js`, pure; `Music` in
   `src/engine/audio.js` feeds it to the synth through its own quieter volume
   bus). A place picks its tune with `tune` on its scene; the ship and its
   side rooms play a slow, cosy loop; every planet has its own tune (twinkly
-  Bluebell, warm rumbly Ember, chimey Frosty, bouncy Candy, twangy Stripey),
+  Bluebell, warm rumbly Ember, chimey Frosty, bouncy Candy, twangy Stripey,
+  jungly marimba-ish Mr Monkey),
   shared by its landing site and outdoor sites (so the hoverbike doesn't restart
   it), and every house plays a softer indoor lullaby. Changing tune fades the old
   one out as the new one fades in. Landing and blast-off each get a short sting
@@ -271,7 +303,7 @@ store.
   berry juices, posies, stripe stones,
   stripe cacti)
   and friends (puffball, pink alien, newt, mum and baby yeti, gummy bear,
-  Ginger, Zig, the lava family)
+  Ginger, Zig, the lava family, the tree family and Sprout)
   can be dragged anywhere and dropped onto the bag button (bottom-left).
   Tapping it slides up a tray with two pockets — things and friends — that
   scrolls sideways, no size limit. Drag a slot upward to pull it out under
@@ -310,7 +342,9 @@ store.
   thank-you for a fire flower) and Candy's (the sugar mouse's dash, a candy
   butterfly, the gummy bear's lick, the first cupcake from the oven,
   Ginger's first snow) and Stripey's (the worm's loop-the-loop, a stripy
-  butterfly, Zig's tune, Zig's new stripes, the cactus's flower);
+  butterfly, Zig's tune, Zig's new stripes, the cactus's flower) and Mr
+  Monkey's (her first swing across on the rope, Monkey or Gonzo smacking
+  into a tree, a forest butterfly, Twiggy's cuddle, Sprout's big sneeze);
   each one found plays a fanfare and flies off with a "+1" banner. A board
   under the poster shows found stickers and outlines for the rest, with a
   count. Each planet lists its own in `src/ship/stickers.js`.

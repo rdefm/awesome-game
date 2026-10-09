@@ -151,6 +151,15 @@ export const POD = {
   far: 0.34,
 };
 
+// ...and the tree family's house on Mr Monkey: a great big tree, far off at
+// the back of the forest, with a door in its trunk.
+export const TREE_HOUSE = {
+  x: 196,
+  y: 99,
+  path: [{ x: 168, y: 129 }, { x: 186, y: 120 }, { x: 172, y: 112 }, { x: 190, y: 105 }, { x: 196, y: 99 }],
+  far: 0.34,
+};
+
 // How big things look at height y on a house's path: full size at its near
 // end, shrinking steadily to `far` at the house's doorstep.
 export function distanceScale(y, house = GINGERBREAD_HOUSE) {
@@ -252,6 +261,52 @@ export const MILKSHAKE_LAKE = { x: 150, y: 111, rx: 100, ry: 11 };
 export const STRAW = { x: 92, y: 116, spot: { x: 98, y: 126 } };
 export const CHERRIES = [{ x: 140, y: 106 }, { x: 178, y: 113 }, { x: 214, y: 105 }];
 export const WAFER_BOAT = { y: 119, minX: 116, maxX: 232 };
+
+// Mr Monkey's landing site is two screens of forest: the ship and the tree
+// family's house on the first, and two tall climbing trees on the far
+// stretch. Each tree's trunk stands on `foot`; she stands at `ground` at its
+// foot to climb it (up a ladder on the first, a vine on the second) to its
+// platform, `deck` px above the floor. Up there she stands `reach` px out
+// from the trunk, toward the other tree. A rope hangs from a branch at
+// `rope` (high up, between the two), for swinging across: she holds it
+// `grip` px above her feet. `trunk`: half the trunk's width, up high.
+export const FOREST_W = W * 2;
+export const CANOPY = {
+  foot: 120,
+  ground: 126,
+  deck: 64,
+  reach: 22,
+  grip: 22,
+  trunk: 9,
+  trees: [{ x: 318, side: 1, climb: 'ladder' }, { x: 452, side: -1, climb: 'vine' }],
+  rope: { x: 385, y: 2 },
+};
+
+// Where she stands at the foot of tree `i` to climb it, and up on its platform.
+export function climbSpot(i) {
+  const tree = CANOPY.trees[i];
+  return { x: tree.x - tree.side * 3, y: CANOPY.ground };
+}
+export function deckSpot(i) {
+  const tree = CANOPY.trees[i];
+  return { x: tree.x + tree.side * CANOPY.reach, y: CANOPY.ground };
+}
+
+// The rope swinging: how long it is (from its branch down to her hands up
+// on either platform), the angle it hangs at (from straight down, + to the
+// right) to reach someone's hands at x, and where its end is at an angle.
+export const ROPE_LEN = Math.hypot(deckSpot(0).x - CANOPY.rope.x, CANOPY.ground - CANOPY.deck - CANOPY.grip - CANOPY.rope.y);
+export function ropeAngle(x) {
+  return Math.asin(Math.max(-1, Math.min(1, (x - CANOPY.rope.x) / ROPE_LEN)));
+}
+export function ropeEnd(angle) {
+  return { x: CANOPY.rope.x + Math.sin(angle) * ROPE_LEN, y: CANOPY.rope.y + Math.cos(angle) * ROPE_LEN };
+}
+
+// Inside the tree family's house: the same front door, a round window onto
+// the forest, and a jar of fireflies hanging from a branch of the ceiling.
+export const TREE_WINDOW = { x: 128, y: 46, r: 18 };
+export const FIREFLY_JAR = { x: 196, y: 62, spot: { x: 196, y: 126 } };
 
 // Stripey's secret: a sand mound in the middle, a stripy worm living in it.
 export const STRIPEY_SECRETS = { mound: { x: 132, y: 124 } };

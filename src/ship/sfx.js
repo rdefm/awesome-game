@@ -103,6 +103,17 @@ export function defineSfx(audio) {
   chatter('chatMonkey', [880, 1175, 880, 1175], { gap: 0.06, dur: 0.05, bend: 1.25, vol: 0.12 });
   chatter('chatGonzo', [440, 330, 494], { gap: 0.08, dur: 0.07, bend: 0.7, type: 'square', vol: 0.05 });
   chatter('chatLavaBaby', [700, 840, 760], { gap: 0.06, dur: 0.05, bend: 1.2, vol: 0.14 });
+  chatter('chatTreeDad', [110, 98, 123], { gap: 0.14, dur: 0.12, bend: 0.92, type: 'triangle', vol: 0.22 });
+  chatter('chatTreeMum', [523, 587, 494], { gap: 0.09, dur: 0.09, bend: 1.04, type: 'triangle', vol: 0.12 });
+  chatter('chatTreeKid', [900, 1100, 1000], { gap: 0.05, dur: 0.05, bend: 1.15, type: 'triangle', vol: 0.12 });
+  // Monkey or Gonzo smacking into a tree trunk off the rope swing: a big
+  // thwack, and a wobbly boinggg.
+  audio.define('smack', (s, t) => {
+    s.noise({ at: t, dur: 0.12, freq: 2400, to: 300, vol: 0.45 });
+    s.tone({ at: t, freq: 160, to: 50, dur: 0.2, type: 'sine', vol: 0.45 });
+    s.tone({ at: t + 0.12, freq: 300, to: 180, dur: 0.5, type: 'triangle', vol: 0.12 });
+    s.tone({ at: t + 0.12, freq: 306, to: 186, dur: 0.5, type: 'triangle', vol: 0.12 });
+  });
   audio.define('select', (s, t) => {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
     s.tone({ at: t + 0.08, freq: 1568, dur: 0.12, vol: 0.1 });

@@ -69,6 +69,13 @@ export function defaultWorld() {
         { id: 'lavaMum', kind: 'lavaMum', x: 170, y: 136 },
         { id: 'lavaBaby', kind: 'lavaBaby', x: 186, y: 146 },
       ],
+      // Inside the tree family's house on Mr Monkey, with Sprout their pet.
+      treehouse: [
+        { id: 'treeDad', kind: 'treeDad', x: 92, y: 136 },
+        { id: 'treeMum', kind: 'treeMum', x: 168, y: 134 },
+        { id: 'treeKid', kind: 'treeKid', x: 186, y: 146 },
+        { id: 'sprout', kind: 'sprout', x: 214, y: 148 },
+      ],
     },
     bag: [],
   };
