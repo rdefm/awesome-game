@@ -1,5 +1,6 @@
 import { ease } from '../../engine/tween.js';
 import { HOUSE_DOOR } from '../layout.js';
+import { letGo } from './friends.js';
 
 export const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + pad && py >= y - pad && py <= y + h + pad;
 
@@ -78,6 +79,34 @@ export class HouseProp {
     this.squash = 1;
     this.scene.engine.tweens.to(this, { squash: 0 }, 0.35, ease.outElastic);
     this.scene.interact(this);
+  }
+}
+
+// A friend napping in `bed` (a hammock, a nest...) wakes with a big stretch
+// and hops back out, away from her, beside x.
+export async function wakeAndHopOut(bed, friend, x) {
+  const { scene } = bed;
+  const { engine, girl } = scene;
+  friend.pose?.('wave1'); // a big stretch
+  engine.audio.play('giggle');
+  await engine.wait(0.4);
+  bed.friend = null;
+  friend.seat = null;
+  friend.facing = girl.x < x ? -1 : 1;
+  friend.pose?.('hop');
+  friend.lift = 10;
+  await engine.tweens.to(friend, { lift: 0 }, 0.3, ease.inQuad);
+  scene.hearts(friend.x, friend.y - 20, 2);
+  girl.say('heart', 1.4);
+  letGo(friend);
+}
+
+// Zzzs drifting up off a friend asleep at (x, y).
+export function drawZzz(r, scene, x, y) {
+  const t = scene.engine.time;
+  for (let i = 0; i < 2; i++) {
+    const k = (t * 0.5 + i * 0.5) % 1;
+    r.image(scene.assets.text('Z', '#ffffff'), x + 8 + k * 6, y - 30 - k * 10, { alpha: 1 - k });
   }
 }
 

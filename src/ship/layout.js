@@ -79,6 +79,14 @@ export const ZIG_HUT = {
   far: 0.34,
 };
 
+// ...and the yetis' ice cave, in the mountainside at the back of Frosty.
+export const ICE_CAVE = {
+  x: 190,
+  y: 99,
+  path: [{ x: 200, y: 129 }, { x: 182, y: 120 }, { x: 198, y: 112 }, { x: 184, y: 105 }, { x: 190, y: 99 }],
+  far: 0.34,
+};
+
 // How big things look at height y on a house's path: full size at its near
 // end, shrinking steadily to `far` at the house's doorstep.
 export function distanceScale(y, house = GINGERBREAD_HOUSE) {
@@ -171,6 +179,21 @@ export const HUT_WINDOW = { x: 102, y: 42, r: 15 };
 export const SAND_TIMER = { x: 138, y: 92, spot: { x: 138, y: 124 } };
 export const GOGGLE_SHELF = { x: 152, y: 52, w: 42, spot: { x: 172, y: 124 } };
 export const HAMMOCK = { x1: 202, x2: 246, top: 66, sag: 98, spot: { x: 222, y: 126 } };
+
+// Inside the yetis' ice cave: the same front door, a row of icicles hanging
+// from a ledge of rock (each `gap` apart from x, from y down `lengths`), a
+// round window of clear ice onto the frozen pond (a fish under the ice), a
+// fur-rug nest on the floor, and a campfire on the right with spots round
+// it for friends to huddle at (`seats`).
+export const ICICLES = { x: 46, y: 26, gap: 8, lengths: [12, 19, 25, 16, 22, 14, 10], spot: { x: 70, y: 124 } };
+export const POND_WINDOW = { x: 134, y: 54, r: 20, spot: { x: 134, y: 124 } };
+export const FUR_NEST = { x: 82, y: 136, spot: { x: 108, y: 138 } };
+export const CAMPFIRE = {
+  x: 208,
+  y: 134,
+  spot: { x: 182, y: 134 },
+  seats: [{ x: 234, y: 134 }, { x: 222, y: 150 }, { x: 196, y: 150 }],
+};
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.

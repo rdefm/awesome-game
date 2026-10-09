@@ -28,7 +28,7 @@ store.
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
-  on Ember, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
+  on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
   lava falls, Stripey's oasis). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -103,7 +103,18 @@ store.
 - Frosty snowy valley: snow falling the whole time (and during the landing),
   snowy peaks and pines, parked ship, a friendly mum yeti who waves hello
   and her baby who toddles after her, snowballs, twinkling frost flowers,
-  snowbirds, and a snow drift with a shy snow hare behind it
+  snowbirds, and a snow drift with a shy snow hare behind it. Up in the
+  mountainside is the yetis' ice cave, its arched mouth fringed with
+  icicles and hung with a fur curtain: tap it and she walks up the snowy
+  path (big yeti footprints up it), getting smaller, and in through the fur curtain
+- Inside the ice cave: a glittering cave home of blue ice. A row of
+  icicles hanging from a ledge that chime down the row when tapped; a round
+  window of clear ice onto the frozen pond, where a fish swims under the
+  ice (knock and it comes up to blow bubbles and do a flip); a fur-rug nest
+  to fluff up (drop a friend in and it curls up for a nap); and a campfire:
+  tap it and it flares up, and the friends in the cave come to huddle
+  round it. The yetis live outside, but she can bring them in. The fur
+  curtain goes back out
 - Candy sugar land: pink icing sprinkled with sprinkles, frosting hills and
   lollipop trees, parked ship, a wobbly gummy bear, lollipops that spin,
   bouncy gumdrops, candy butterflies, and a candy-floss bush with a sugar

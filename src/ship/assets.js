@@ -41,6 +41,9 @@ import {
   GOGGLE_COLORS, HUT_WALLS, drawEasel, drawGoggles, drawSandTimer, drawSling, drawZigDoor, drawZigHut, drawZigPath,
   drawZigRoom,
 } from './art/zigHut.js';
+import {
+  drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
+} from './art/iceCave.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
@@ -49,7 +52,7 @@ import {
   drawMapOasis, drawMapShip, drawMapZigHut, drawStripeyMap,
 } from './art/townMap.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { GINGERBREAD_HOUSE, HORIZON, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
+import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -272,6 +275,19 @@ export function loadAssets() {
     drift: bake(drawDrift()),
     hare: bake([drawHare(), drawHare(true)]),
     snowbirds: SNOWBIRD_COLORS.map((c) => bake([drawBird(c, 0), drawBird(c, 1)])),
+    // The yetis' ice cave on Frosty, and inside it.
+    iceCave: bake({
+      shut: drawIceCave(),
+      open: drawIceCave({ open: true }),
+      path: drawIcePath(ICE_CAVE.path, (y) => distanceScale(y, ICE_CAVE)),
+    }),
+    iceRoom: bake(drawIceRoom()),
+    iceDoor: bake({ shut: drawIceDoor(), open: drawIceDoor(true) }),
+    icicles: bake(ICICLES.lengths.map((len) => drawIcicle(len))),
+    iceFish: bake([drawIceFish(0), drawIceFish(1)]),
+    furNest: bake({ back: drawFurNest(true), front: drawFurNest() }),
+    // [flicker 0, flicker 1, flared 0, flared 1]
+    campfire: bake([drawCampfire(0), drawCampfire(1), drawCampfire(0, true), drawCampfire(1, true)]),
     // Planet Candy, and inside the gingerbread house.
     house: bake({
       shut: drawGingerbreadHouse(),

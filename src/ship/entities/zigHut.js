@@ -1,8 +1,8 @@
 import { ease } from '../../engine/tween.js';
 import { GOGGLE_COLORS, HUT_WALLS, SLING, TIMER_GLASS, TIMER_SAND, sandHalf } from '../art/zigHut.js';
 import { EASEL, GOGGLE_SHELF, HAMMOCK, SAND_TIMER, ZIG_HUT } from '../layout.js';
-import { hold, isFriendItem, letGo } from './friends.js';
-import { FarHouse, HouseProp, inRect } from './house.js';
+import { hold, isFriendItem } from './friends.js';
+import { FarHouse, HouseProp, drawZzz, inRect, wakeAndHopOut } from './house.js';
 
 // ---------------------------------------------------------------- the house
 // Zig's stripy dome hut, out among the mesas at the back of Stripey, with its
@@ -271,7 +271,7 @@ export class Hammock extends HouseProp {
   // off to sleep, then it wakes with a stretch and hops back out.
   async receive(friend) {
     const { scene } = this;
-    const { engine, girl } = scene;
+    const { engine } = scene;
     hold(friend);
     this.swinging = true;
     await scene.putDown(friend, this.centre, HAMMOCK.spot.y);
@@ -285,18 +285,7 @@ export class Hammock extends HouseProp {
     await swung;
     await engine.wait(0.6);
     this.sleepy = false;
-    friend.pose?.('wave1'); // a big stretch
-    engine.audio.play('giggle');
-    await engine.wait(0.4);
-    this.friend = null;
-    friend.seat = null;
-    friend.facing = girl.x < this.centre ? -1 : 1;
-    friend.pose?.('hop');
-    friend.lift = 10;
-    await engine.tweens.to(friend, { lift: 0 }, 0.3, ease.inQuad);
-    scene.hearts(friend.x, friend.y - 20, 2);
-    girl.say('heart', 1.4);
-    letGo(friend);
+    await wakeAndHopOut(this, friend, this.centre);
   }
 
   draw(r) {
@@ -316,11 +305,7 @@ export class Hammock extends HouseProp {
     if (friend) {
       r.image(friend.seatFrame(), cx, sag - 5, { flipX: friend.facing < 0 });
       if (this.sleepy) {
-        const t = this.scene.engine.time;
-        for (let i = 0; i < 2; i++) {
-          const k = (t * 0.5 + i * 0.5) % 1;
-          r.image(this.scene.assets.text('Z', '#ffffff'), cx + 8 + k * 6, sag - 30 - k * 10, { alpha: 1 - k });
-        }
+        drawZzz(r, this.scene, cx, sag);
       }
     }
     r.image(this.img, cx, sag, { scaleX: s, scaleY: 2 - s });
