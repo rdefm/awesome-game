@@ -23,6 +23,7 @@ export class Carryable {
     this.grab = { x: 0, y: 0 };
     this.reach = 16; // how far to the side the girl stands to use it
     this.seat = null; // the chair it's sitting in, if any (friends only)
+    this.picnicking = false; // sat on the picnic blanket till picked up (friends only)
     this.turn = 0; // how far round a twirl it is, 0..1 (friends only)
     this.hat = LOOK_OPTIONS.hat.includes(state.hat) ? state.hat : 'none'; // (friends only)
   }
@@ -85,6 +86,7 @@ export class Carryable {
       this.y -= this.perch; // lifted straight up off the cushion
       this.seat.release();
     }
+    this.picnicking = false;
     this.held = true;
     this.grab = { x: this.x - p.x, y: this.y - p.y };
     this.scene.carried = this;

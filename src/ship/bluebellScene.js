@@ -1,6 +1,7 @@
 import { Bush, MoleHole, Rock } from './entities/bluebell.js';
 import { Butterfly } from './entities/outdoors.js';
 import { W, floorMaxX } from './layout.js';
+import { Basket, Blanket } from './entities/picnic.js';
 import { Pod } from './entities/pod.js';
 import { OutdoorScene } from './outdoorScene.js';
 import { PodScene } from './podScene.js';
@@ -12,7 +13,8 @@ import { PodScene } from './podScene.js';
 // smaller, and goes inside. Beside the ship is the hoverbike, to ride off
 // anywhere else on Bluebell. The meadow is two screens wide (see MEADOW_W):
 // the view follows her along it, and the far stretch has more bluebells and
-// butterflies of its own.
+// butterflies of its own, and a picnic: a checked blanket to sit on and a
+// basket of sandwiches and berry juice.
 export class BluebellScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'bluebell', opts);
@@ -22,6 +24,8 @@ export class BluebellScene extends OutdoorScene {
     this.add(new Rock(assets));
     this.add(new Bush(assets));
     this.add(new MoleHole(assets));
+    this.add(new Blanket(assets));
+    this.add(new Basket(assets));
     this.addPlaced();
     for (let i = 0; i < 3; i++) {
       this.add(new Butterfly(assets.butterflies, i, 'bluebell.butterfly'));

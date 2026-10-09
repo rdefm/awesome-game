@@ -58,6 +58,10 @@ export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };
 export const MEADOW_W = W * 2;
 // Bluebell's secrets (bottom-centres), placed in the gaps between the giant bluebells.
 export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119 }, hole: { x: 192, y: 151 } };
+// The picnic on Bluebell's far stretch: a checked blanket lying flat (centre
+// x, bottom edge y, half its width, its depth back into the meadow), with the
+// wicker basket (bottom-centre, half its width, its height) on its back corner.
+export const PICNIC = { blanket: { x: 424, y: 146, half: 22, h: 12 }, basket: { x: 441, y: 138, half: 9, h: 18 } };
 // Ember's secrets: a steam vent at the back and a lava pool at the front.
 export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };
 // Frosty's secret: a snow drift at the back, a snow hare hiding behind it.

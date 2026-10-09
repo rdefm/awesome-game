@@ -100,7 +100,13 @@ store.
   window and an antenna on top: tap it and she walks up the stepping-stone
   path, getting smaller, and in through the round-topped door. A hoverbike
   parked by the ship rides her anywhere on Bluebell's town map (rolling
-  green hills dotted with giant bluebells, the ship, the pod and the grove)
+  green hills dotted with giant bluebells, the ship, the pod and the grove).
+  Out on the far stretch is a picnic: a red-checked blanket (tap it and she
+  sits down on it, legs out, till she's off somewhere else; drop a friend on
+  it and it sits down too, till it's picked up) and a wicker basket on its corner (tap it and the
+  lid flips open and out pops a sandwich, then a berry juice, turn about,
+  up to four lying about the picnic at once). Both are new snacks: in the bag, and any
+  friend gobbles them up, on the blanket or anywhere else
 - The mushroom grove on Bluebell (by hoverbike): a shady corner of the
   meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
   (she hops up on the cap and bounces higher each time, the cap squashing
@@ -209,7 +215,8 @@ store.
   The on/off choice is saved as `music` (old saves get music on).
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,
-  frost flowers, lollipops, gumdrops, cupcakes, lava cakes, stripe stones,
+  frost flowers, lollipops, gumdrops, cupcakes, lava cakes, sandwiches,
+  berry juices, stripe stones,
   stripe cacti)
   and friends (puffball, pink alien, newt, mum and baby yeti, gummy bear,
   Ginger, Zig, the lava family)

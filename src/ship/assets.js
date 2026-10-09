@@ -15,12 +15,12 @@ import {
 } from './art/shipRooms.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
-  drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawRock,
-  drawShipExterior, drawSoilPatch,
+  drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
+  drawPicnicBlanket, drawRock, drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
 import {
-  drawBag, drawBall, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon, drawIceLolly,
-  drawJuice, drawOutlineOf, drawSmoothie, drawSnowCone, drawSparkleCake, drawStarFruit, drawTeddy,
+  drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
+  drawIceLolly, drawJuice, drawOutlineOf, drawSandwich, drawSmoothie, drawSnowCone, drawSparkleCake, drawStarFruit, drawTeddy,
 } from './art/items.js';
 import {
   MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
@@ -65,7 +65,7 @@ import {
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawBounceShroom, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, POD, ZIG_HUT, distanceScale } from './layout.js';
+import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, PICNIC, POD, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -308,6 +308,9 @@ export function loadAssets() {
     hole: bake(drawHole()),
     // [eyes open / shut][rows showing above the hole] (0 is never drawn)
     mole: [drawMole(), drawMole(true)].map(croppedRows),
+    // The picnic on the far stretch.
+    picnicBlanket: bake(drawPicnicBlanket(PICNIC.blanket.half, PICNIC.blanket.h)),
+    picnicBasket: bake([drawPicnicBasket(), drawPicnicBasket(true)]),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),
@@ -455,6 +458,7 @@ export function loadAssets() {
     crystal: bake([drawCrystal(), drawCrystal(true)]),
     snacks: bake({
       cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake(), ...galleyFoods,
+      sandwich: drawSandwich(), berryjuice: drawBerryJuice(),
     }),
     // The galley's foods as faint outlines, for recipes not found yet.
     foodOutlines: bake(Object.fromEntries(Object.entries(galleyFoods).map(([k, pm]) => [k, drawOutlineOf(pm)]))),

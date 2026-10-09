@@ -181,6 +181,15 @@ function drawLegs(pm, hip, { left = 0, right = 0 }, suit) {
   }
 }
 
+// Sat right down on the ground: legs straight out in front along the floor
+// (she faces right), boots toes-up at the end.
+function drawLegsOut(pm, hip, suit) {
+  const x0 = Math.round(CX - 3);
+  pm.rect(x0, hip, 8, 2, suit.dark);
+  pm.rect(x0 + 8, hip - 2, 2, 4, C.boot);
+  pm.vline(x0 + 9, hip - 2, hip + 1, C.bootDark);
+}
+
 function drawArm(pm, sx, sy, hx, hy, suit) {
   pm.line(sx, sy, hx, hy, suit.dark, 2);
   pm.rect(hx, hy, 2, 2, C.skin);
@@ -225,13 +234,19 @@ export function drawGirl(pose = {}, outfit = {}) {
     hug = false,
   } = pose;
   const pm = new Pixmap(GIRL_W, GIRL_H);
-  const sink = seated ? 2 : 0;
+  // How far down her body sits: a little, in a seat; all the way down to her
+  // feet, sat on the ground (`seated: 'ground'`).
+  const sink = seated === 'ground' ? FOOT_Y - (1 + HAT_ROOM + bob + 19) : seated ? 2 : 0;
   const suit = suitColors(outfit.suit);
   const headTop = 1 + HAT_ROOM + bob + sink;
   const torsoTop = headTop + 13;
   const hip = torsoTop + 6;
 
-  drawLegs(pm, hip, legs, suit);
+  if (seated === 'ground') {
+    drawLegsOut(pm, hip, suit);
+  } else {
+    drawLegs(pm, hip, legs, suit);
+  }
   drawTorso(pm, torsoTop, suit);
   if (hug) {
     pm.grid(HUG_TEDDY, TEDDY_PALETTE, Math.round(CX - 3.5), torsoTop);
@@ -283,6 +298,8 @@ export function girlFrames(outfit = {}) {
     sitCheer: f({ seated: true, arms: 'cheer', eyes: 'happy', mouth: 'open' }),
     dizzy: f({ eyes: 'dizzy', mouth: 'o' }),
     sitDizzy: f({ seated: true, arms: 'lap', eyes: 'dizzy', mouth: 'o' }),
+    picnic: f({ seated: 'ground', arms: 'lap', look: 1 }),
+    picnicBlink: f({ seated: 'ground', arms: 'lap', eyes: 'closed' }),
   };
 }
 

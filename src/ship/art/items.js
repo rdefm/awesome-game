@@ -208,6 +208,37 @@ export function drawSmoothie() {
   ], { g: '#e8ecf6', s: C.white, O: '#ff9d3c', Y: C.yellow });
 }
 
+// ---------------------------------------------------------- picnic foods
+// What comes out of the picnic basket on Bluebell.
+export function drawSandwich() {
+  return outlinedGrid([
+    '.........b',
+    '.......bBb',
+    '.....bBBBb',
+    '...bBBBBBb',
+    '.bBBBBBBBb',
+    'bBBBBBBBBb',
+    'gGgGgGgGgG',
+    'rrrrrrrrrr',
+    'bBBBBBBBBb',
+    'bbbbbbbbbb',
+  ], { b: '#d9a45a', B: '#fbe6b8', g: '#3f9e45', G: '#8ee87a', r: '#e2483d' });
+}
+
+export function drawBerryJuice() {
+  return outlinedGrid([
+    '..s....',
+    '..s....',
+    '.ggsgg.',
+    'gPPsPPg',
+    'gPPPPPg',
+    'gPbPbPg',
+    'gPPPPPg',
+    'gPPbPPg',
+    '.ggggg.',
+  ], { g: '#e8ecf6', s: C.white, P: '#9a3fc4', b: '#4f6fe8' });
+}
+
 // A faint outline of a picture (one not found yet, on the recipe card): just
 // its edge, with the inside left empty.
 export function drawOutlineOf(pm, color = '#64729f') {

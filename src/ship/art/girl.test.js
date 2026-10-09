@@ -28,6 +28,18 @@ function top(pm) {
   return pm.height;
 }
 
+// The bottommost painted row.
+function bottom(pm) {
+  for (let y = pm.height - 1; y >= 0; y--) {
+    for (let x = 0; x < pm.width; x++) {
+      if (pm.isSet(x, y)) {
+        return y;
+      }
+    }
+  }
+  return -1;
+}
+
 // Every frame of a look, flattened.
 const allFrames = (look) => Object.values(girlFrames(look)).flat();
 
@@ -66,6 +78,14 @@ describe('girl art', () => {
       h.forEach((pm, i) => {
         expect(top(pm), name).toBeLessThan(top(b[i]));
       });
+    }
+  });
+
+  it('sits down low on the ground for a picnic, feet still on the ground', () => {
+    const frames = girlFrames({});
+    for (const name of ['picnic', 'picnicBlink']) {
+      expect(top(frames[name]), name).toBeGreaterThan(top(frames.sit));
+      expect(bottom(frames[name]), name).toBe(bottom(frames.blink));
     }
   });
 

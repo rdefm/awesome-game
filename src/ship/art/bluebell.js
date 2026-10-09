@@ -462,6 +462,70 @@ export function drawMole(blink = false) {
   return pm.outline(C.outline);
 }
 
+// ---------------------------------------------------------------------- picnic
+export const PICNIC_COLORS = { check: '#e2483d', checkDark: '#b8322b', white: '#fff6ea', fringe: '#f0d6c0', wicker: '#d9a45a', wickerDark: '#a8763a', wickerLight: '#f2c983' };
+
+// The checked picnic blanket, lying flat: wider at the near edge than the
+// far one, so it looks like it's lying back in the grass. `half` is half its
+// near width, `h` how deep it is.
+export function drawPicnicBlanket(half, h) {
+  const w = half * 2;
+  const pm = new Pixmap(w + 2, h + 2);
+  const P = PICNIC_COLORS;
+  for (let y = 0; y < h; y++) {
+    const inset = Math.round(((h - 1 - y) / (h - 1)) * 4); // narrower further back
+    for (let x = inset; x < w - inset; x++) {
+      // Checks 6 wide and 3 deep, darker where two red stripes cross.
+      const cx = Math.floor((x - w / 2 + 60) / 6) % 2;
+      const cy = Math.floor(y / 3) % 2;
+      const color = cx && cy ? P.checkDark : cx || cy ? P.check : P.white;
+      pm.set(x + 1, y + 1, color);
+    }
+  }
+  // A frayed fringe along the near edge.
+  for (let x = 1; x < w; x += 2) {
+    pm.set(x + 1, h, P.fringe);
+  }
+  return pm.outline(C.outline);
+}
+
+// The wicker picnic basket: `open` has its lid flipped up behind it.
+export function drawPicnicBasket(open = false) {
+  const P = PICNIC_COLORS;
+  const pm = new Pixmap(20, 20);
+  // The handle, an arch over the top.
+  pm.ring(10, 9, 6, 5, P.wickerDark);
+  for (let x = 0; x < 20; x++) { // (only the top half of the ring shows)
+    for (let y = 9; y < 20; y++) {
+      pm.clear(x, y);
+    }
+  }
+  if (open) {
+    // The lid stands up behind, its underside showing.
+    pm.rect(3, 4, 14, 6, P.wickerDark);
+    pm.hline(4, 15, 5, P.wicker);
+    // Inside: a peek of a red-checked napkin.
+    pm.rect(3, 10, 14, 2, P.check);
+    pm.set(5, 10, P.white);
+    pm.set(9, 10, P.white);
+    pm.set(13, 10, P.white);
+  } else {
+    pm.rect(2, 9, 16, 3, P.wickerLight);
+    pm.hline(2, 17, 11, P.wicker);
+  }
+  // The woven body.
+  pm.rect(3, 12, 14, 7, P.wicker);
+  for (let y = 12; y < 19; y++) {
+    for (let x = 3; x < 17; x++) {
+      if ((x + (y % 2) * 2) % 4 === 0) {
+        pm.set(x, y, P.wickerDark);
+      }
+    }
+  }
+  pm.hline(3, 16, 12, P.wickerLight);
+  return pm.outline(C.outline);
+}
+
 // The top `rows` rows of a sprite: how much of the mole shows above the hole.
 export function cropTop(src, rows) {
   const pm = new Pixmap(src.width, Math.max(1, rows));

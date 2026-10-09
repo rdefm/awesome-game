@@ -233,7 +233,7 @@ export class Critter extends Carryable {
     if (this.held || this.falling) {
       return;
     }
-    if (this.eating || this.busy || this.seat) {
+    if (this.eating || this.busy || this.seat || this.picnicking) {
       this.landed = Math.max(0, this.landed - dt);
       return;
     }
@@ -290,7 +290,9 @@ export class Critter extends Carryable {
   }
 
   currentFrame() {
-    return this.dressed(this.imgs[this.held || this.lift > 1 ? 'jump' : this.landed > 0 ? 'squish' : 'idle']);
+    // (Squished down comfy while it's sat on the picnic blanket.)
+    const squish = this.landed > 0 || this.picnicking;
+    return this.dressed(this.imgs[this.held || this.lift > 1 ? 'jump' : squish ? 'squish' : 'idle']);
   }
 
   // How it looks sitting in the pilot chair (which draws it, so it spins too).
