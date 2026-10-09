@@ -106,7 +106,12 @@ store.
   it and it sits down too, till it's picked up) and a wicker basket on its corner (tap it and the
   lid flips open and out pops a sandwich, then a berry juice, turn about,
   up to four lying about the picnic at once). Both are new snacks: in the bag, and any
-  friend gobbles them up, on the blanket or anywhere else
+  friend gobbles them up, on the blanket or anywhere else. Nearby is a
+  patch of little bluebells: tap it and she picks a posy (up to four lying
+  about the patch at once). Drop three posies on her, one at a time, and
+  they weave into a flower crown on her head ("A FLOWER CROWN!"); from then
+  on it's a hat in the wardrobe like any other (`bluebell.crown` in
+  `memories`; the posies woven so far are `posies` in the save)
 - The mushroom grove on Bluebell (by hoverbike): a shady corner of the
   meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
   (she hops up on the cap and bounces higher each time, the cap squashing
@@ -216,7 +221,7 @@ store.
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,
   frost flowers, lollipops, gumdrops, cupcakes, lava cakes, sandwiches,
-  berry juices, stripe stones,
+  berry juices, posies, stripe stones,
   stripe cacti)
   and friends (puffball, pink alien, newt, mum and baby yeti, gummy bear,
   Ginger, Zig, the lava family)
@@ -228,7 +233,10 @@ store.
 - **Drop-on reactions**: anything can opt in to having a dragged thing
   dropped on it (`accepts(item)` / `receive(item)`; the bag still wins).
   Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
-  the crystal beside it. Drop the geode on the newt and its tail cracks it
+  the crystal beside it; drop a posy on it and it has a long sniff, sneezes
+  happily and keeps that beside it too (its chat talks of posies before
+  and of its own posy after). Drop three posies on her, one at a time, and
+  she weaves them into a flower crown. Drop the geode on the newt and its tail cracks it
   open; bring the always-too-hot newt a giant bluebell from Bluebell and it
   cools off in the shade. Bring baby yeti back to mum for a cuddle (and
   the lava baby to its mum or dad); give
@@ -241,7 +249,8 @@ store.
   that planet's colours, and stays that way. A stripe cactus drinks a juice
   from the ship's snack locker and bursts into flower for good.
 - **Hats for friends**: drop any friend on the ship's wardrobe and the door
-  swings open with a hats-only picker (the same hats she can wear). Tap one
+  swings open with a hats-only picker (the same hats she can wear, the
+  flower crown too once she's woven one). Tap one
   and it pops onto the friend's head, sitting on that friend's own head
   (`src/ship/friendHats.js` says where, and how big, for each kind). The hat
   is kept on the friend's world entry (`hat`), so it stays on through drags,

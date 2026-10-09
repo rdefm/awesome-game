@@ -89,6 +89,19 @@ export const HATS = {
     ],
     palette: { Y: C.yellow, P: C.purple, T: C.teal },
   },
+  // The flower crown, woven from Bluebell posies: little bluebells and white
+  // flowers among leaves, all round her head. Only in the wardrobe once
+  // she's made one (see look.js).
+  flowers: {
+    x: 2,
+    y: -1,
+    rows: [
+      'B..W.BB.W..B',
+      'BgGWgBBgWGgB',
+      '.gGgGggGgGg.',
+    ],
+    palette: { B: '#2f6fd0', W: C.white, g: '#3f9e45', G: '#8ee87a' },
+  },
 };
 
 // How many px a hat pokes up above the top of her hair.

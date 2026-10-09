@@ -1,6 +1,7 @@
 // The friendly pink alien on Bluebell: bouncy, giggly, mad about shiny
 // things. Hints at the crystal it'd love, and is all thank-yous once it has
-// one (`gotCrystal`).
+// one (`gotCrystal`); sneezes happily over Bluebell posies, and talks of its
+// own once it has one (`gotPosy`).
 export const PINK_ALIEN = {
   color: '#ff8fc8',
   voice: 'chatAlien',
@@ -71,6 +72,21 @@ export const PINK_ALIEN = {
       lines: [
         ['them', 'BLUEBELL! THE FLOWERS SING IF YOU TAP THEM.'],
         ['them', 'AND LOOK UNDER THE ROCK... WIGGLY!'],
+      ],
+      next: 'posies',
+    },
+    posies: { if: 'gotPosy', then: 'posiesNow', else: 'posiesBefore' },
+    posiesBefore: {
+      lines: [
+        ['them', 'AND THE TINY BLUEBELLS MAKE LOVELY POSIES!'],
+        ['them', 'THEY MAKE MY NOSE TICKLY... I LOVE THEM!'],
+      ],
+      next: 'menu',
+    },
+    posiesNow: {
+      lines: [
+        ['them', 'AND I SNIFF MY POSY EVERY DAY!'],
+        ['them', 'AH... AH... ACHOO! HEE HEE!'],
       ],
       next: 'menu',
     },

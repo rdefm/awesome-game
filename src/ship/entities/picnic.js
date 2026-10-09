@@ -1,6 +1,6 @@
 import { PICNIC } from '../layout.js';
 import { hold, isFriendItem, letGo } from './friends.js';
-import { clampToFloor } from './girl.js';
+import { clampToFloor, herSide } from './girl.js';
 import { PICNIC_SNACKS } from './items.js';
 import { Prop } from './props.js';
 
@@ -15,9 +15,6 @@ function squish(prop, amount) {
   prop.squash = amount;
   prop.scene.engine.tweens.to(prop, { squash: 0 }, 0.35);
 }
-
-// Which way (x, y) is from her: -1 if she's to the left of it, 1 if not.
-const herSide = (scene, x) => (scene.girl.x < x ? -1 : 1);
 
 // ------------------------------------------------------------- the blanket
 // A checked picnic blanket out on Bluebell's far stretch. Tap it and she sits

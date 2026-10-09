@@ -2,6 +2,7 @@ import { DRAG_THRESHOLD, findReceiver, Scene } from '../engine/scene.js';
 import { ease } from '../engine/tween.js';
 import { Bag } from './bag.js';
 import { centreOn, clampCam, easeCam, followCam, nudgeCam } from './camera.js';
+import { normalizePosies } from './entities/crown.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { MusicButton } from './musicButton.js';
@@ -30,6 +31,7 @@ export class PlayScene extends Scene {
     // Things friends remember happening that leave no sticker behind (like
     // a cuddle), for their chats to mention: a list of names.
     this.memories = Array.isArray(save.memories) ? save.memories.filter((m) => typeof m === 'string') : [];
+    this.posies = normalizePosies(save.posies); // woven into the flower crown she's making so far
     this.flyingStickers = []; // just-found stickers on their way off screen
     this.bag = new Bag(this);
     this.carried = null; // the carryable being dragged, if any
@@ -128,6 +130,12 @@ export class PlayScene extends Scene {
     friend.hat = hat;
     this.world = setHat(this.world, friend.id, hat);
     this.saveWorld();
+  }
+
+  // Remembers how many posies are woven into her flower crown so far.
+  savePosies(n) {
+    this.posies = n;
+    writeSave({ ...loadSave(), posies: n });
   }
 
   // Remembers that `memory` has happened (see `memories`).

@@ -526,6 +526,42 @@ export function drawPicnicBasket(open = false) {
   return pm.outline(C.outline);
 }
 
+// --------------------------------------------------------------- posies
+// A patch of little bluebells low in the grass (not the giant ones): where
+// she picks posies.
+export function drawPosyPatch() {
+  const pm = new Pixmap(31, 10);
+  pm.grid([
+    '...b.......b.........b.......',
+    '..bLb.....bLb...b...bLb......',
+    '..bBb..b..bBb..bLb..bBb...b..',
+    '...s..bLb..s...bBb...s...bLb.',
+    '.g.s..bBb..s.g..s..g.s.g.bBb.',
+    '.gGs.g.s.gGsGg..sg.gGs.gG.s..',
+    'gGgGgGgsgGgGgGgGsGgGgGgGgGsgG',
+    'GgGgGgGgGgGgGgGgGgGgGgGgGgGgG',
+  ], { b: BB.bellDark, B: BB.bell, L: BB.bellLight, s: BB.stem, g: BB.grassDark, G: BB.grassLight }, 1, 1);
+  return pm.outline(C.outline);
+}
+
+// A posy: three little bluebells, picked and tied with a pink ribbon.
+export function drawPosy() {
+  const pm = new Pixmap(11, 12);
+  pm.grid([
+    '..b.....b',
+    '.bLb...bLb',
+    '.bBb.b.bBb',
+    '..s.bLb.s.',
+    '...sbBbs..',
+    '....sss...',
+    '...PPsPP..',
+    '....PsP...',
+    '.....s....',
+    '....s.s...',
+  ], { b: BB.bellDark, B: BB.bell, L: BB.bellLight, s: BB.stem, P: C.pink }, 0, 1);
+  return pm.outline(C.outline);
+}
+
 // The top `rows` rows of a sprite: how much of the mole shows above the hole.
 export function cropTop(src, rows) {
   const pm = new Pixmap(src.width, Math.max(1, rows));

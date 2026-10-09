@@ -1,11 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DEFAULT_LOOK, LOOK_OPTIONS } from './look.js';
+import { CROWN_MEMORY, DEFAULT_LOOK, LOOK_OPTIONS } from './look.js';
+import { GIRL_W } from './art/girl.js';
+import { WARDROBE } from './layout.js';
 import { WardrobePicker } from './wardrobePicker.js';
 
-// Just enough of a ship scene for the picker to work with.
-function fakeScene() {
+// Just enough of a ship scene for the picker to work with (she's woven a
+// flower crown, unless `memories` says otherwise).
+function fakeScene(memories = [CROWN_MEMORY]) {
   const scene = {
     look: { ...DEFAULT_LOOK },
+    memories,
     girl: { x: 109, y: 124, act: vi.fn() },
     engine: { audio: { play: vi.fn() } },
     sparkles: vi.fn(),
@@ -48,6 +52,17 @@ describe('wardrobe picker', () => {
         expect(p.y).toBeLessThan(160);
       }
     }
+  });
+
+  it('keeps clear of her, standing at the wardrobe', () => {
+    const picker = new WardrobePicker(fakeScene());
+    expect(picker.panel.x).toBeGreaterThan(WARDROBE.spot.x + GIRL_W / 2);
+  });
+
+  it('has no flower crown button till she has woven one', () => {
+    const picker = new WardrobePicker(fakeScene([]));
+    expect(centreOf(picker, 'hat', 'flowers')).toBeNull();
+    expect(centreOf(picker, 'hat', 'party')).not.toBeNull();
   });
 
   it('changes just that part of her look when a button is tapped', () => {
@@ -100,5 +115,13 @@ describe('wardrobe picker for a friend', () => {
     expect(scene.saveHat).toHaveBeenCalledWith(friend, 'party');
     expect(friend.hat).toBe('party');
     expect(scene.saveLook).not.toHaveBeenCalled();
+  });
+
+  it('can put her flower crown on a friend', () => {
+    const { scene, friend, picker } = friendPicker();
+    const p = centreOf(picker, 'hat', 'flowers');
+    picker.pointerDown(p);
+    picker.pointerUp(p);
+    expect(scene.saveHat).toHaveBeenCalledWith(friend, 'flowers');
   });
 });

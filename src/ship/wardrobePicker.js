@@ -1,21 +1,25 @@
-import { H } from './layout.js';
-import { LOOK_OPTIONS, restyle } from './look.js';
+import { H, W } from './layout.js';
+import { LOOK_OPTIONS, optionsFor, restyle } from './look.js';
 import { Picker } from './picker.js';
 
 // A chunky panel that slides up beside the open wardrobe: one row of big
 // buttons each for hair colour, suit colour and hat. Every tap changes her on
 // the spot. Sits to the right of the lockers so she stays in view.
 // Opened for a friend dropped on the wardrobe, it's just the hats row, and
-// they go on that friend instead.
+// they go on that friend instead. Hats she has to earn (the flower crown)
+// only get a button once she has.
 const ROWS = ['hair', 'suit', 'hat'];
 const FRIEND_ROWS = ['hat'];
-const CELL = 22; // swatch button size
-const GAP = 2;
+const CELL = 20; // swatch button size
+const GAP = 1;
 const ROW_H = CELL + 3;
+// Wide enough for the longest row, with every option showing.
+const COLS = Math.max(...Object.values(LOOK_OPTIONS).map((options) => options.length));
+const PANEL_W = 6 + COLS * (CELL + GAP) - GAP;
 
 export class WardrobePicker extends Picker {
   constructor(scene, rows = ROWS) {
-    const panel = { x: 130, w: 124, h: 16 + rows.length * ROW_H + 3 };
+    const panel = { x: W - PANEL_W - 2, w: PANEL_W, h: 16 + rows.length * ROW_H + 3 };
     panel.y = H - panel.h - 3;
     super(scene, panel);
     this.rows = rows;
@@ -39,13 +43,18 @@ export class WardrobePicker extends Picker {
     return this.friend ?? this.scene.look;
   }
 
+  // The buttons in `part`'s row: the options she can pick from so far.
+  options(part) {
+    return optionsFor(part, this.scene.memories);
+  }
+
   // The button under a point, as { key, part, value, row, col }, if any.
   cellAt(p) {
     const { grid } = this;
     const row = Math.floor((p.y - grid.y) / ROW_H);
     const col = Math.floor((p.x - grid.x + GAP / 2) / (CELL + GAP));
     const part = this.rows[row];
-    const value = LOOK_OPTIONS[part]?.[col];
+    const value = part && col >= 0 ? this.options(part)[col] : undefined;
     return value ? { key: `${part}:${value}`, part, value, row, col } : null;
   }
 
@@ -81,7 +90,7 @@ export class WardrobePicker extends Picker {
     const worn = this.wearing;
     const { grid } = this;
     this.rows.forEach((part, row) => {
-      LOOK_OPTIONS[part].forEach((value, col) => {
+      this.options(part).forEach((value, col) => {
         const key = `${part}:${value}`;
         const x = grid.x + col * (CELL + GAP);
         const y = grid.y + row * ROW_H + dy;

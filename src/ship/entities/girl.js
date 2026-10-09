@@ -1,6 +1,7 @@
 import { ease } from '../../engine/tween.js';
 import { hatHeight } from '../art/girl.js';
 import { W, WALK, floorMaxX } from '../layout.js';
+import { weave, weavesPosies } from './crown.js';
 import { greet, isFriendItem } from './friends.js';
 
 const WALK_SPEED = 72; // game px per second
@@ -10,6 +11,9 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // The nearest spot on the floor to (x, y), in a place `width` wide (one
 // screen unless it says otherwise: see PlayScene.width).
+// Which way x is from her: -1 if she's to the left of it, 1 if not.
+export const herSide = (scene, x) => (scene.girl.x < x ? -1 : 1);
+
 export function clampToFloor(x, y, width = W) {
   return { x: clamp(x, WALK.minX, floorMaxX(width)), y: clamp(y, WALK.minY, WALK.maxY) };
 }
@@ -39,6 +43,7 @@ export class Girl {
     this.priority = 10;
     this.hugging = false;
     this.greeting = false; // saying hello to a friend dropped on her
+    this.weaving = false; // weaving a posy into her flower crown
     this.riding = null; // what's drawing her (playground kit, the lift, her bed)
     this.draggable = true;
   }
@@ -232,13 +237,18 @@ export class Girl {
   }
 
   // Drop the teddy on her and she gives it a big hug, then sets it down
-  // beside her. Drop a friend on her and they say hello.
+  // beside her. Drop a friend on her and they say hello. Drop a posy on her
+  // (till she's made her flower crown) and she weaves it in.
   accepts(item) {
-    const free = !this.hugging && !this.greeting && this.onFeet && !this.riding && !this.scene.busy;
-    return free && (item.kind === 'teddy' || isFriendItem(item));
+    const free = !this.hugging && !this.greeting && !this.weaving && this.onFeet && !this.riding && !this.scene.busy;
+    const posy = item.kind === 'posy' && weavesPosies(this.scene);
+    return free && (item.kind === 'teddy' || isFriendItem(item) || posy);
   }
 
   receive(item) {
+    if (item.kind === 'posy') {
+      return weave(this, item);
+    }
     return isFriendItem(item) ? greet(this, item) : this.hug(item);
   }
 

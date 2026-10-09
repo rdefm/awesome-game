@@ -518,6 +518,9 @@ export class MoleHole extends Secret {
 }
 
 // ---------------------------------------------------------- friendly local
+// The memory that it's been given a posy.
+export const POSY_MEMORY = 'bluebell.posy';
+
 export class Local extends Carryable {
   constructor(assets, state) {
     super(state);
@@ -589,21 +592,27 @@ export class Local extends Carryable {
     return this.y - this.perch - 24 - this.lift;
   }
 
-  // What it has to say, and whether she's given it the crystal yet.
+  // What it has to say, and whether she's given it the crystal (and a
+  // posy) yet.
   chat() {
-    return { tree: PINK_ALIEN, facts: { gotCrystal: happened(this.scene, 'bluebell.local') } };
+    const { scene } = this;
+    return { tree: PINK_ALIEN, facts: { gotCrystal: happened(scene, 'bluebell.local'), gotPosy: happened(scene, POSY_MEMORY) } };
   }
 
   // It loves shiny crystals: drop one on it and it keeps it beside it. Drop
-  // a snack on it and it eats it. Drop a friend on it and they play.
+  // a posy on it and it has a sniff, sneezes and keeps that too. Drop a snack
+  // on it and it eats it. Drop a friend on it and they play.
   accepts(item) {
     const free = !this.busy && !this.held && !this.falling && !this.seat;
-    return free && (item.kind === 'crystal' || isSnack(item) || isFriendItem(item));
+    return free && (item.kind === 'crystal' || item.kind === 'posy' || isSnack(item) || isFriendItem(item));
   }
 
   async receive(item) {
     if (isFriendItem(item)) {
       return play(item, this);
+    }
+    if (item.kind === 'posy') {
+      return this.sniff(item);
     }
     if (isSnack(item)) {
       this.busy = true;
@@ -631,6 +640,34 @@ export class Local extends Carryable {
     this.frame = 'idle';
     girl.say('heart', 1.4);
     scene.findSticker('bluebell.local', this.x, this.y - 26); // a thank-you present
+    this.busy = false;
+    this.draggable = true;
+  }
+
+  // A posy: set down beside it, a long sniff... ah... ah... a happy sneeze,
+  // and it keeps it (remembered, for its chat).
+  async sniff(posy) {
+    this.busy = true;
+    this.draggable = false;
+    const { scene } = this;
+    const { engine, girl } = scene;
+    const side = posy.x < this.x ? -1 : 1;
+    scene.putDown(posy, this.x + side * 13, this.y + 1);
+    scene.remember(POSY_MEMORY); // (straight away, in case she's off before the sneeze)
+    girl.faceToward(this.x);
+    this.frame = 'blink'; // eyes shut, sniffing
+    engine.audio.play('sneeze');
+    await engine.tweens.to(this, { lift: 3 }, 0.5, ease.inOutSine);
+    await engine.wait(0.05);
+    this.frame = 'hop';
+    this.boing(1.8);
+    scene.bits(this.x + side * 6, this.y - 18, 5, '#ffffff');
+    await engine.tweens.to(this, { lift: 10 }, 0.16, ease.outQuad);
+    scene.hearts(this.x, this.y - 26, 3);
+    await engine.tweens.to(this, { lift: 0 }, 0.2, ease.inQuad);
+    engine.audio.play('giggle');
+    this.frame = 'idle';
+    girl.say('heart', 1.4);
     this.busy = false;
     this.draggable = true;
   }

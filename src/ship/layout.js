@@ -62,6 +62,9 @@ export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119
 // x, bottom edge y, half its width, its depth back into the meadow), with the
 // wicker basket (bottom-centre, half its width, its height) on its back corner.
 export const PICNIC = { blanket: { x: 424, y: 146, half: 22, h: 12 }, basket: { x: 441, y: 138, half: 9, h: 18 } };
+// The patch of little bluebells on the far stretch where she picks posies
+// (bottom-centre, half its width, its height).
+export const POSY_PATCH = { x: 352, y: 140, half: 15, h: 10 };
 // Ember's secrets: a steam vent at the back and a lava pool at the front.
 export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };
 // Frosty's secret: a snow drift at the back, a snow hare hiding behind it.

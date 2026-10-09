@@ -14,6 +14,20 @@ export const DEFAULT_LOOK = Object.fromEntries(
   Object.entries(LOOK_OPTIONS).map(([part, options]) => [part, options[0]]),
 );
 
+// Woven out of three posies on Bluebell (see entities/posies.js): the memory
+// that the flower crown's been made.
+export const CROWN_MEMORY = 'bluebell.crown';
+
+// Hats the wardrobe only shows once she's earned them: the memory that does.
+const EARNED_HATS = { flowers: CROWN_MEMORY };
+
+// The options for `part` the wardrobe shows, given what's happened so far
+// (`memories`, see PlayScene).
+export function optionsFor(part, memories = []) {
+  const earned = part === 'hat' ? EARNED_HATS : {};
+  return LOOK_OPTIONS[part].filter((value) => !earned[value] || memories.includes(earned[value]));
+}
+
 // Old saves (and anything odd) get her starting look, part by part.
 export function normalizeLook(raw) {
   return Object.fromEntries(

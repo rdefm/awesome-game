@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { HAIR_COLORS, SUIT_COLORS } from './art/palette.js';
 import { HATS } from './art/girl.js';
-import { DEFAULT_LOOK, LOOK_OPTIONS, normalizeLook, restyle } from './look.js';
+import { CROWN_MEMORY, DEFAULT_LOOK, LOOK_OPTIONS, normalizeLook, optionsFor, restyle } from './look.js';
 
 describe('look', () => {
   it('starts with red hair, a blue suit and no hat when a save has no look', () => {
@@ -33,6 +33,17 @@ describe('look', () => {
       expect(options[0]).toBe(DEFAULT_LOOK[part]);
       expect(options.length).toBeGreaterThanOrEqual(4);
     }
+  });
+
+  it('keeps a flower crown she has woven', () => {
+    expect(normalizeLook({ hat: 'flowers' }).hat).toBe('flowers');
+  });
+
+  it('only shows the flower crown in the wardrobe once she has woven one', () => {
+    expect(optionsFor('hat', [])).not.toContain('flowers');
+    expect(optionsFor('hat')).toEqual(LOOK_OPTIONS.hat.filter((h) => h !== 'flowers'));
+    expect(optionsFor('hat', [CROWN_MEMORY])).toEqual(LOOK_OPTIONS.hat);
+    expect(optionsFor('hair', [])).toEqual(LOOK_OPTIONS.hair);
   });
 
   it('changes one part of a look, leaving the rest', () => {

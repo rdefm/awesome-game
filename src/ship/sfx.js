@@ -243,6 +243,13 @@ export function defineSfx(audio) {
     s.tone({ at: t + 0.12, freq: 1047, dur: 0.4, type: 'triangle', vol: 0.12 });
     s.tone({ at: t + 0.12, freq: 1319, dur: 0.4, type: 'triangle', vol: 0.08 });
   });
+  // The pink alien sniffing a posy: a little "ah... ah..." and a happy "CHOO!".
+  audio.define('sneeze', (s, t) => {
+    s.tone({ at: t, freq: 600, to: 760, dur: 0.18, type: 'sine', vol: 0.12 });
+    s.tone({ at: t + 0.28, freq: 700, to: 900, dur: 0.2, type: 'sine', vol: 0.14 });
+    s.noise({ at: t + 0.55, dur: 0.22, filter: 'bandpass', freq: 3000, to: 900, vol: 0.3, q: 1 });
+    s.tone({ at: t + 0.55, freq: 1100, to: 500, dur: 0.16, type: 'triangle', vol: 0.12 });
+  });
   audio.define('creak', (s, t) => {
     s.tone({ at: t, freq: 300, to: 480, dur: 0.25, type: 'triangle', vol: 0.08 });
     s.tone({ at: t + 0.22, freq: 420, to: 340, dur: 0.15, type: 'triangle', vol: 0.06 });

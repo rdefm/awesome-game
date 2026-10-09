@@ -16,7 +16,7 @@ import {
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
   drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
-  drawPicnicBlanket, drawRock, drawShipExterior, drawSoilPatch,
+  drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
 import {
   drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
@@ -311,6 +311,9 @@ export function loadAssets() {
     // The picnic on the far stretch.
     picnicBlanket: bake(drawPicnicBlanket(PICNIC.blanket.half, PICNIC.blanket.h)),
     picnicBasket: bake([drawPicnicBasket(), drawPicnicBasket(true)]),
+    // The little bluebells she picks posies from, and a posy.
+    posyPatch: bake(drawPosyPatch()),
+    posy: bake(drawPosy()),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),

@@ -11,6 +11,7 @@ import { normalizeCrew } from './crew.js';
 import { dress } from './friendHats.js';
 import { Crew } from './entities/crew.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
+import { Posy } from './entities/posies.js';
 import { Plant, plantStage } from './entities/props.js';
 import { Gonzo, Monkey } from './entities/shipFriends.js';
 
@@ -24,6 +25,7 @@ export const KINDS = {
   crystal: { make: (a, s) => new Crystal(a, s), icon: (a) => a.crystal[0] },
   ...Object.fromEntries(SNACKS.map((kind) => [kind, { make: (a, s) => new Snack(a, s), icon: (a) => a.snacks[kind] }])),
   bluebell: { make: (a, s) => new Bluebell(a, s), icon: (a, s) => a.bluebellIcons[s.v ?? 0] },
+  posy: { make: (a, s) => new Posy(a, s), icon: (a) => a.posy },
   critter: { friend: true, make: (a, s) => new Critter(a, s), icon: (a) => a.critter.idle },
   local: { friend: true, make: (a, s) => new Local(a, s), icon: (a) => a.local.idle },
   firebloom: { make: (a, s) => new Firebloom(a, s), icon: (a, s) => a.firebloom[(s.v ?? 0) % a.firebloom.length][0] },
