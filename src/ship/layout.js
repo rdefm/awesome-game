@@ -71,6 +71,9 @@ export const PUFF_BURROW = { x: 290, y: 123 };
 // The giant dandelion clock at the back of the far stretch (bottom-centre of
 // its stalk), behind the posy patch.
 export const DANDELION = { x: 362, y: 121 };
+// The kite lying in the grass at the front of the far stretch (bottom-centre),
+// below the puffball burrow.
+export const KITE = { x: 304, y: 152 };
 // The little stream across the far end of the meadow, running down out of
 // the hills towards the viewer: where its middle is, and how wide it is
 // either side of that, where it starts at the back (y = HORIZON) and at the

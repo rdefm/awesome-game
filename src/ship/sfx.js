@@ -325,6 +325,11 @@ export function defineSfx(audio) {
     s.noise({ at: t, dur: 0.7, filter: 'bandpass', freq: 1200, to: 500, vol: 0.2, q: 0.6, attack: 0.08 });
     [1760, 2093, 2349, 2637].forEach((f, i) => s.tone({ at: t + 0.25 + i * 0.07, freq: f, dur: 0.18, type: 'sine', vol: 0.05 }));
   });
+  // Bluebell's kite: a gust of wind catching it, swooping it up into the sky.
+  audio.define('swoop', (s, t) => {
+    s.noise({ at: t, dur: 0.9, filter: 'bandpass', freq: 400, to: 1800, vol: 0.18, q: 0.8, attack: 0.15 });
+    s.tone({ at: t + 0.1, freq: 330, to: 990, dur: 0.6, type: 'sine', vol: 0.08 });
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });

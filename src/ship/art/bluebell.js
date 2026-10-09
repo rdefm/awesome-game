@@ -680,6 +680,80 @@ export function drawDandelionSeed() {
   return pm;
 }
 
+// -------------------------------------------------------------------- kite
+// A diamond kite in red and yellow quarters, crossed with wooden spars, and
+// its reel of string. Painted flying (upright, centre anchor at the spars'
+// cross, KITE_CROSS down from its top) and lying in the grass (seen flat, its
+// long end and ribbon tail off to the right: bottom-centre anchor), and the
+// reel, which lies in the grass with its middle at KITE_REEL from that.
+export const KITE_COLORS = { red: '#e8483f', redDark: '#b02e35', yellow: '#ffd23f', yellowDark: '#d9a21e', spar: '#8a5a2e', bow: '#4f8fe6', string: '#f4ead2' };
+export const KITE_CROSS = 7;
+export const KITE_TAIL = 10; // from its cross down to its long end, where the tail ties on
+export const KITE_REEL = { x: -19, y: -2 };
+
+// The diamond with its cross at (cx, cy): `a` to its short end, `b` to its
+// long end (along `u`, the long axis), `half` either side across it.
+function kiteDiamond(pm, cx, cy, { a, b, half, upright }) {
+  for (let y = 0; y < pm.height; y++) {
+    for (let x = 0; x < pm.width; x++) {
+      const u = upright ? y - cy : x - cx; // along: towards the long end is +
+      const v = upright ? x - cx : y - cy; // across
+      const d = Math.abs(v) / half + (u < 0 ? -u / a : u / b);
+      if (d > 1) {
+        continue;
+      }
+      const red = (u < 0) !== (v < 0);
+      const edge = d > 0.75;
+      pm.set(x, y, red ? (edge ? KITE_COLORS.redDark : KITE_COLORS.red) : edge ? KITE_COLORS.yellowDark : KITE_COLORS.yellow);
+    }
+  }
+}
+
+export function drawKite() {
+  const pm = new Pixmap(15, 19);
+  kiteDiamond(pm, 7, KITE_CROSS, { a: 6, b: KITE_TAIL, half: 6, upright: true });
+  pm.vline(7, 2, 16, KITE_COLORS.spar);
+  pm.hline(2, 12, KITE_CROSS, KITE_COLORS.spar);
+  return pm.outline(C.outline);
+}
+
+// Lying flat in the grass: squashed (seen from above at a slant), its ribbon
+// tail trailing off the long end.
+export function drawKiteLying() {
+  const pm = new Pixmap(32, 9);
+  const cx = 8;
+  const cy = 4;
+  kiteDiamond(pm, cx, cy, { a: 6, b: KITE_TAIL, half: 3.5, upright: false });
+  pm.hline(cx - 5, cx + 9, cy, KITE_COLORS.spar);
+  pm.vline(cx, cy - 3, cy + 3, KITE_COLORS.spar);
+  // The tail, a wiggly ribbon with bows along it.
+  for (let x = cx + 10; x < 31; x++) {
+    pm.set(x, cy + Math.round(Math.sin(x * 0.6) * 1.2), KITE_COLORS.string);
+  }
+  for (const x of [cx + 14, cx + 19]) {
+    pm.blit(drawKiteBow(), x - 1, cy + Math.round(Math.sin(x * 0.6) * 1.2) - 1);
+  }
+  return pm.outline(C.outline);
+}
+
+// The reel, wound with string (centre anchor).
+export function drawKiteReel() {
+  const pm = new Pixmap(7, 7);
+  pm.rect(1, 2, 5, 3, KITE_COLORS.string);
+  pm.vline(1, 1, 5, KITE_COLORS.spar);
+  pm.vline(5, 1, 5, KITE_COLORS.spar);
+  return pm.outline(C.outline);
+}
+
+// One bow on the tail.
+export function drawKiteBow() {
+  return Pixmap.fromGrid([
+    'B.B',
+    '.r.',
+    'B.B',
+  ], { B: KITE_COLORS.bow, r: KITE_COLORS.redDark });
+}
+
 // ------------------------------------------------------------------ stream
 // The little stream across the far end of the meadow (see STREAM), painted
 // as one picture whose bottom-left sits at (STREAM_ART.x, H): clear water,

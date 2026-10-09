@@ -123,8 +123,14 @@ store.
   puffing off across the sky, and one she holds onto lifts her gently off
   the ground, drifts her along and lets her down again. The bald stalk grows
   its fluff back after a little while (tapped before then, it just gives a
-  little "nothing left" wiggle; nothing saved). At the far end, a little stream
-  runs down out of the hills (she can splash straight through it). Tap one
+  little "nothing left" wiggle; nothing saved). Below the burrow, a kite
+  lies in the grass beside its reel: tap it and she picks up the reel and
+  runs a few steps, and it swoops up into the sky on its string, loops the
+  loop in the wind and floats back down into the grass, and she brings the
+  reel back. Drop a friend on it and the wind takes it up with the friend
+  riding it, round a loop-the-loop and gently back down, the friend hopping
+  for joy (nothing saved). At the far end, a little stream runs down out of
+  the hills (she can splash straight through it). Tap one
   of the stepping stones across it and she hops over them all, each ringing
   a note higher than the last, there and back. Drop a thing in the water and
   it bobs off downstream, out of sight, then washes up on the bank a moment
