@@ -8,13 +8,15 @@ import { W, floorMaxX } from './layout.js';
 import { Basket, Blanket } from './entities/picnic.js';
 import { Pod } from './entities/pod.js';
 import { PosyPatch } from './entities/posies.js';
+import { RainCloud } from './entities/rainCloud.js';
 import { Stream, besideStream, streamStones } from './entities/stream.js';
 import { OutdoorScene } from './outdoorScene.js';
 import { PodScene } from './podScene.js';
 
 // Planet Bluebell: a sunny meadow of giant ringing bluebells, a hopping
 // puffball, butterflies and a friendly local, with our ship parked on the left
-// (and a few secrets: a rock, a bush and a molehill). Far off in the meadow
+// (and a few secrets: a rock, a bush and a molehill), and a little rain
+// cloud floating low over them to make it rain. Far off in the meadow
 // is the pink alien's round pod: tap it and she walks up the path, getting
 // smaller, and goes inside. Beside the ship is the hoverbike, to ride off
 // anywhere else on Bluebell. The meadow is two screens wide (see MEADOW_W):
@@ -33,6 +35,7 @@ export class BluebellScene extends OutdoorScene {
     this.add(new Rock(assets));
     this.add(new Bush(assets));
     this.add(new MoleHole(assets));
+    this.add(new RainCloud(assets));
     this.add(new Blanket(assets));
     this.add(new Basket(assets));
     this.add(new PosyPatch(assets));

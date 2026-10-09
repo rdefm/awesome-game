@@ -16,7 +16,7 @@ import {
 import {
   BABY_PUFF_COLORS, BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBabyPuff, drawBell, drawBird,
   drawBluebellStem, drawDandelionFluff, drawDandelionSeed, drawDandelionStalk, drawKite, drawKiteBow, drawKiteLying, drawKiteReel, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
-  drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch, drawStream,
+  drawPicnicBlanket, drawPosy, drawPosyPatch, drawPuddle, drawRainCloud, drawRainbow, drawRock, drawShipExterior, drawSoilPatch, drawStream,
 } from './art/bluebell.js';
 import {
   drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
@@ -324,6 +324,8 @@ export function loadAssets() {
     dandelion: bake({ stalk: drawDandelionStalk(), fluff: drawDandelionFluff(), seed: drawDandelionSeed() }),
     // The kite: flying, lying in the grass, a bow off its tail, and its reel of string.
     kite: bake({ fly: drawKite(), lying: drawKiteLying(), bow: drawKiteBow(), reel: drawKiteReel() }),
+    // The little rain cloud (fluffy, and grey with rain), its rainbow, and the puddle it leaves.
+    rainCloud: bake({ fluffy: drawRainCloud(), grey: drawRainCloud(true), rainbow: drawRainbow(), puddle: drawPuddle() }),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),

@@ -96,7 +96,13 @@ store.
 - Airlock door (locked in space, opens when landed)
 - Bluebell meadow: parked ship to re-board, giant bluebells that each chime
   a note, a hopping puffball critter, butterflies, a friendly pink alien.
-  Far off in the meadow is the pink alien's round pink pod, with a glowing
+  A fluffy little cloud with a smiley face floats low over the bluebells:
+  tap it and it goes grey and rains on the patch under it, the bluebells
+  there ringing and ringing, their bells swinging faster, and a puddle forms
+  that she splashes in when she walks through it. When the rain stops a
+  rainbow arcs over the meadow for a while, and the puddle dries up
+  (nothing saved). Far off in the meadow is the pink alien's round pink
+  pod, with a glowing
   window and an antenna on top: tap it and she walks up the stepping-stone
   path, getting smaller, and in through the round-topped door. A hoverbike
   parked by the ship rides her anywhere on Bluebell's town map (rolling

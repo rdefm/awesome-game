@@ -74,6 +74,13 @@ export const DANDELION = { x: 362, y: 121 };
 // The kite lying in the grass at the front of the far stretch (bottom-centre),
 // below the puffball burrow.
 export const KITE = { x: 304, y: 152 };
+// The little rain cloud floating low over the near end of the meadow (its
+// middle), how far either side of that it rains, where a tap catches it
+// (half its width and height), and the puddle the rain leaves on the grass
+// under it (its middle, and half its width and depth).
+export const RAIN_CLOUD = {
+  x: 168, y: 60, half: 24, tap: { half: 20, h: 10 }, puddle: { x: 168, y: 138, half: 16, h: 4 },
+};
 // The little stream across the far end of the meadow, running down out of
 // the hills towards the viewer: where its middle is, and how wide it is
 // either side of that, where it starts at the back (y = HORIZON) and at the

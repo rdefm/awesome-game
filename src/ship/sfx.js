@@ -330,6 +330,16 @@ export function defineSfx(audio) {
     s.noise({ at: t, dur: 0.9, filter: 'bandpass', freq: 400, to: 1800, vol: 0.18, q: 0.8, attack: 0.15 });
     s.tone({ at: t + 0.1, freq: 330, to: 990, dur: 0.6, type: 'sine', vol: 0.08 });
   });
+  // Bluebell's rain cloud: a shower pattering down, and the rainbow after it.
+  audio.define('rain', (s, t) => {
+    s.noise({ at: t, dur: 4, filter: 'bandpass', freq: 2600, to: 1800, vol: 0.12, q: 0.7, attack: 0.4 });
+    for (let i = 0; i < 24; i++) {
+      s.tone({ at: t + 0.2 + i * 0.15 + Math.random() * 0.1, freq: 1400 + Math.random() * 1200, to: 600, dur: 0.05, type: 'sine', vol: 0.04 });
+    }
+  });
+  audio.define('rainbow', (s, t) => {
+    [523, 659, 784, 1046, 1318, 1568].forEach((f, i) => s.tone({ at: t + i * 0.1, freq: f, dur: 0.5, type: 'sine', vol: 0.07 }));
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });

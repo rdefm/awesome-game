@@ -754,6 +754,60 @@ export function drawKiteBow() {
   ], { B: KITE_COLORS.bow, r: KITE_COLORS.redDark });
 }
 
+// --------------------------------------------------------------- rain cloud
+// The little cloud low over the meadow: fluffy white, or grey and heavy with
+// rain (centre anchor). The rainbow after the rain (bottom-centre anchor, its
+// feet on the ground), and the puddle the rain leaves (centre anchor).
+export const RAIN = { drop: '#9cc8f2', puddle: '#7fb4e8', puddleLight: '#c4e2fb', puddleEdge: '#5f8fc4' };
+export const RAINBOW_R = 64; // to the outside of its outermost band
+
+export function drawRainCloud(grey = false) {
+  const pm = new Pixmap(40, 20);
+  const [body, shade] = grey ? ['#c3cad8', '#8e97ab'] : ['#ffffff', '#dfeaf8'];
+  for (const [x, y, r] of [[8, 12, 6], [16, 8, 7], [25, 7, 8], [33, 12, 5]]) {
+    pm.circle(x, y, r, body);
+  }
+  pm.rect(4, 12, 32, 5, body);
+  for (let y = 13; y < 18; y++) {
+    pm.dither(0, y, 40, 1, shade, 0.4 + (y - 13) * 0.15);
+  }
+  // A happy little face.
+  const eye = grey ? '#4a5168' : '#6b7896';
+  pm.set(15, 11, eye);
+  pm.set(24, 11, eye);
+  pm.hline(18, 21, 14, eye);
+  pm.set(17, 13, eye);
+  pm.set(22, 13, eye);
+  return pm.outline(C.outline);
+}
+
+export function drawRainbow() {
+  const bands = ['#ff6b6b', '#ffa94d', '#ffe066', '#8ce99a', '#74c0fc', '#b197fc'];
+  const w = RAINBOW_R * 2 + 1;
+  const pm = new Pixmap(w, RAINBOW_R + 1);
+  bands.forEach((color, i) => {
+    const outer = RAINBOW_R - i * 2;
+    for (let y = 0; y <= RAINBOW_R; y++) {
+      for (let x = 0; x < w; x++) {
+        const d = Math.hypot(x - RAINBOW_R, y - RAINBOW_R);
+        if (d <= outer + 0.5 && d > outer - 1.5) {
+          pm.set(x, y, color);
+        }
+      }
+    }
+  });
+  return pm;
+}
+
+export function drawPuddle() {
+  const pm = new Pixmap(33, 9);
+  pm.ellipse(16, 4, 16, 4, RAIN.puddleEdge);
+  pm.ellipse(16, 4, 15, 3, RAIN.puddle);
+  pm.hline(9, 14, 3, RAIN.puddleLight);
+  pm.hline(19, 21, 5, RAIN.puddleLight);
+  return pm;
+}
+
 // ------------------------------------------------------------------ stream
 // The little stream across the far end of the meadow (see STREAM), painted
 // as one picture whose bottom-left sits at (STREAM_ART.x, H): clear water,

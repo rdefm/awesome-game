@@ -22,6 +22,8 @@ export class Bluebell extends Carryable {
     this.bellImg = assets.bell;
     this.note = state.v ?? 0;
     this.ring = 0;
+    this.quick = 0; // how much faster its bells are swinging, rained on (0 = as usual)
+    this.swung = 0; // how far its bells have swung
     this.phase = this.x * 0.37;
   }
 
@@ -33,19 +35,39 @@ export class Bluebell extends Carryable {
     return px >= this.x - 8 && px <= this.x + 26 && py >= this.y - this.height - 2 && py <= this.y + 2;
   }
 
+  // Middle of where its bells hang, across.
+  get bellsX() {
+    return this.x + 10;
+  }
+
   onTap() {
     const { scene } = this;
-    scene.engine.audio.play(`bell${this.note}`);
-    this.ring = 1;
-    for (const h of this.stem.hang) {
-      scene.musicNote(this.x + h.x, this.y + h.y + 6);
-    }
+    this.chime(this.stem.hang);
     scene.girl.faceToward(this.x);
     scene.girl.say('note', 1);
   }
 
+  // A raindrop plinks one of its bells: it rings, and its bells swing faster
+  // for a bit.
+  patter() {
+    this.chime(this.stem.hang.slice(0, 1));
+    this.quick = 1;
+  }
+
+  // It rings, a note floating up off each of `bells`.
+  chime(bells) {
+    const { scene } = this;
+    scene.engine.audio.play(`bell${this.note}`);
+    this.ring = 1;
+    for (const h of bells) {
+      scene.musicNote(this.x + h.x, this.y + h.y + 6);
+    }
+  }
+
   update(dt) {
     this.ring = Math.max(0, this.ring - dt * 0.8);
+    this.quick = Math.max(0, this.quick - dt * 0.5);
+    this.swung += dt * (1 + this.quick * 0.9);
   }
 
   draw(r) {
@@ -57,7 +79,7 @@ export class Bluebell extends Carryable {
     }
     r.image(img, this.x, this.y + 1, { ax: 8 / img.width });
     this.stem.hang.forEach((h, i) => {
-      const swing = Math.sin(t * 14 + i * 1.3) * this.ring * 3 + sway;
+      const swing = Math.sin(this.swung * 14 + i * 1.3) * this.ring * 3 + sway;
       r.image(this.bellImg, this.x + h.x + swing, this.y + h.y, { ay: 0 });
     });
   }
