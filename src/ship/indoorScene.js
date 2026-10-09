@@ -1,6 +1,7 @@
 import { Girl, clampToFloor } from './entities/girl.js';
 import { HouseDoor } from './entities/house.js';
 import { HOUSE_DOOR } from './layout.js';
+import { tuneOf } from './planetScenes.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 
@@ -14,6 +15,7 @@ export class IndoorScene extends PlayScene {
   // `fromDoor`: she's just walked in from outside (rather than a reload).
   constructor(assets, where, { room, door, dust, outside, fromDoor = false }) {
     super(assets, where);
+    this.tune = tuneOf(where);
     this.room = room;
     this.dustColor = dust;
     this.outside = outside;

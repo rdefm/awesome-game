@@ -64,6 +64,13 @@ export function planetOf(where) {
   return PLANET_OF.get(where) ?? null;
 }
 
+// The tune (see tunes.js) played at place `where`: each planet has its own,
+// shared by its landing site and outdoor sites (so riding the hoverbike
+// between them doesn't restart it); the houses all share a cosy one.
+export function tuneOf(where) {
+  return BY_WHERE.get(where).kind === 'house' ? 'indoors' : PLANET_OF.get(where);
+}
+
 // How she turns up at place `where` off the hoverbike: in through the front
 // door of a house, or riding in and parking the bike anywhere out of doors.
 export function arrivingBy(where) {

@@ -4,7 +4,7 @@ import { Girl, clampToFloor } from './entities/girl.js';
 import { Hoverbike } from './entities/hoverbike.js';
 import { ParkedShip } from './entities/outdoors.js';
 import { HOVERBIKE, PARKED_SHIP, distanceScale } from './layout.js';
-import { arrivingBy, planetScene } from './planetScenes.js';
+import { arrivingBy, planetScene, tuneOf } from './planetScenes.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
 import { ShipScene } from './shipScene.js';
@@ -26,6 +26,7 @@ export class OutdoorScene extends PlayScene {
   // `ship`: whether our ship is parked here (false at a site off the landing site).
   constructor(assets, where, { fromShip = true, fromHouse = false, byBike = false, ship = true } = {}) {
     super(assets, where);
+    this.tune = tuneOf(where);
     this.backdrop = assets.backdrops[where];
     this.dustColor = this.backdrop.dust;
     this.roam = { minX: 92, maxX: 244 }; // where critters wander: clear of the ship

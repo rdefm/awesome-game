@@ -5,11 +5,12 @@ import { defineSfx } from './sfx.js';
 import { landedOn, planetScene } from './planetScenes.js';
 import { loadSave, musicOn } from './save.js';
 import { shipRoomScene } from './shipRooms.js';
-import { TUNES } from './tunes.js';
+import { STINGS, TUNES } from './tunes.js';
 
 const engine = new Engine({ parent: document.getElementById('game'), width: W, height: H });
 defineSfx(engine.audio);
 engine.music.tunes = TUNES;
+engine.music.stings = STINGS;
 const assets = loadAssets();
 const save = loadSave();
 engine.music.enabled = musicOn(save);

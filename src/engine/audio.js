@@ -1,4 +1,4 @@
-import { Cursor } from './sequencer.js';
+import { Cursor, eventsBetween, loopSeconds } from './sequencer.js';
 
 // Tiny Web Audio synthesizer: every sound effect is generated from oscillators
 // and noise at play time, so there are no audio files to load.
@@ -94,6 +94,7 @@ export class Music {
   constructor(synth) {
     this.synth = synth;
     this.tunes = {}; // name -> tune data (see sequencer.js)
+    this.stings = {}; // name -> short tune data, played once
     this.enabled = true;
     this.wanted = null; // name of the tune that should be playing
     this.current = null; // { name, cursor, startAt, bus }
@@ -142,6 +143,24 @@ export class Music {
     player.bus.gain.setValueAtTime(player.bus.gain.value, now);
     player.bus.gain.linearRampToValueAtTime(0, now + FADE);
     setTimeout(() => player.bus.disconnect(), (FADE + 0.2) * 1000);
+  }
+
+  // Plays a short sting once, on the music bus, unless the music is off
+  // (or before the first tap, when there's no sound yet).
+  sting(name) {
+    const { ctx } = this.synth;
+    const tune = this.stings[name];
+    if (!this.enabled || !ctx || !tune) {
+      return;
+    }
+    const bus = ctx.createGain();
+    bus.gain.value = MUSIC_LEVEL;
+    bus.connect(this.synth.master);
+    const at = ctx.currentTime + 0.05;
+    for (const e of eventsBetween(tune, 0, loopSeconds(tune))) {
+      this.synth.tone({ at: at + e.time, freq: e.freq, dur: e.dur, out: bus, ...e.instrument });
+    }
+    setTimeout(() => bus.disconnect(), (loopSeconds(tune) + 1) * 1000);
   }
 
   // Hands the next little stretch of notes to the audio clock.

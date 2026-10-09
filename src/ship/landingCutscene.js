@@ -26,6 +26,7 @@ export class LandingCutscene {
     this.thrust = false;
     engine.audio.play('thud');
     this.squash = 1;
+    engine.music.sting('landed');
     for (let i = 0; i < 14; i++) {
       const dir = i % 2 ? 1 : -1;
       this.puffs.push({

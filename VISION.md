@@ -189,7 +189,12 @@ store.
   sequencer (`src/engine/sequencer.js`, pure; `Music` in
   `src/engine/audio.js` feeds it to the synth through its own quieter volume
   bus). A place picks its tune with `tune` on its scene; the ship and its
-  side rooms play a slow, cosy loop, and the planets are quiet for now.
+  side rooms play a slow, cosy loop; every planet has its own tune (twinkly
+  Bluebell, warm rumbly Ember, chimey Frosty, bouncy Candy, twangy Stripey),
+  shared by its landing site and outdoor sites (so the hoverbike doesn't restart
+  it), and every house plays a softer indoor lullaby. Changing tune fades the old
+  one out as the new one fades in. Landing and blast-off each get a short sting
+  (`STINGS`, played once by `music.sting`). Muting silences stings too.
   The on/off choice is saved as `music` (old saves get music on).
 - **Inventory (the bag)**, Toca/Avatar-World style: carryable things (plant,
   teddy, ball, crystal, giant bluebells, fire flowers, geode, snowballs,

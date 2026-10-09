@@ -113,6 +113,7 @@ export class ShipScene extends PlayScene {
     screen.countdown = 'GO';
     engine.audio.play('go');
     engine.audio.play('blast');
+    engine.music.sting('blastedOff');
     this.alert = true;
     poster.flicker = true;
     girl.act('surprised', 0.7).then(() => girl.act('cheer', 1.8));
@@ -142,6 +143,7 @@ export class ShipScene extends PlayScene {
     this.busy = true;
     if (this.landed) {
       engine.audio.play('blast');
+      engine.music.sting('blastedOff');
       tw.to(this, { shake: 2 }, 0.4);
       await this.liftOff();
     }

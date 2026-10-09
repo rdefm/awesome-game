@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Cursor, eventsBetween, loopSeconds, noteFreq } from './sequencer.js';
-import { TUNES } from '../ship/tunes.js';
+import { STINGS, TUNES } from '../ship/tunes.js';
 
 const inst = { type: 'sine', vol: 0.1 };
 // 120 bpm: half a second per beat, a two-second loop.
@@ -70,6 +70,29 @@ describe('the game tunes', () => {
         for (const [beat, , length] of voice.notes) {
           expect(beat + length).toBeLessThanOrEqual(t.beats);
         }
+      }
+    }
+  });
+});
+
+describe('the game stings', () => {
+  it('all parse and fit their length', () => {
+    for (const t of Object.values(STINGS)) {
+      expect(eventsBetween(t, 0, loopSeconds(t)).length).toBeGreaterThan(0);
+      for (const voice of t.voices) {
+        for (const [beat, , length] of voice.notes) {
+          expect(beat + length).toBeLessThanOrEqual(t.beats);
+        }
+      }
+    }
+  });
+});
+
+describe('the music is quieter than the sound effects', () => {
+  it('keeps every instrument under a gentle volume', () => {
+    for (const t of [...Object.values(TUNES), ...Object.values(STINGS)]) {
+      for (const voice of t.voices) {
+        expect(voice.instrument.vol).toBeLessThanOrEqual(0.12);
       }
     }
   });

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PLANETS } from './art/props.js';
 import { H, MUSHROOM_GROVE, W, spooks } from './layout.js';
-import { arrivingBy, landedOn, placesOn, planetOf } from './planetScenes.js';
+import { arrivingBy, landedOn, placesOn, planetOf, tuneOf } from './planetScenes.js';
+import { TUNES } from './tunes.js';
 
 describe('landedOn', () => {
   it('finds the planet she was out on when the save was made', () => {
@@ -219,5 +220,30 @@ describe('the mushroom grove on Bluebell', () => {
     expect(spooks({ x: at.x + 10, y: at.y + 4 }, at)).toBe(true);
     expect(spooks({ x: at.x + 90, y: at.y }, at)).toBe(false);
     expect(spooks({ x: at.x, y: at.y + 40 }, at)).toBe(false);
+  });
+});
+
+describe('tuneOf', () => {
+  it('gives every place on every planet a tune that exists', () => {
+    for (const planet of PLANETS.filter((p) => p.landable)) {
+      for (const place of placesOn(planet.id)) {
+        expect(TUNES[tuneOf(place.where)], place.where).toBeDefined();
+      }
+    }
+  });
+
+  it('gives each planet its own tune, shared by its outdoor places', () => {
+    expect(tuneOf('bluebell')).toBe('bluebell');
+    expect(tuneOf('mushroomgrove')).toBe('bluebell');
+    expect(tuneOf('lavafalls')).toBe('ember');
+    expect(tuneOf('frozenlake')).toBe('frosty');
+    expect(tuneOf('milkshake')).toBe('candy');
+    expect(tuneOf('oasis')).toBe('stripey');
+  });
+
+  it('gives every house the cosy indoor tune', () => {
+    for (const where of ['pod', 'lavahouse', 'icecave', 'gingerbread', 'zighut']) {
+      expect(tuneOf(where)).toBe('indoors');
+    }
   });
 });
