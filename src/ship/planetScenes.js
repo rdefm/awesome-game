@@ -2,6 +2,7 @@ import { BluebellScene } from './bluebellScene.js';
 import { CandyScene } from './candyScene.js';
 import { EmberScene } from './emberScene.js';
 import { FrostyScene } from './frostyScene.js';
+import { FrozenLakeScene } from './frozenLakeScene.js';
 import { GingerbreadScene } from './gingerbreadScene.js';
 import { IceCaveScene } from './iceCaveScene.js';
 import { LavaFallsScene } from './lavaFallsScene.js';
@@ -30,8 +31,9 @@ const PLACES = {
     { where: 'lavafalls', name: 'Lava falls', kind: 'site', spot: { x: 206, y: 132 }, scene: LavaFallsScene },
   ],
   frosty: [
-    { where: 'frosty', name: 'Landing site', kind: 'landing', spot: { x: 128, y: 96 }, scene: FrostyScene },
+    { where: 'frosty', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: FrostyScene },
     { where: 'icecave', name: 'Ice cave', kind: 'house', spot: { x: 176, y: 72 }, scene: IceCaveScene },
+    { where: 'frozenlake', name: 'Frozen lake', kind: 'site', spot: { x: 198, y: 128 }, scene: FrozenLakeScene },
   ],
   candy: [
     { where: 'candy', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: CandyScene },

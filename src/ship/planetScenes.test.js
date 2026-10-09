@@ -174,3 +174,19 @@ describe('the oasis on Stripey', () => {
     expect(landedOn({ where: 'oasis', landed: true })).toBe('oasis');
   });
 });
+
+describe('the frozen lake on Frosty', () => {
+  it('is out of doors on Frosty, after the landing site and the ice cave', () => {
+    expect(placesOn('frosty').map((place) => place.where)).toEqual(['frosty', 'icecave', 'frozenlake']);
+    expect(placesOn('frosty').find((place) => place.where === 'frozenlake').kind).toBe('site');
+    expect(planetOf('frozenlake')).toBe('frosty');
+  });
+
+  it('is ridden to on the hoverbike', () => {
+    expect(arrivingBy('frozenlake')).toEqual({ fromShip: false, byBike: true });
+  });
+
+  it('puts her back by the ice on a reload', () => {
+    expect(landedOn({ where: 'frozenlake', landed: true })).toBe('frozenlake');
+  });
+});

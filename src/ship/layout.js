@@ -108,7 +108,25 @@ export const HOVERBIKE = {
   lavafalls: { x: 40, y: 140 },
   stripey: { x: 100, y: 148 }, // below the sand mound
   oasis: { x: 34, y: 142 },
+  frosty: { x: 96, y: 152 }, // below the frost flower, clear of the snowball
+  frozenlake: { x: 34, y: 142 },
 };
+
+// The frozen lake on Frosty: a sheet of ice (an ellipse round x, y) from the
+// back right up to the floor she walks on, to slide across from one of its
+// `ends` to the other (tap the far part of it, off the floor); a fishing
+// hole cut in it at the back, with a curious fish living under it.
+export const FROZEN_LAKE = {
+  x: 158, y: 120, rx: 86, ry: 16,
+  ends: [{ x: 100, y: 128 }, { x: 216, y: 128 }],
+};
+export const FISHING_HOLE = { x: 124, y: 112, rx: 9, ry: 3, spot: { x: 124, y: 124 } };
+
+// Whether (x, y) is out on the frozen lake's ice.
+export function onIce(x, y) {
+  const { x: cx, y: cy, rx, ry } = FROZEN_LAKE;
+  return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+}
 
 // The oasis on Stripey: a stripy pool (an ellipse round x, y) with lily pads
 // for the frog to sit on, a palm on the left whose crown hangs coconuts out

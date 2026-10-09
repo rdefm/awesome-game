@@ -29,7 +29,7 @@ store.
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (Candy's gingerbread house, the lava family's house
   on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
-  lava falls, Stripey's oasis). Where
+  lava falls, Stripey's oasis, Frosty's frozen lake). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
   places popping now and then to show they can be tapped); tap a place and
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -106,7 +106,16 @@ store.
   snowbirds, and a snow drift with a shy snow hare behind it. Up in the
   mountainside is the yetis' ice cave, its arched mouth fringed with
   icicles and hung with a fur curtain: tap it and she walks up the snowy
-  path (big yeti footprints up it), getting smaller, and in through the fur curtain
+  path (big yeti footprints up it), getting smaller, and in through the fur curtain.
+  A hoverbike parked by the ship rides her anywhere on Frosty's town map
+- The frozen lake on Frosty (by hoverbike), snow still falling: a great
+  sheet of ice to slide across (tap it and she whizzes from one end to the
+  other with a twirl in the middle, any friends out there sliding along
+  behind her in a line); a fishing hole with a curious fish that pops up to
+  see who's there, looks her up and down and blows a bubble (every third
+  time it flips right out and back in with a splash); and little snow
+  critters that waddle about and, tapped, squeak and hop or flop on their
+  tummies and toboggan off
 - Inside the ice cave: a glittering cave home of blue ice. A row of
   icicles hanging from a ledge that chime down the row when tapped; a round
   window of clear ice onto the frozen pond, where a fish swims under the

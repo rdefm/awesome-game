@@ -8,11 +8,13 @@ import { OutdoorScene } from './outdoorScene.js';
 // baby yeti, with snowballs, frost flowers and little snowbirds, our ship
 // parked on the left (and a secret: a snow drift with a hare behind it). Up
 // in the mountainside is the yetis' ice cave: tap it and she walks up the
-// snowy path, getting smaller, and goes inside.
+// snowy path, getting smaller, and goes inside. Beside the ship is the
+// hoverbike, to ride off anywhere else on Frosty.
 export class FrostyScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'frosty', opts);
     this.addHouse(new IceCave(assets), (o) => new IceCaveScene(assets, o));
+    this.addBike();
     this.add(new SnowDrift(assets));
     this.addPlaced();
     for (let i = 0; i < 3; i++) {

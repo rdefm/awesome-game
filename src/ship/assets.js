@@ -48,9 +48,10 @@ import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
 import {
-  MAP_STYLE, drawCandyMap, drawEmberMap, drawMapBike, drawMapFalls, drawMapGingerbread, drawMapLake, drawMapLavaHouse,
-  drawMapOasis, drawMapShip, drawMapZigHut, drawStripeyMap,
+  MAP_STYLE, drawCandyMap, drawEmberMap, drawFrostyMap, drawMapBike, drawMapFalls, drawMapFrozenLake, drawMapGingerbread,
+  drawMapIceCave, drawMapLake, drawMapLavaHouse, drawMapOasis, drawMapShip, drawMapZigHut, drawStripeyMap,
 } from './art/townMap.js';
+import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
@@ -197,6 +198,14 @@ export function loadAssets() {
         dust: '#f8e2b4',
         puff: '#ffe8d0',
       }),
+      // Not a planet: the frozen lake on Frosty (snowing there too).
+      frozenlake: bake({
+        ground: drawFrozenLake({ horizon: HORIZON }),
+        clouds: [drawSnowCloud(1), drawSnowCloud(0)],
+        dust: '#ffffff',
+        puff: '#ffffff',
+        snow: true,
+      }),
       // Not a planet: the oasis on Stripey.
       oasis: bake({
         ground: drawOasis({ horizon: HORIZON }),
@@ -209,7 +218,7 @@ export function loadAssets() {
     // picture, each place's picture on it (by its `where`), and her on the bike.
     hoverbike: bake([drawHoverbike(0), drawHoverbike(1)]),
     townMap: bake({
-      ground: { candy: drawCandyMap(), ember: drawEmberMap(), stripey: drawStripeyMap() },
+      ground: { candy: drawCandyMap(), ember: drawEmberMap(), stripey: drawStripeyMap(), frosty: drawFrostyMap() },
       places: {
         candy: drawMapShip(MAP_STYLE.candy.shadow),
         gingerbread: drawMapGingerbread(),
@@ -220,6 +229,9 @@ export function loadAssets() {
         stripey: drawMapShip(MAP_STYLE.stripey.shadow),
         zighut: drawMapZigHut(),
         oasis: drawMapOasis(),
+        frosty: drawMapShip(MAP_STYLE.frosty.shadow),
+        icecave: drawMapIceCave(),
+        frozenlake: drawMapFrozenLake(),
       },
       bike: drawMapBike(),
     }),
@@ -285,6 +297,12 @@ export function loadAssets() {
     iceDoor: bake({ shut: drawIceDoor(), open: drawIceDoor(true) }),
     icicles: bake(ICICLES.lengths.map((len) => drawIcicle(len))),
     iceFish: bake([drawIceFish(0), drawIceFish(1)]),
+    // The frozen lake on Frosty: the curious fish [look, blink, oh][rows
+    // showing above the water], and the snow critters [colour][frame].
+    lakeFish: Object.fromEntries(['look', 'blink', 'oh'].map((f) => [f, croppedRows(drawLakeFish(f))])),
+    snowCritters: SNOW_CRITTER_COLORS.map((_, v) => bake(Object.fromEntries(
+      ['stand', 'step', 'blink', 'belly'].map((f) => [f, drawSnowCritter(f, v)]),
+    ))),
     furNest: bake({ back: drawFurNest(true), front: drawFurNest() }),
     // [flicker 0, flicker 1, flared 0, flared 1]
     campfire: bake([drawCampfire(0), drawCampfire(1), drawCampfire(0, true), drawCampfire(1, true)]),

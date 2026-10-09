@@ -2,6 +2,9 @@ import { Pixmap, bayer, seededRandom } from '../../engine/pixmap.js';
 import { C } from './palette.js';
 import { CA } from './candy.js';
 import { EM } from './ember.js';
+import { FL, SNOW_CRITTER_COLORS } from './frozenLake.js';
+import { FR } from './frosty.js';
+import { IC } from './iceCave.js';
 import { MS } from './milkshakeLake.js';
 import { OA } from './oasis.js';
 import { ST, ZIG_STRIPES, stripe } from './stripey.js';
@@ -18,6 +21,7 @@ export const MAP_STYLE = {
   candy: { dot: '#fffaf2', shade: '#c04f9a', shadow: CA.groundDeep },
   ember: { dot: EM.lavaHi, shade: EM.lavaDark, shadow: EM.rockDark },
   stripey: { dot: '#fff4d8', shade: ST.rockShade, shadow: ST.sandDeep },
+  frosty: { dot: '#ffffff', shade: FR.peakDark, shadow: FR.snowDeep },
 };
 
 const BODY = '#ff00ff'; // stand-in colour, striped once the shape's drawn
@@ -189,6 +193,57 @@ export function drawStripeyMap() {
   return pm;
 }
 
+// Frosty from up high: deep snow shaded in soft blue drifts, snowy
+// mountains ringed with ice, little pines dotted about, and the lake frozen
+// over, under a border of packed snow and ice.
+export function drawFrostyMap() {
+  const { w, h } = MAP;
+  const pm = new Pixmap(w, h);
+  const rand = seededRandom(29);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const drift = Math.sin(x / 11 + y / 17) + Math.sin(y / 7 - x / 23);
+      pm.set(x, y, drift > 1.1 && bayer(x, y) < 0.6 ? FR.snowShade : FR.snow);
+    }
+  }
+  // Mountains seen from above: rings of rock with snowy tops, shadow off to
+  // the lower right.
+  for (const [mx, my, r] of [[30, 30, 20], [116, 24, 15], [170, 40, 18], [230, 76, 13], [120, 112, 11]]) {
+    pm.ellipse(mx + 4, my + 4, r, r * 0.7, FR.snowDeep);
+    pm.ellipse(mx, my, r, r * 0.7, FR.peakDark);
+    pm.ellipse(mx - 1, my - 1, r * 0.75, r * 0.52, FR.peak);
+    pm.ellipse(mx - 2, my - 2, r * 0.45, r * 0.32, FR.peakSnow);
+  }
+  // The frozen lake, round the place it sits.
+  pm.ellipse(192, 110, 34, 14, FR.snowShade);
+  pm.ellipse(192, 109, 31, 12, FL.ice);
+  for (let i = 0; i < 6; i++) {
+    pm.hline(172 + i * 7, 175 + i * 7, 104 + (i % 3) * 3, FL.iceLight);
+  }
+  // Little snowy pines.
+  for (let i = 0; i < 16; i++) {
+    const tx = 8 + Math.floor(rand() * (w - 16));
+    const ty = 8 + Math.floor(rand() * (h - 16));
+    pm.ellipse(tx + 1, ty + 1, 2.5, 1.5, FR.snowDeep);
+    pm.circle(tx, ty, 2.5, FR.pine);
+    pm.set(tx - 1, ty - 1, FR.snow);
+  }
+  // Glitter.
+  for (let i = 0; i < 90; i++) {
+    pm.set(Math.floor(rand() * w), Math.floor(rand() * h), rand() < 0.5 ? '#ffffff' : FR.iceLight);
+  }
+  // A border of packed snow and ice all round.
+  for (let i = 0; i < Math.max(w, h); i++) {
+    const d = 2 + (Math.floor(i / 6) % 2);
+    const color = Math.floor(i / 6) % 2 ? FR.ice : '#ffffff';
+    pm.rect(i, 0, 1, d, color);
+    pm.rect(i, h - d, 1, d, color);
+    pm.rect(0, i, d, 1, color);
+    pm.rect(w - d, i, d, 1, color);
+  }
+  return pm;
+}
+
 // ------------------------------------------------------------ place pictures
 // Each is centred on its place's spot on the map.
 
@@ -323,6 +378,47 @@ export function drawMapOasis() {
     pm.set(13 + dx, 8 + dy, ST.green);
   }
   pm.circle(12, 10, 1.5, OA.nut);
+  return pm.outline(C.outline);
+}
+
+// The yetis' ice cave: a hump of blue rock under a snow cap, its arched
+// mouth fringed with icicles and hung with a fur curtain.
+export function drawMapIceCave() {
+  const pm = new Pixmap(32, 26);
+  pm.ellipse(16, 24, 14, 1.5, FR.snowDeep);
+  pm.ellipse(16, 25, 14, 17, IC.rock);
+  pm.dither(18, 12, 12, 12, IC.rockDark, 0.4);
+  pm.ellipse(15, 10, 12, 5, FR.snow); // its snow cap
+  pm.dither(4, 11, 22, 3, FR.snowShade, 0.4);
+  pm.circle(16, 17, 5, IC.rockDeep);
+  pm.rect(11, 17, 11, 7, IC.rockDeep);
+  pm.circle(16, 18, 3.5, IC.fur);
+  pm.rect(13, 18, 7, 6, IC.fur);
+  pm.vline(16, 15, 23, IC.furDark);
+  for (const x of [11, 13, 19, 21]) {
+    pm.vline(x, 13, 14 + (x % 3), FR.iceLight); // icicles
+  }
+  return pm.outline(C.outline);
+}
+
+// The frozen lake: a pale sheet of ice in a snowbank, a fishing hole cut in
+// it, and a snow critter sat beside it.
+export function drawMapFrozenLake() {
+  const pm = new Pixmap(44, 28);
+  pm.ellipse(21, 18, 20, 8, '#ffffff');
+  pm.ellipse(21, 18, 18, 6.5, FL.ice);
+  pm.ellipse(24, 20, 11, 3, FL.iceDark);
+  pm.hline(9, 14, 16, FL.iceLight);
+  pm.hline(26, 31, 14, FL.iceLight);
+  pm.ellipse(14, 19, 3, 1.5, FL.water); // the fishing hole
+  pm.set(13, 19, FL.waterDeep);
+  // A snow critter on the shore.
+  pm.ellipse(35, 9, 4, 3.5, '#ffffff');
+  pm.ellipse(35, 6, 2.5, 1, SNOW_CRITTER_COLORS[0].cap);
+  pm.set(37, 8, C.outline);
+  pm.set(39, 9, FL.feet);
+  pm.rect(33, 12, 1, 1, FL.feet);
+  pm.rect(36, 12, 1, 1, FL.feet);
   return pm.outline(C.outline);
 }
 
