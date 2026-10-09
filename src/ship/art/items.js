@@ -333,3 +333,52 @@ export function drawHeartIcon() {
     '...r...',
   ], { r: C.red, h: '#ffb0b0' });
 }
+
+// ---------------------------------------------------------------- drawer finds
+// What's tucked away in the drawers of the dresser in the pink alien's pod:
+// a stripy sock, a packet of seeds with a flower on the front, and a little
+// plushie of the pink alien itself.
+export function drawSock() {
+  return outlinedGrid([
+    'cccc....',
+    'CcCc....',
+    'pppp....',
+    'wwww....',
+    'pppp....',
+    'wwww....',
+    'ppppp...',
+    'wwwwwww.',
+    'pppppppp',
+    '.tttttt.',
+  ], { c: '#8adcc8', C: '#58a894', p: '#ff7fbf', w: '#ffffff', t: '#c8508e' });
+}
+
+export function drawSeedPacket() {
+  return outlinedGrid([
+    '.ffffff.',
+    'tttttttt',
+    'tWWWWWWt',
+    'tWWyWWWt',
+    'tWyoyWWt',
+    'tWWyWWWt',
+    'tWWgWgWt',
+    'tWWgggWt',
+    'tWWWWWWt',
+    'tttttttt',
+  ], { f: '#8a62c8', t: '#b48ae8', W: '#fff8ec', y: '#ffd84a', o: '#ff8a3a', g: '#5fbf6a' });
+}
+
+export function drawPlushie() {
+  return outlinedGrid([
+    '..o....o..',
+    '...d..d...',
+    '..bbbbbb..',
+    '.bbbbbbbb.',
+    'bbwkbbwkbb',
+    'bbwkbbwkbb',
+    'bcbbbbbbcb',
+    '.bbbmmbbb.',
+    '.bbbbbbbb.',
+    '..bb..bb..',
+  ], { o: '#ffe0a0', d: '#c04f9a', b: '#ff8fc8', c: '#ffe0a0', w: '#ffffff', k: '#2a1040', m: '#c04f9a' });
+}

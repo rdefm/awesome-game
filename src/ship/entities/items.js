@@ -107,6 +107,43 @@ export class Teddy extends Carryable {
   }
 }
 
+// ---------------------------------------------------------------- drawer finds
+// Little things from the drawers of the dresser in the pink alien's pod: a
+// stripy sock, a packet of seeds, a plushie of the pink alien. Tap one and
+// it gives a little jiggle: a swish, a rattle of seeds, a squeak.
+export const DRAWER_THINGS = ['sock', 'seedpacket', 'plushie'];
+const JIGGLES = {
+  sock: { sound: 'rustle', emote: 'star' },
+  seedpacket: { sound: 'rattle', emote: 'star' },
+  plushie: { sound: 'squeak', emote: 'heart' },
+};
+
+export class Trinket extends Carryable {
+  constructor(assets, state) {
+    super(state);
+    this.img = assets.trinkets[state.kind];
+  }
+
+  hitTest(px, py) {
+    const { width, height } = this.img;
+    return Math.abs(px - this.x) < width / 2 + 3 && py > this.y - height - 3 && py < this.y + 3;
+  }
+
+  onTap() {
+    const { engine, girl } = this.scene;
+    const { sound, emote } = JIGGLES[this.kind];
+    engine.audio.play(sound);
+    this.boing(1.4);
+    girl.faceToward(this.x);
+    girl.say(emote, 1);
+  }
+
+  draw(r) {
+    this.shadow(r, 8);
+    r.image(this.img, this.x, this.y + 1, { scaleX: this.bounce, scaleY: 2 - this.bounce });
+  }
+}
+
 // ---------------------------------------------------------------- snacks
 // Treats: from the ship's snack locker, cupcakes from Ginger's oven on
 // Candy, lava cakes from the lava family's pot on Ember, whatever comes out

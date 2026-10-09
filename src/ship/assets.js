@@ -21,7 +21,7 @@ import {
 import {
   drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
   drawIceLolly, drawJuice, drawNectar, drawOutlineOf, drawSandwich, drawSeedCookie, drawSmoothie, drawSnowCone, drawSparkleCake,
-  drawStarFruit, drawTeddy,
+  drawPlushie, drawSeedPacket, drawSock, drawStarFruit, drawTeddy,
 } from './art/items.js';
 import {
   MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
@@ -51,8 +51,8 @@ import {
   drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
 } from './art/iceCave.js';
 import {
-  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawKettle, drawNightSky, drawPantry, drawPod, drawPodDoor,
-  drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
+  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawDresser, drawKettle, drawNightSky, drawPantry, drawPod,
+  drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawGonzo, drawMonkey } from './art/shipFriends.js';
@@ -371,6 +371,8 @@ export function loadAssets() {
     // The pantry cupboard [shut, open], and the kettle [cold, hot] on its stove.
     pantry: bake([drawPantry(), drawPantry(true)]),
     kettle: bake({ stove: [drawStove(), drawStove(true)], kettle: [drawKettle(), drawKettle(true)] }),
+    // The chest of drawers [all shut, then with each drawer pulled out].
+    dresser: bake([drawDresser(), drawDresser(0), drawDresser(1), drawDresser(2)]),
     // The bed nook, its curtain, and its quilt [flat, tucked in].
     bedNook: bake({
       nook: drawBedNook(),
@@ -480,6 +482,7 @@ export function loadAssets() {
     // Carryable things and the bag.
     ball: bake(drawBall()),
     teddy: bake(drawTeddy()),
+    trinkets: bake({ sock: drawSock(), seedpacket: drawSeedPacket(), plushie: drawPlushie() }),
     crystal: bake([drawCrystal(), drawCrystal(true)]),
     snacks: bake({
       cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake(), ...galleyFoods,

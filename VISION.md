@@ -169,10 +169,15 @@ store.
   it and its doors swing open on shelves of jars, and out pops a pot of
   nectar, then a seed cookie, turn about, up to four lying about the pod at
   once: both new snacks, in the bag and feedable to any friend anywhere);
-  and a kettle on a little pot-belly stove beside it (tap it and the stove
+  a kettle on a little pot-belly stove beside it (tap it and the stove
   lights, the kettle heats up rattling its lid, then whistles a cheerful
-  tune with a puff of steam from its spout). The pink alien lives outside,
-  but she can bring it in.
+  tune with a puff of steam from its spout); and a lilac chest of drawers
+  by the door (tap a drawer and it slides out and up pops what's tucked
+  away in it: a stripy sock, a seed packet, or a little pink-alien plushie,
+  each drawer its own, carryable and baggable, each giving a little jiggle
+  when tapped; once taken, that drawer comes up empty with a puff of dust
+  and a sneeze, remembered so the drawers never fill up again). The pink
+  alien lives outside, but she can bring it in.
   The door goes back out
 - Ember volcanic plain: smouldering sky and a glowing volcano, parked ship,
   fire flowers that flare when tapped, a geode, a scurrying fire newt,

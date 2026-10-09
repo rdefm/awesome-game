@@ -381,6 +381,11 @@ export function defineSfx(audio) {
     [1760, 1976, 2217, 1976, 2349, 2217, 1760].forEach((f, i) => s.tone({ at: t + 0.3 + i * 0.16, freq: f, dur: 0.15, type: 'sine', vol: 0.08 }));
     s.noise({ at: t, dur: 1.5, filter: 'highpass', freq: 4000, vol: 0.05, attack: 0.1 });
   });
+  // A drawer in the pod's dresser sliding open.
+  audio.define('drawer', (s, t) => {
+    s.noise({ at: t, dur: 0.25, filter: 'lowpass', freq: 700, to: 1400, vol: 0.18, attack: 0.02 });
+    s.tone({ at: t + 0.22, freq: 180, to: 140, dur: 0.06, type: 'triangle', vol: 0.1 });
+  });
   audio.define('fizzle', (s, t) => {
     s.noise({ at: t, dur: 0.7, filter: 'highpass', freq: 2500, to: 5000, vol: 0.12 });
     s.tone({ at: t + 0.1, freq: 600, to: 180, dur: 0.6, type: 'square', vol: 0.05 });

@@ -1,11 +1,13 @@
 import { ease } from '../../engine/tween.js';
 import { seededRandom } from '../../engine/pixmap.js';
 import { BB } from '../art/bluebell.js';
-import { BATH, CUPBOARD, KETTLE_ART, NOOK, PD, POD_LIGHTS, SCOPE, STOVE, TRAY } from '../art/pod.js';
-import { BED_NOOK, BUBBLE_BATH, H, KETTLE, PANTRY, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W } from '../layout.js';
+import { BATH, CHEST, CUPBOARD, KETTLE_ART, NOOK, PD, POD_LIGHTS, SCOPE, STOVE, TRAY } from '../art/pod.js';
+import {
+  BED_NOOK, BUBBLE_BATH, DRESSER, H, KETTLE, PANTRY, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W,
+} from '../layout.js';
 import { FriendBunk, tuckHerIn, wakeHer } from './bunkroom.js';
 import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
-import { PANTRY_SNACKS } from './items.js';
+import { DRAWER_THINGS, PANTRY_SNACKS } from './items.js';
 
 // ---------------------------------------------------------------- the house
 // The pink alien's round pod, far off in Bluebell's meadow, with its
@@ -493,5 +495,96 @@ export class Kettle extends HouseProp {
       const s = 0.4 + k * 1.2;
       r.image(this.puffImg, p.x, p.y, { ay: 0.5, scaleX: s, scaleY: s, alpha: 0.8 * (1 - k) });
     }
+  }
+}
+
+// The chest of drawers. Tap a drawer and it slides out and up pops what's
+// tucked away in it (a stripy sock, a seed packet, a plushie: each drawer its
+// own). Once it's been taken out, that drawer comes up empty: a puff of dust,
+// and a sneeze. What's been taken is remembered (as one of the scene's
+// memories), so the drawers don't fill up again.
+const DUST = '#e8dcf4';
+export const drawerMemory = (kind) => `pod.drawer.${kind}`;
+
+export class Dresser extends HouseProp {
+  constructor(assets) {
+    super();
+    this.imgs = assets.dresser;
+    this.spot = DRESSER.spot;
+    this.open = -1; // which drawer is pulled out (-1 = all shut)
+    this.picked = 0; // the drawer last tapped
+    this.pulling = false;
+  }
+
+  // The middle of drawer `i`'s front, shut.
+  drawerY(i) {
+    return DRESSER.y - CHEST.h + CHEST.drawers[i];
+  }
+
+  // Whichever drawer is nearest the tap.
+  drawerAt(py) {
+    let best = 0;
+    CHEST.drawers.forEach((_, i) => {
+      if (Math.abs(py - this.drawerY(i)) < Math.abs(py - this.drawerY(best))) {
+        best = i;
+      }
+    });
+    return best;
+  }
+
+  hitTest(px, py) {
+    return inRect(px, py, DRESSER.x - CHEST.body / 2, DRESSER.y - CHEST.h, CHEST.body, CHEST.h, 2);
+  }
+
+  onTap(p) {
+    if (!this.pulling) {
+      this.picked = this.drawerAt(p.y);
+    }
+    super.onTap(p);
+  }
+
+  async use() {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    if (this.pulling) {
+      return;
+    }
+    this.pulling = true;
+    const i = this.picked;
+    const kind = DRAWER_THINGS[i];
+    const memory = drawerMemory(kind);
+    const y = this.drawerY(i) + 4;
+    girl.faceToward(DRESSER.x);
+    girl.act('reach', 0.4);
+    engine.audio.play('drawer');
+    this.open = i;
+    this.squash = 1;
+    engine.tweens.to(this, { squash: 0 }, 0.4, ease.outElastic);
+    await engine.wait(0.3);
+    const thing = scene.memories.includes(memory) ? null : scene.spawn(kind, DRESSER.x, y);
+    if (thing) {
+      scene.remember(memory);
+      engine.audio.play('pop');
+      scene.sparkles(DRESSER.x, y - 4, 5);
+      await scene.putDown(thing, DRESSER.x + 4, DRESSER.spot.y + 8);
+      girl.say('star', 1.2);
+    } else {
+      // Nothing in it but dust... ah... ah... choo!
+      scene.bits(DRESSER.x, y - 2, 8, DUST);
+      engine.audio.play('sneeze');
+      await engine.wait(0.55);
+      girl.hop(5);
+      scene.bits(DRESSER.x, y - 4, 6, DUST);
+      girl.say('question', 1.2);
+    }
+    await engine.wait(0.4);
+    engine.audio.play('close');
+    this.open = -1;
+    this.pulling = false;
+  }
+
+  draw(r) {
+    const s = this.bounce;
+    r.image(this.imgs[this.open + 1], DRESSER.x, DRESSER.y, { scaleX: s, scaleY: 2 - s });
   }
 }

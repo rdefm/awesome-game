@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BED_NOOK, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
+import { BED_NOOK, DRESSER, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
 import { isFriend, makeCarryable } from '../kinds.js';
 import { defaultWorld, normalizeWorld } from '../world.js';
 import { Local } from './bluebell.js';
 import { Girl } from './girl.js';
-import { PANTRY_SNACKS, Snack, isSnack } from './items.js';
-import { BedNook, BubbleBath, Kettle, MAX_PANTRY_SNACKS, Pantry, SeedTray, Telescope } from './pod.js';
+import { DRAWER_THINGS, PANTRY_SNACKS, Snack, Trinket, isSnack } from './items.js';
+import { BedNook, BubbleBath, Dresser, Kettle, MAX_PANTRY_SNACKS, Pantry, SeedTray, Telescope, drawerMemory } from './pod.js';
 
 const assets = {
   local: {}, snacks: { nectar: {}, seedcookie: {} }, bubbleBath: {}, telescope: {}, seedTray: [], bedNook: { quilt: [] },
-  pantry: {}, kettle: {}, steam: {},
+  pantry: {}, kettle: {}, steam: {}, dresser: [], trinkets: { sock: {}, seedpacket: {}, plushie: {} },
   girl: () => ({}), emotes: {},
 };
 
@@ -37,6 +37,10 @@ function setup() {
     hearts: vi.fn(),
     sparkles: vi.fn(),
     bits: vi.fn(),
+    memories: [],
+    remember: vi.fn((memory) => {
+      scene.memories = [...scene.memories, memory];
+    }),
   };
   const girl = new Girl(assets, 100, 136, {});
   const local = new Local(assets, { id: 'local', kind: 'local', x: 60, y: 136 });
@@ -283,6 +287,109 @@ describe('the pantry cupboard', () => {
     const { make } = setup();
     const { spot } = make(Pantry);
     expect(spot.y).toBeGreaterThanOrEqual(WALK.minY);
+  });
+});
+
+describe('the drawer finds', () => {
+  it('are carryable things, not snacks or friends', () => {
+    const { local } = setup();
+    for (const kind of DRAWER_THINGS) {
+      const item = makeCarryable(assets, { id: `${kind}0`, kind, x: 100, y: 140 });
+      expect(item, kind).toBeInstanceOf(Trinket);
+      expect(isSnack(item)).toBe(false);
+      expect(isFriend(kind)).toBe(false);
+      expect(local.accepts(item)).toBe(false);
+    }
+  });
+
+  it('keep in the bag', () => {
+    const bag = DRAWER_THINGS.map((kind) => ({ id: `${kind}0`, kind }));
+    expect(normalizeWorld({ placed: {}, bag }).bag).toEqual(bag);
+  });
+
+  it('give a little jiggle when tapped', () => {
+    const { scene, make } = setup();
+    const sock = make(Trinket, { id: 'sock0', kind: 'sock', x: 100, y: 140 });
+    sock.onTap();
+    expect(scene.engine.audio.play).toHaveBeenCalled();
+  });
+});
+
+describe('the dresser', () => {
+  // Taps it on drawer `i`, and she uses it.
+  const pull = (dresser, i) => {
+    dresser.onTap({ x: DRESSER.x, y: dresser.drawerY(i) });
+    return dresser.use();
+  };
+
+  it('works out which drawer was tapped', () => {
+    const { make } = setup();
+    const dresser = make(Dresser);
+    DRAWER_THINGS.forEach((_, i) => {
+      expect(dresser.drawerAt(dresser.drawerY(i))).toBe(i);
+      expect(dresser.hitTest(DRESSER.x, dresser.drawerY(i))).toBe(true);
+    });
+    expect(dresser.drawerAt(0)).toBe(0);
+    expect(dresser.drawerAt(DRESSER.y)).toBe(DRAWER_THINGS.length - 1);
+  });
+
+  it('has a different thing in each drawer, and remembers it has been taken', async () => {
+    const { scene, make } = setup();
+    const dresser = make(Dresser);
+    let openWhenOut = null;
+    scene.spawn.mockImplementationOnce((kind, x, y) => {
+      openWhenOut = dresser.open;
+      const item = makeCarryable(assets, { id: 'x', kind, x, y });
+      item.scene = scene;
+      scene.entities.push(item);
+      return item;
+    });
+    for (let i = 0; i < DRAWER_THINGS.length; i++) {
+      await pull(dresser, i);
+    }
+    expect(openWhenOut).toBe(0);
+    expect(scene.spawn.mock.calls.map(([kind]) => kind)).toEqual(DRAWER_THINGS);
+    expect(scene.memories).toEqual(DRAWER_THINGS.map(drawerMemory));
+    expect(scene.putDown).toHaveBeenCalledTimes(DRAWER_THINGS.length);
+    expect(dresser.open).toBe(-1);
+    expect(dresser.pulling).toBe(false);
+  });
+
+  it('comes up empty once a drawer has been emptied: a puff of dust and a sneeze', async () => {
+    const { scene, make } = setup();
+    const dresser = make(Dresser);
+    await pull(dresser, 1);
+    await pull(dresser, 1);
+    expect(scene.spawn).toHaveBeenCalledTimes(1);
+    expect(played(scene, 'sneeze')).toHaveLength(1);
+    expect(scene.bits).toHaveBeenCalled();
+    expect(dresser.open).toBe(-1);
+  });
+
+  it('remembers what has been taken across a reload', async () => {
+    const { scene, make } = setup();
+    scene.memories = [drawerMemory('plushie')];
+    const dresser = make(Dresser);
+    await pull(dresser, 2);
+    expect(scene.spawn).not.toHaveBeenCalled();
+    await pull(dresser, 0);
+    expect(scene.spawn.mock.calls.map(([kind]) => kind)).toEqual(['sock']);
+  });
+
+  it('pays no mind to another tap while a drawer is out', async () => {
+    const { scene, make } = setup();
+    const dresser = make(Dresser);
+    const first = pull(dresser, 0);
+    await pull(dresser, 1);
+    await first;
+    expect(scene.spawn).toHaveBeenCalledTimes(1);
+  });
+
+  it('has her stand where she can walk to', () => {
+    const { make } = setup();
+    const { spot } = make(Dresser);
+    expect(spot.y).toBeGreaterThanOrEqual(WALK.minY);
+    expect(spot.x).toBeGreaterThanOrEqual(WALK.minX);
   });
 });
 

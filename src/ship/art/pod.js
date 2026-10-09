@@ -589,3 +589,49 @@ export function drawKettle(hot = false) {
   }
   return pm.outline(C.outline);
 }
+
+// The chest of drawers, bottom-centre on the floor: a little lilac dresser
+// with a wavy top board, three drawers with a brass knob each, and stubby
+// feet. `open`: which drawer is pulled out (-1 = all shut): it slides down
+// and out at you, its dark inside showing above it. `drawers`: the middle
+// of each drawer's front (from the top of the picture), shut.
+export const CHEST = { w: 30, h: 36, body: 24, drawers: [11, 19, 27] };
+export function drawDresser(open = -1) {
+  const { w, h, body, drawers } = CHEST;
+  const pm = new Pixmap(w, h);
+  const left = (w - body) / 2;
+  const right = left + body - 1;
+  // The top board, a little wider, with a wavy edge.
+  pm.rect(left - 1, 4, body + 2, 2, PD.rugDark);
+  for (let x = left; x <= right; x += 4) {
+    pm.set(x + 1, 3, PD.rugDark);
+    pm.set(x + 2, 3, PD.rugDark);
+  }
+  pm.rect(left, 6, body, h - 9, PD.rugLight);
+  pm.hline(left, right, h - 4, PD.rugDark);
+  for (const x of [left + 1, right - 2]) {
+    pm.rect(x, h - 3, 2, 3, PD.woodDark);
+  }
+  drawers.forEach((mid, i) => {
+    const d0 = left + 2;
+    const d1 = right - 2;
+    let top = mid - 3;
+    if (i === open) {
+      // The hole it's come out of, and the drawer slid down and wider.
+      pm.rect(d0, top, d1 - d0 + 1, 7, PD.dimmed);
+      top += 5;
+      pm.rect(d0 - 1, top - 2, d1 - d0 + 3, 2, PD.wood); // its sides, seen from above
+      pm.hline(d0, d1, top - 2, PD.woodDark);
+      pm.rect(d0 - 2, top, d1 - d0 + 5, 7, PD.rug);
+      pm.hline(d0 - 2, d1 + 2, top + 6, PD.rugDark);
+    } else {
+      pm.rect(d0, top, d1 - d0 + 1, 7, PD.rug);
+      pm.hline(d0, d1, top + 6, PD.rugDark);
+      pm.hline(d0, d1, top, PD.rugLight);
+    }
+    const cx = Math.round((d0 + d1) / 2);
+    pm.rect(cx - 1, top + 2, 2, 2, PD.brass);
+    pm.set(cx - 1, top + 2, PD.glow);
+  });
+  return pm.outline(C.outline);
+}
