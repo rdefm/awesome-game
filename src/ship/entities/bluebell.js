@@ -5,7 +5,7 @@ import { MEADOW_SECRETS, WALK } from '../layout.js';
 import { PINK_ALIEN } from '../talks/pinkAlien.js';
 import { PUFFBALL } from '../talks/puffball.js';
 import { Carryable } from './carryable.js';
-import { isFriendItem, play } from './friends.js';
+import { hold, isFriendItem, letGo, play } from './friends.js';
 import { feed, isSnack } from './items.js';
 import { Secret } from './secret.js';
 
@@ -78,9 +78,13 @@ export class Critter extends Carryable {
     this.chase = null; // { ball, nudges, time } while chasing a ball about
     this.eating = false;
     this.busy = false; // saying hello to her, or playing with another friend
+    this.napping = false; // curled up asleep in the burrow (out of sight; see burrow.js)
   }
 
   hitTest(px, py) {
+    if (this.napping) {
+      return false;
+    }
     const y = this.y - this.perch;
     return Math.abs(px - this.x) < 11 && py > y - 18 - this.lift && py < y + 3;
   }
@@ -96,6 +100,23 @@ export class Critter extends Carryable {
     this.hop = null;
     this.hopsLeft = 0;
     this.lift = 0;
+  }
+
+  // Curls up asleep in the burrow, out of sight (it can't be tapped or
+  // dragged till it wakes).
+  napIn() {
+    hold(this);
+    this.napping = true;
+  }
+
+  // Wakes and pops out of the burrow at (x, y), with a hop off towards `side`.
+  wakeOut(x, y, side) {
+    this.napping = false;
+    letGo(this);
+    Object.assign(this, { x, y, facing: side });
+    this.hop = { fromX: x, fromY: y, toX: x + side * 8, toY: y + 2, p: 0, dur: 0.4, height: 10 };
+    this.scene.engine.audio.play('squeak');
+    this.scene.settle(this);
   }
 
   // Waving hello (while greeting her): it's all paws-less, so a happy squish.
@@ -301,7 +322,7 @@ export class Critter extends Carryable {
   }
 
   draw(r) {
-    if (this.seat) {
+    if (this.seat || this.napping) {
       return;
     }
     this.shadow(r, 10);

@@ -4,8 +4,9 @@ import { clampToFloor } from './girl.js';
 // Something that looks like plain scenery until tapped: it squashes at once,
 // she walks over, then it reveals a little surprise. Tap it again for another
 // go (subclasses can vary it each time). Secrets stay put: they can't be
-// carried and never take things dropped on them, and only their own small
-// patch answers taps, so she can walk right past them.
+// carried and don't take things dropped on them (unless a subclass opts in,
+// like the puffball burrow), and only their own small patch answers taps, so
+// she can walk right past them.
 // Subclasses implement `reveal(n)` (n = how many times it's been revealed
 // before), resolving once the surprise has played out.
 export class Secret {

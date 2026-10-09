@@ -111,7 +111,14 @@ store.
   about the patch at once). Drop three posies on her, one at a time, and
   they weave into a flower crown on her head ("A FLOWER CROWN!"); from then
   on it's a hat in the wardrobe like any other (`bluebell.crown` in
-  `memories`; the posies woven so far are `posies` in the save)
+  `memories`; the posies woven so far are `posies` in the save). At the
+  back, a little burrow in a grassy bank: tap it and a tumble of baby
+  puffballs rolls out, bounces about squeaking and hops back in one by one
+  (three, then four, then five of them, scattering, playing follow-the-leader
+  in a ring, or bouncing together higher and higher). Drop the puffball on
+  it and it wriggles in for a nap (snoring, zzzs drifting up), popping back
+  out when the burrow's tapped or after a while (nothing saved: napping when
+  she leaves, it's just back out next time)
 - The mushroom grove on Bluebell (by hoverbike): a shady corner of the
   meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
   (she hops up on the cap and bounces higher each time, the cap squashing

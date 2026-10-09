@@ -330,7 +330,7 @@ export function drawCritter(frame = 'idle') {
 // --------------------------------------------------------------------- secrets
 // Bits of scenery that hide a surprise (see entities/secret.js).
 
-export const STONE = { dark: '#6f6a80', mid: '#9a96aa', light: '#c9c6d6', moss: '#5f9e4a', under: '#5a4a46', soil: '#4a3426', damp: '#6a4a32', dirt: '#7a5636' };
+export const STONE = { dark: '#6f6a80', mid: '#9a96aa', light: '#c9c6d6', moss: '#5f9e4a', under: '#5a4a46', soil: '#4a3426', damp: '#6a4a32', dirt: '#7a5636', hole: '#1e140e' };
 
 // A smooth grey rock. `under` shows its damp, mossy underside (rolled over).
 export function drawRock(under = false) {
@@ -424,7 +424,7 @@ export function drawBird(colors, frame = 0) {
 export function drawHole() {
   const back = new Pixmap(18, 7);
   back.ellipse(9, 4, 8, 3, STONE.soil);
-  back.ellipse(9, 4, 6, 2, '#1e140e');
+  back.ellipse(9, 4, 6, 2, STONE.hole);
   // The front lip: the near half of a ring of dug-up earth.
   const front = new Pixmap(18, 7);
   for (let y = 0; y < 7; y++) {
@@ -559,6 +559,55 @@ export function drawPosy() {
     '.....s....',
     '....s.s...',
   ], { b: BB.bellDark, B: BB.bell, L: BB.bellLight, s: BB.stem, P: C.pink }, 0, 1);
+  return pm.outline(C.outline);
+}
+
+// --------------------------------------------------------- puffball burrow
+// A round grassy bank with a burrow dug into its face (and, `asleep`, the
+// puffball curled up snoozing in the doorway, eyes shut).
+export const BURROW_W = 34;
+export const BURROW_H = 18;
+export function drawBurrow(asleep = false) {
+  const pm = new Pixmap(BURROW_W, BURROW_H);
+  pm.ellipse(17, 18, 16, 15, BB.grassLight);
+  pm.dither(0, 9, BURROW_W, 9, BB.grassDark, 0.5);
+  pm.dither(0, 14, BURROW_W, 4, BB.grassDark, 0.75);
+  // Tufts along the top.
+  for (const [x, h] of [[8, 3], [12, 2], [19, 3], [25, 2]]) {
+    const top = x < 10 || x > 24 ? 7 : 4; // lower down the bank's shoulders
+    pm.vline(x, top - h, top, BB.grassDark);
+  }
+  // The doorway, with a lip of dug-up earth.
+  pm.ellipse(17, 14, 6, 4, STONE.soil);
+  pm.ellipse(17, 14, 5, 3, STONE.hole);
+  pm.rect(11, 15, 13, 3, STONE.hole);
+  pm.hline(10, 24, 17, STONE.dirt);
+  if (asleep) {
+    pm.ellipse(17, 15, 4, 2.5, '#c9b6ff');
+    pm.hline(15, 19, 13, '#efe6ff');
+    pm.hline(14, 15, 15, C.outline); // eyes shut
+    pm.hline(19, 20, 15, C.outline);
+    pm.set(13, 16, C.cheek);
+    pm.set(21, 16, C.cheek);
+    pm.line(13, 12, 12, 10, '#9a7cf0'); // ears flopped back
+    pm.line(21, 12, 22, 10, '#9a7cf0');
+  }
+  return pm.outline(C.outline);
+}
+
+// A baby puffball: a tiny round one with stubby ears (lilac or pink).
+export const BABY_PUFF_COLORS = [{ body: '#d8caff', dark: '#a98cf2' }, { body: '#ffd0ea', dark: '#f29ac4' }];
+export function drawBabyPuff({ body, dark }) {
+  const pm = new Pixmap(10, 9);
+  pm.set(3, 1, dark);
+  pm.set(6, 1, dark);
+  pm.ellipse(4.5, 5, 3.5, 3, body);
+  pm.hline(1, 8, 7, dark);
+  pm.hline(4, 5, 2, '#ffffff');
+  pm.set(3, 4, C.outline);
+  pm.set(6, 4, C.outline);
+  pm.set(2, 5, C.cheek);
+  pm.set(7, 5, C.cheek);
   return pm.outline(C.outline);
 }
 

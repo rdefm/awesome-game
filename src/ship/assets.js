@@ -14,8 +14,8 @@ import {
   drawGalley, drawLightSwitch, drawMixingPot, drawNightGlow, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
 } from './art/shipRooms.js';
 import {
-  BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
-  drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
+  BABY_PUFF_COLORS, BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBabyPuff, drawBell, drawBird,
+  drawBluebellStem, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
   drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
 import {
@@ -314,6 +314,9 @@ export function loadAssets() {
     // The little bluebells she picks posies from, and a posy.
     posyPatch: bake(drawPosyPatch()),
     posy: bake(drawPosy()),
+    // The puffball burrow (empty / puffball asleep in it), and the babies living in it.
+    burrow: bake({ empty: drawBurrow(), asleep: drawBurrow(true) }),
+    babyPuff: BABY_PUFF_COLORS.map((c) => bake(drawBabyPuff(c))),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),
