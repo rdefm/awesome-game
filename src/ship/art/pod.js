@@ -7,7 +7,8 @@ import { BED_NOOK, FLOOR_TOP, HOUSE_DOOR, SEED_TRAY, STAR_WINDOW, W, H } from '.
 // off in the meadow and the stepping-stone path up to it; and inside: the
 // cosy round room, its round-topped door, the telescope and the window it
 // looks out of, the seed tray, the bubble bath, the bed nook, the pantry
-// cupboard, and the kettle on its stove.
+// cupboard, the kettle on its stove, the chest of drawers, the tassel on
+// the lights' pull-cord, and the photo frame.
 
 // The pod's soft pink shell, and the cosy things inside.
 export const PD = {
@@ -49,7 +50,7 @@ export const PD = {
 
 // How far down the string of little lights swagged across the top of the
 // room hangs at x.
-function lightString(x) {
+export function lightString(x) {
   return Math.round(16 + Math.abs(Math.sin(((x - 30) / (W - 60)) * Math.PI * 3)) * 8);
 }
 
@@ -633,5 +634,54 @@ export function drawDresser(open = -1) {
     pm.rect(cx - 1, top + 2, 2, 2, PD.brass);
     pm.set(cx - 1, top + 2, PD.glow);
   });
+  return pm.outline(C.outline);
+}
+
+// The tassel on the end of the lights' pull-cord, bottom-centre: a brass
+// bead with a little pink tassel hanging off it (the cord itself is drawn
+// as a line, so it can stretch as she tugs it).
+export function drawCordTassel() {
+  const pm = new Pixmap(7, 9);
+  pm.grid([
+    '..b..',
+    '.bgb.',
+    '..b..',
+    '.ppp.',
+    '.plp.',
+    'pplpp',
+    'p.p.p',
+  ], { b: PD.brassDark, g: PD.glow, p: PD.shellDark, l: PD.shellLight }, 1, 1);
+  return pm.outline(C.outline);
+}
+
+// The photo frame on the wall, bottom-centre: a wooden frame round a pale
+// picture card, `inner` being the card (from the frame's top left). Empty,
+// the card has a big question mark on it.
+export const FRAME = { w: 26, h: 24, inner: { x: 3, y: 3, w: 20, h: 18 } };
+export function drawPhotoFrame(empty = false) {
+  const { w, h, inner } = FRAME;
+  const pm = new Pixmap(w, h);
+  pm.rect(0, 0, w, h, PD.wood);
+  pm.hline(0, w - 1, 0, PD.brass);
+  pm.vline(0, 0, h - 1, PD.brass);
+  pm.hline(0, w - 1, h - 1, PD.woodDark);
+  pm.vline(w - 1, 0, h - 1, PD.woodDark);
+  for (let y = inner.y; y < inner.y + inner.h; y++) {
+    const k = (y - inner.y) / inner.h + (bayer(inner.x, y) - 0.5) * 0.2;
+    pm.hline(inner.x, inner.x + inner.w - 1, y, k < 0.65 ? (empty ? PD.stoneDark : '#f4ecff') : (empty ? PD.rugDark : PD.stone));
+  }
+  pm.hline(inner.x, inner.x + inner.w - 1, inner.y, PD.woodDark);
+  pm.vline(inner.x, inner.y, inner.y + inner.h - 1, PD.woodDark);
+  if (empty) {
+    pm.grid([
+      '.###.',
+      '#...#',
+      '....#',
+      '...#.',
+      '..#..',
+      '.....',
+      '..#..',
+    ], { '#': '#ffffff' }, inner.x + 8, inner.y + 5);
+  }
   return pm.outline(C.outline);
 }

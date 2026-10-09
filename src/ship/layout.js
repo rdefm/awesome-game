@@ -368,6 +368,10 @@ export const BED_NOOK = { x: 119, y: 116, w: 44, deck: 10, spot: { x: 119, y: 12
 export const KETTLE = { x: 203, y: 114, spot: { x: 194, y: 123 } };
 export const PANTRY = { x: 232, y: 114, spot: { x: 218, y: 123 } };
 export const DRESSER = { x: 46, y: 114, spot: { x: 32, y: 123 } };
+// On the wall: a pull-cord hanging from the string of lights, its tassel at
+// (x, y); and a photo frame above the pantry, bottom-centre at (x, y).
+export const PULL_CORD = { x: 150, y: 70, spot: { x: 150, y: 124 } };
+export const PHOTO_FRAME = { x: 222, y: 64 };
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.

@@ -1,16 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BED_NOOK, DRESSER, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
+import { BED_NOOK, DRESSER, PULL_CORD, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
 import { isFriend, makeCarryable } from '../kinds.js';
 import { defaultWorld, normalizeWorld } from '../world.js';
 import { Local } from './bluebell.js';
 import { Girl } from './girl.js';
 import { DRAWER_THINGS, PANTRY_SNACKS, Snack, Trinket, isSnack } from './items.js';
-import { BedNook, BubbleBath, Dresser, Kettle, MAX_PANTRY_SNACKS, Pantry, SeedTray, Telescope, drawerMemory } from './pod.js';
+import {
+  BedNook, BubbleBath, Dresser, Kettle, LIGHT_COLORS, LightCord, MAX_PANTRY_SNACKS, Pantry, PhotoFrame, SeedTray, Telescope,
+  drawerMemory, normalizePod,
+} from './pod.js';
 
 const assets = {
   local: {}, snacks: { nectar: {}, seedcookie: {} }, bubbleBath: {}, telescope: {}, seedTray: [], bedNook: { quilt: [] },
   pantry: {}, kettle: {}, steam: {}, dresser: [], trinkets: { sock: {}, seedpacket: {}, plushie: {} },
-  girl: () => ({}), emotes: {},
+  pullCord: {}, photoFrame: {}, girl: () => ({}), emotes: {},
 };
 
 // Just enough of the pod for its things (and the pink alien to bring in).
@@ -41,6 +44,7 @@ function setup() {
     remember: vi.fn((memory) => {
       scene.memories = [...scene.memories, memory];
     }),
+    savePod: vi.fn(),
   };
   const girl = new Girl(assets, 100, 136, {});
   const local = new Local(assets, { id: 'local', kind: 'local', x: 60, y: 136 });
@@ -438,5 +442,85 @@ describe('the path to the pod', () => {
 
   it('starts where she can walk to', () => {
     expect(path[0].y).toBeGreaterThanOrEqual(122);
+  });
+});
+
+describe('the light cord', () => {
+  it('changes the lights to the next colour with each pull, round and back to pink, and saves it', async () => {
+    const { scene, make } = setup();
+    const cord = make(LightCord, 'pink');
+    const seen = [];
+    for (let i = 0; i < LIGHT_COLORS.length; i++) {
+      await cord.use();
+      seen.push(cord.lights);
+    }
+    expect(seen).toEqual(['gold', 'blue', 'green', 'rainbow', 'pink']);
+    expect(scene.savePod.mock.calls.map(([patch]) => patch.lights)).toEqual(seen);
+    expect(played(scene, 'pullcord')).toHaveLength(LIGHT_COLORS.length);
+  });
+
+  it('has every bulb one colour, except rainbow, which has them all', () => {
+    const { make } = setup();
+    const bulbs = (lights) => new Set([0, 1, 2, 3, 4, 5].map((i) => make(LightCord, lights).colorOf(i, 0)));
+    expect(bulbs('blue').size).toBe(1);
+    expect(bulbs('rainbow').size).toBeGreaterThan(1);
+  });
+
+  it('pays no mind to another tap mid-pull', async () => {
+    const { make } = setup();
+    const cord = make(LightCord, 'pink');
+    const first = cord.use();
+    await cord.use();
+    await first;
+    expect(cord.lights).toBe('gold');
+  });
+
+  it('has her stand where she can walk to', () => {
+    expect(PULL_CORD.spot.y).toBeGreaterThanOrEqual(WALK.minY);
+  });
+});
+
+describe('the photo frame', () => {
+  it('is empty until a friend comes in', () => {
+    const { make } = setup();
+    expect(make(PhotoFrame, null).photo).toBe(null);
+  });
+
+  it('snaps the friend brought in, hat and all, with a flash and a click, and saves it', () => {
+    const { scene, make } = setup();
+    const frame = make(PhotoFrame, null);
+    frame.snap({ id: 'monkey', kind: 'monkey', hat: 'crown', x: 50, y: 130 });
+    expect(frame.photo).toEqual({ kind: 'monkey', hat: 'crown' });
+    expect(frame.flash).toBeGreaterThan(0);
+    expect(played(scene, 'shutter')).toHaveLength(1);
+    expect(scene.savePod).toHaveBeenCalledWith({ photo: { kind: 'monkey', hat: 'crown' } });
+    frame.snap({ id: 'local', kind: 'local' });
+    expect(frame.photo).toEqual({ kind: 'local' });
+  });
+
+  it('pays no mind to things that are not friends', () => {
+    const { scene, make } = setup();
+    const frame = make(PhotoFrame, { kind: 'gonzo' });
+    frame.snap({ id: 'nectar0', kind: 'nectar' });
+    expect(frame.photo).toEqual({ kind: 'gonzo' });
+    expect(scene.savePod).not.toHaveBeenCalled();
+  });
+});
+
+describe("the pod's saved touches", () => {
+  it('load fine from an old save: gold lights and an empty frame', () => {
+    expect(normalizePod(undefined)).toEqual({ lights: 'gold', photo: null });
+    expect(normalizePod({})).toEqual({ lights: 'gold', photo: null });
+  });
+
+  it('keep the light colour and the photo', () => {
+    const pod = { lights: 'rainbow', photo: { kind: 'zig', stage: 2, hat: 'bow' } };
+    expect(normalizePod(pod)).toEqual(pod);
+  });
+
+  it('shrug off anything odd', () => {
+    expect(normalizePod({ lights: 'plaid', photo: { kind: 'dragon' } })).toEqual({ lights: 'gold', photo: null });
+    expect(normalizePod({ photo: { kind: 'nectar' } }).photo).toBe(null);
+    expect(normalizePod({ photo: 'monkey' }).photo).toBe(null);
   });
 });

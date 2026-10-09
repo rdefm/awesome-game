@@ -397,6 +397,17 @@ export function defineSfx(audio) {
     s.noise({ at: t, dur: 0.25, filter: 'lowpass', freq: 700, to: 1400, vol: 0.18, attack: 0.02 });
     s.tone({ at: t + 0.22, freq: 180, to: 140, dur: 0.06, type: 'triangle', vol: 0.1 });
   });
+  // The pod's light cord tugged (a click, and a little rising ding as the
+  // lights change), and its photo frame's camera: a shutter click-clack.
+  audio.define('pullcord', (s, t) => {
+    s.noise({ at: t, dur: 0.03, filter: 'highpass', freq: 2500, vol: 0.15 });
+    s.tone({ at: t + 0.04, freq: 880, to: 1320, dur: 0.18, type: 'triangle', vol: 0.1 });
+  });
+  audio.define('shutter', (s, t) => {
+    s.noise({ at: t, dur: 0.025, filter: 'highpass', freq: 3500, vol: 0.22 });
+    s.noise({ at: t + 0.07, dur: 0.035, filter: 'bandpass', freq: 1800, vol: 0.18, q: 2 });
+    s.tone({ at: t, freq: 2000, to: 1200, dur: 0.02, type: 'square', vol: 0.05 });
+  });
   audio.define('fizzle', (s, t) => {
     s.noise({ at: t, dur: 0.7, filter: 'highpass', freq: 2500, to: 5000, vol: 0.12 });
     s.tone({ at: t + 0.1, freq: 600, to: 180, dur: 0.6, type: 'square', vol: 0.05 });

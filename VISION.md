@@ -171,7 +171,14 @@ store.
   once: both new snacks, in the bag and feedable to any friend anywhere);
   a kettle on a little pot-belly stove beside it (tap it and the stove
   lights, the kettle heats up rattling its lid, then whistles a cheerful
-  tune with a puff of steam from its spout); and a lilac chest of drawers
+  tune with a puff of steam from its spout); a pull-cord hanging from the
+  string of lights (each pull changes them to the next colour: pink, gold,
+  blue, green, then a chasing rainbow, and round again; the colour stays,
+  gold for old saves); a photo frame on the wall above the pantry, showing
+  a little picture of the last friend she brought into the pod out of her
+  bag, in its hat if it had one on (an empty frame with a question mark
+  until then; a flash and a shutter click when it takes a new one,
+  remembered); and a lilac chest of drawers
   by the door (tap a drawer and it slides out and up pops what's tucked
   away in it: a stripy sock, a seed packet, or a little pink-alien plushie,
   each drawer its own, carryable and baggable, each giving a little jiggle

@@ -1,9 +1,10 @@
 import { ease } from '../../engine/tween.js';
 import { seededRandom } from '../../engine/pixmap.js';
 import { BB } from '../art/bluebell.js';
-import { BATH, CHEST, CUPBOARD, KETTLE_ART, NOOK, PD, POD_LIGHTS, SCOPE, STOVE, TRAY } from '../art/pod.js';
+import { BATH, CHEST, CUPBOARD, FRAME, KETTLE_ART, NOOK, PD, POD_LIGHTS, SCOPE, STOVE, TRAY, lightString } from '../art/pod.js';
+import { iconFor, isFriend } from '../kinds.js';
 import {
-  BED_NOOK, BUBBLE_BATH, DRESSER, H, KETTLE, PANTRY, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W,
+  BED_NOOK, BUBBLE_BATH, DRESSER, H, KETTLE, PANTRY, PHOTO_FRAME, POD, PULL_CORD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W,
 } from '../layout.js';
 import { FriendBunk, tuckHerIn, wakeHer } from './bunkroom.js';
 import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
@@ -336,7 +337,8 @@ export class BedNook extends FriendBunk {
     if (k > 0) {
       const t = this.scene.engine.time;
       r.rect(0, 0, W, H, PD.dimmed, 0.5 * k);
-      POD_LIGHTS.forEach(({ x, y, color }, i) => {
+      POD_LIGHTS.forEach(({ x, y }, i) => {
+        const color = this.scene.cord.colorOf(i, t);
         const glow = k * (0.55 + 0.15 * Math.sin(t * 1.5 + i));
         r.rect(x - 2, y - 2, 5, 5, color, glow * 0.3);
         r.rect(x - 1, y - 1, 3, 3, color, glow);
@@ -586,5 +588,138 @@ export class Dresser extends HouseProp {
   draw(r) {
     const s = this.bounce;
     r.image(this.imgs[this.open + 1], DRESSER.x, DRESSER.y, { scaleX: s, scaleY: 2 - s });
+  }
+}
+
+// ------------------------------------------------------- the pod's touches
+// The string of lights can be any of these colours (old saves: gold), and
+// the photo frame holds a picture of a friend (or nothing yet). Saved
+// together as `pod` (see PodScene.savePod).
+export const LIGHT_COLORS = ['pink', 'gold', 'blue', 'green', 'rainbow'];
+const BULBS = { pink: '#ff8fc8', gold: PD.glow, blue: '#8fd0ff', green: '#8af0a0' };
+const RAINBOW = ['#ff6a6a', '#ffb35a', '#fff07a', '#8af0a0', '#8fd0ff', '#c49aff'];
+const RAINBOW_CHASE = 3; // how fast the rainbow's colours run along the string, bulbs per second
+
+// Just what a photo of a friend needs to show: who it is, and how it looks.
+function snapshotOf({ kind, v, stage, hat, crew }) {
+  return {
+    kind, ...(v === undefined ? {} : { v }), ...(stage === undefined ? {} : { stage }), ...(hat ? { hat } : {}),
+    ...(crew && typeof crew === 'object' ? { crew: { ...crew } } : {}),
+  };
+}
+
+export function normalizePod(raw) {
+  const lights = LIGHT_COLORS.includes(raw?.lights) ? raw.lights : 'gold';
+  const photo = raw?.photo && typeof raw.photo === 'object' && isFriend(raw.photo.kind) ? snapshotOf(raw.photo) : null;
+  return { lights, photo };
+}
+
+const TUG = 4; // how far down the cord comes as she pulls it
+
+// The pull-cord hanging from the string of lights. Each pull changes them
+// to the next colour (pink, gold, blue, green, then rainbow, and round
+// again), which stays. It also colours the bulbs, over the room's own.
+export class LightCord extends HouseProp {
+  constructor(assets, lights) {
+    super();
+    this.tassel = assets.pullCord;
+    this.spot = PULL_CORD.spot;
+    this.lights = lights; // one of LIGHT_COLORS (see normalizePod)
+    this.tug = 0;
+    this.pulling = false;
+    this.top = lightString(PULL_CORD.x);
+  }
+
+  hitTest(px, py) {
+    return inRect(px, py, PULL_CORD.x - 3, this.top, 7, PULL_CORD.y - this.top, 2);
+  }
+
+  // The colour of bulb `i` at time `t`.
+  colorOf(i, t) {
+    return this.lights === 'rainbow' ? RAINBOW[(i + Math.floor(t * RAINBOW_CHASE)) % RAINBOW.length] : BULBS[this.lights];
+  }
+
+  async use() {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    if (this.pulling) {
+      return;
+    }
+    this.pulling = true;
+    girl.faceToward(PULL_CORD.x);
+    girl.act('reach', 0.4);
+    await engine.tweens.to(this, { tug: TUG }, 0.12, ease.outQuad);
+    engine.audio.play('pullcord');
+    this.lights = LIGHT_COLORS[(LIGHT_COLORS.indexOf(this.lights) + 1) % LIGHT_COLORS.length];
+    scene.savePod({ lights: this.lights });
+    for (const { x, y } of POD_LIGHTS.filter((_, i) => i % 4 === 1)) {
+      scene.sparkles(x, y, 2);
+    }
+    await engine.tweens.to(this, { tug: 0 }, 0.5, ease.outElastic);
+    girl.say(this.lights === 'rainbow' ? 'star' : 'heart', 1);
+    this.pulling = false;
+  }
+
+  draw(r) {
+    const t = this.scene.engine.time;
+    POD_LIGHTS.forEach(({ x, y }, i) => {
+      const color = this.colorOf(i, t);
+      r.rect(x - 1, y - 1, 3, 3, color);
+      r.rect(x - 2, y, 5, 1, color);
+      r.rect(x, y - 2, 1, 5, color);
+      r.pixel(x, y - 1, '#ffffff', 0.7);
+    });
+    const end = PULL_CORD.y - 6 + Math.round(this.tug);
+    r.rect(PULL_CORD.x, this.top, 1, end - this.top, PD.shellDeep);
+    const s = this.bounce;
+    r.image(this.tassel, PULL_CORD.x, PULL_CORD.y + Math.round(this.tug), { scaleX: s, scaleY: 2 - s });
+  }
+}
+
+const FLASH_FADE = 1.5; // how fast the camera flash fades, per second
+
+// The photo frame on the wall: a picture of the last friend she brought into
+// the pod (in its hat, if it had one on), or an empty frame with a question
+// mark until then. A flash and a click as it takes a new one.
+export class PhotoFrame {
+  constructor(assets, photo) {
+    this.assets = assets;
+    this.imgs = assets.photoFrame;
+    this.photo = photo;
+    this.flash = 0; // 0..1
+    this.depth = -10;
+  }
+
+  snap(entry) {
+    if (!isFriend(entry.kind)) {
+      return;
+    }
+    const { scene } = this;
+    this.photo = snapshotOf(entry);
+    scene.savePod({ photo: this.photo });
+    scene.engine.audio.play('shutter');
+    this.flash = 1;
+    scene.sparkles(PHOTO_FRAME.x, PHOTO_FRAME.y - FRAME.h / 2, 4);
+  }
+
+  update(dt) {
+    this.flash = Math.max(0, this.flash - dt * FLASH_FADE);
+  }
+
+  draw(r) {
+    const { x, y } = PHOTO_FRAME;
+    const { w, h, inner } = FRAME;
+    r.image(this.photo ? this.imgs.full : this.imgs.empty, x, y);
+    const left = x - w / 2 + inner.x;
+    const top = y - h + inner.y;
+    if (this.photo) {
+      const icon = iconFor(this.assets, this.photo);
+      const k = Math.min(1, (inner.w - 2) / icon.width, (inner.h - 2) / icon.height);
+      r.image(icon, left + inner.w / 2, top + inner.h - 1, { scaleX: k, scaleY: k });
+    }
+    if (this.flash > 0) {
+      r.rect(left, top, inner.w, inner.h, '#ffffff', this.flash);
+      r.rect(left - 4, top - 4, inner.w + 8, inner.h + 8, '#ffffff', this.flash * 0.3);
+    }
   }
 }

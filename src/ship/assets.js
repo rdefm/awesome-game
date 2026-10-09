@@ -51,8 +51,8 @@ import {
   drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
 } from './art/iceCave.js';
 import {
-  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawDresser, drawKettle, drawNightSky, drawPantry, drawPod,
-  drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
+  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawCordTassel, drawDresser, drawKettle, drawNightSky, drawPantry,
+  drawPhotoFrame, drawPod, drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import {
@@ -388,6 +388,9 @@ export function loadAssets() {
     kettle: bake({ stove: [drawStove(), drawStove(true)], kettle: [drawKettle(), drawKettle(true)] }),
     // The chest of drawers [all shut, then with each drawer pulled out].
     dresser: bake([drawDresser(), drawDresser(0), drawDresser(1), drawDresser(2)]),
+    // The tassel on the lights' pull-cord, and the photo frame [with a picture, empty].
+    pullCord: bake(drawCordTassel()),
+    photoFrame: bake({ full: drawPhotoFrame(), empty: drawPhotoFrame(true) }),
     // The bed nook, its curtain, and its quilt [flat, tucked in].
     bedNook: bake({
       nook: drawBedNook(),
