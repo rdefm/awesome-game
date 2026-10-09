@@ -52,7 +52,8 @@ import {
 } from './art/iceCave.js';
 import {
   NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawCordTassel, drawDresser, drawKettle, drawNightSky, drawPantry,
-  drawPhotoFrame, drawPod, drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
+  drawPhotoFrame, drawPod, drawPodDoor, drawPodPath, drawPodRoom, drawPotBell, drawPottedBluebell, drawSeedTray, drawStove,
+  drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import {
@@ -381,6 +382,8 @@ export function loadAssets() {
     telescope: bake(drawTelescope()),
     nightSky: bake(drawNightSky()),
     seedTray: bake([...Array(TRAY.stages).keys()].map((stage) => drawSeedTray(stage))),
+    // A bluebell potted from it: the pot, a bell to hang off it, and its bag icon (bells and all).
+    pottedBell: bake({ pot: drawPottedBluebell(), bell: drawPotBell(), icon: drawPottedBluebell(true) }),
     bubbleBath: bake({ back: drawBubbleBath(true), front: drawBubbleBath() }),
     bubble: bake(drawBubble()),
     // The pantry cupboard [shut, open], and the kettle [cold, hot] on its stove.

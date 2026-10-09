@@ -1,5 +1,6 @@
 import { ease } from '../../engine/tween.js';
 import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
+import { POTTED } from '../art/pod.js';
 import { happened, offerChat } from '../chat.js';
 import { MEADOW_SECRETS, WALK } from '../layout.js';
 import { PINK_ALIEN } from '../talks/pinkAlien.js';
@@ -81,6 +82,59 @@ export class Bluebell extends Carryable {
     this.stem.hang.forEach((h, i) => {
       const swing = Math.sin(this.swung * 14 + i * 1.3) * this.ring * 3 + sway;
       r.image(this.bellImg, this.x + h.x + swing, this.y + h.y, { ay: 0 });
+    });
+  }
+}
+
+// --------------------------------------------------------- potted bluebell
+// A bluebell she lifted out of the seed tray in the pink alien's pod, in a
+// little clay pot. Tap it and its two bells swing and ring its note, wherever
+// it's been put. Drop it on the pink alien as a present and it keeps it.
+export const BELL_NOTES = 5; // how many notes a bluebell can ring (see sfx.js)
+
+export class PottedBluebell extends Carryable {
+  // `state.v` picks the note it rings.
+  constructor(assets, state) {
+    super(state);
+    this.imgs = assets.pottedBell;
+    this.note = (state.v ?? 0) % BELL_NOTES;
+    this.ring = 0;
+    this.swung = 0;
+  }
+
+  hitTest(px, py) {
+    return Math.abs(px - this.x) < 8 && py > this.y - 18 && py < this.y + 3;
+  }
+
+  onTap() {
+    const { scene } = this;
+    this.chime();
+    this.boing(0.8);
+    scene.girl.faceToward(this.x);
+    scene.girl.say('note', 1);
+  }
+
+  chime() {
+    const { scene } = this;
+    scene.engine.audio.play(`bell${this.note}`);
+    this.ring = 1;
+    for (const h of POTTED.hang) {
+      scene.musicNote(this.x + h.x, this.y + h.y + 4);
+    }
+  }
+
+  update(dt) {
+    this.ring = Math.max(0, this.ring - dt * 0.8);
+    this.swung += dt;
+  }
+
+  draw(r) {
+    const s = this.bounce;
+    this.shadow(r, 10);
+    r.image(this.imgs.pot, this.x, this.y + 1, { scaleX: s, scaleY: 2 - s });
+    POTTED.hang.forEach((h, i) => {
+      const swing = Math.round(Math.sin(this.swung * 14 + i * 1.3) * this.ring * 2);
+      r.image(this.imgs.bell, this.x + Math.round(h.x * s) + swing, this.y + Math.round(h.y * (2 - s)), { ay: 0 });
     });
   }
 }
@@ -642,12 +696,14 @@ export class Local extends Carryable {
     return { tree: PINK_ALIEN, facts: { gotCrystal: happened(scene, 'bluebell.local'), gotPosy: happened(scene, POSY_MEMORY) } };
   }
 
-  // It loves shiny crystals: drop one on it and it keeps it beside it. Drop
-  // a posy on it and it has a sniff, sneezes and keeps that too. Drop a snack
-  // on it and it eats it. Drop a friend on it and they play.
+  // It loves shiny crystals: drop one on it and it keeps it beside it (and
+  // a potted bluebell, which it rings). Drop a posy on it and it has a sniff,
+  // sneezes and keeps that too. Drop a snack on it and it eats it. Drop a
+  // friend on it and they play.
   accepts(item) {
     const free = !this.busy && !this.held && !this.falling && !this.seat;
-    return free && (item.kind === 'crystal' || item.kind === 'posy' || isSnack(item) || isFriendItem(item));
+    const keeps = ['crystal', 'posy', 'pottedbell'].includes(item.kind);
+    return free && (keeps || isSnack(item) || isFriendItem(item));
   }
 
   async receive(item) {
@@ -671,6 +727,9 @@ export class Local extends Carryable {
     const { engine, girl } = scene;
     const side = item.x < this.x ? -1 : 1;
     scene.putDown(item, this.x + side * 13, this.y + 1);
+    if (item.kind === 'pottedbell') {
+      item.chime();
+    }
     engine.audio.play('cheer');
     girl.faceToward(this.x);
     for (let i = 0; i < 2; i++) {
@@ -682,7 +741,9 @@ export class Local extends Carryable {
     }
     this.frame = 'idle';
     girl.say('heart', 1.4);
-    scene.findSticker('bluebell.local', this.x, this.y - 26); // a thank-you present
+    if (item.kind === 'crystal') {
+      scene.findSticker('bluebell.local', this.x, this.y - 26); // a thank-you present
+    }
     this.busy = false;
     this.draggable = true;
   }

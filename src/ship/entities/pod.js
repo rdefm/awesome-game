@@ -6,6 +6,7 @@ import { iconFor, isFriend } from '../kinds.js';
 import {
   BED_NOOK, BUBBLE_BATH, DRESSER, H, KETTLE, PANTRY, PHOTO_FRAME, POD, PULL_CORD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W,
 } from '../layout.js';
+import { BELL_NOTES } from './bluebell.js';
 import { FriendBunk, tuckHerIn, wakeHer } from './bunkroom.js';
 import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
 import { DRAWER_THINGS, PANTRY_SNACKS } from './items.js';
@@ -192,8 +193,9 @@ export class Telescope extends HouseProp {
 
 // The seed tray on its little table. Tap it and she waters it, and it
 // sprouts up a stage: shoots, then leaves, then tiny bluebells in flower.
-// In flower, tap it and its bluebells ring, then their seeds blow off and
-// sow it again, ready to grow from the start.
+// In flower, tap it and its bluebells ring, she lifts one out in a little pot
+// (see PottedBluebell), then the rest's seeds blow off and sow it again,
+// ready to grow from the start.
 export class SeedTray extends HouseProp {
   constructor(assets) {
     super();
@@ -249,6 +251,12 @@ export class SeedTray extends HouseProp {
       engine.audio.play('plink', { note: i });
       scene.sparkles(SEED_TRAY.x + dx, SEED_TRAY.y - 12, 1);
       await engine.wait(0.15);
+    }
+    const potted = scene.spawn('pottedbell', SEED_TRAY.x, SEED_TRAY.y - 12, { v: Math.floor(Math.random() * BELL_NOTES) });
+    if (potted) {
+      engine.audio.play('pop');
+      scene.sparkles(SEED_TRAY.x, SEED_TRAY.y - 14, 4);
+      await scene.putDown(potted, SEED_TRAY.x - 14, SEED_TRAY.spot.y + 6);
     }
     engine.audio.play('poof');
     scene.bits(SEED_TRAY.x, SEED_TRAY.y - 10, 6, BB.bellLight);

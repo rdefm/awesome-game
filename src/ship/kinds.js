@@ -1,4 +1,4 @@
-import { Bluebell, Critter, Local } from './entities/bluebell.js';
+import { Bluebell, Critter, Local, PottedBluebell } from './entities/bluebell.js';
 import {
   Beanbag, BigCushion, FairyLights, FishTank, Lamp, PlanetMobile, RocketLamp, Rug, StarRug, WallPoster,
 } from './entities/decor.js';
@@ -28,6 +28,7 @@ export const KINDS = {
   ...Object.fromEntries(DRAWER_THINGS.map((kind) => [kind, { make: (a, s) => new Trinket(a, s), icon: (a) => a.trinkets[kind] }])),
   bluebell: { make: (a, s) => new Bluebell(a, s), icon: (a, s) => a.bluebellIcons[s.v ?? 0] },
   posy: { make: (a, s) => new Posy(a, s), icon: (a) => a.posy },
+  pottedbell: { make: (a, s) => new PottedBluebell(a, s), icon: (a) => a.pottedBell.icon },
   critter: { friend: true, make: (a, s) => new Critter(a, s), icon: (a) => a.critter.idle },
   local: { friend: true, make: (a, s) => new Local(a, s), icon: (a) => a.local.idle },
   firebloom: { make: (a, s) => new Firebloom(a, s), icon: (a, s) => a.firebloom[(s.v ?? 0) % a.firebloom.length][0] },

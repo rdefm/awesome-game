@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BED_NOOK, DRESSER, PULL_CORD, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
 import { isFriend, makeCarryable } from '../kinds.js';
-import { defaultWorld, normalizeWorld } from '../world.js';
-import { Local } from './bluebell.js';
+import { defaultWorld, normalizeWorld, stash } from '../world.js';
+import { Local, PottedBluebell } from './bluebell.js';
 import { Girl } from './girl.js';
 import { DRAWER_THINGS, PANTRY_SNACKS, Snack, Trinket, isSnack } from './items.js';
 import {
@@ -13,7 +13,7 @@ import {
 const assets = {
   local: {}, snacks: { nectar: {}, seedcookie: {} }, bubbleBath: {}, telescope: {}, seedTray: [], bedNook: { quilt: [] },
   pantry: {}, kettle: {}, steam: {}, dresser: [], trinkets: { sock: {}, seedpacket: {}, plushie: {} },
-  pullCord: {}, photoFrame: {}, girl: () => ({}), emotes: {},
+  pullCord: {}, photoFrame: {}, pottedBell: {}, girl: () => ({}), emotes: {},
 };
 
 // Just enough of the pod for its things (and the pink alien to bring in).
@@ -40,6 +40,8 @@ function setup() {
     hearts: vi.fn(),
     sparkles: vi.fn(),
     bits: vi.fn(),
+    musicNote: vi.fn(),
+    findSticker: vi.fn(),
     memories: [],
     remember: vi.fn((memory) => {
       scene.memories = [...scene.memories, memory];
@@ -218,7 +220,7 @@ describe('the seed tray', () => {
     expect(played(scene, 'grow')).toHaveLength(3);
   });
 
-  it('in flower, rings its flowers and blows its seeds off to start again', async () => {
+  it('in flower, rings its flowers, gives her one in a pot, and blows its seeds off to start again', async () => {
     const { scene, make } = setup();
     const tray = make(SeedTray);
     for (let i = 0; i < 4; i++) {
@@ -228,6 +230,61 @@ describe('the seed tray', () => {
     expect(played(scene, 'plink').length).toBeGreaterThanOrEqual(3);
     expect(played(scene, 'poof')).toHaveLength(1);
     expect(tray.tending).toBe(false);
+    expect(scene.spawn.mock.calls.map(([kind]) => kind)).toEqual(['pottedbell']);
+    const potted = scene.spawn.mock.results[0].value;
+    expect(potted).toBeInstanceOf(PottedBluebell);
+    expect(scene.putDown.mock.calls[0][0]).toBe(potted);
+  });
+
+  it('gives a potted bluebell every time round', async () => {
+    const { scene, make } = setup();
+    const tray = make(SeedTray);
+    for (let i = 0; i < 8; i++) {
+      await tray.use();
+    }
+    expect(scene.spawn.mock.calls.map(([kind]) => kind)).toEqual(['pottedbell', 'pottedbell']);
+  });
+});
+
+describe('a potted bluebell', () => {
+  const potted = (v) => makeCarryable(assets, { id: 'pottedbell0', kind: 'pottedbell', x: 150, y: 140, ...(v === undefined ? {} : { v }) });
+
+  it('is a carryable thing, not a friend, and goes in the bag (keeping its note)', () => {
+    expect(potted(2)).toBeInstanceOf(PottedBluebell);
+    expect(isFriend('pottedbell')).toBe(false);
+    const world = stash(normalizeWorld({ placed: { pod: [{ id: 'pottedbell0', kind: 'pottedbell', x: 150, y: 140, v: 2 }] }, bag: [] }), 'pottedbell0');
+    expect(world.bag).toEqual([{ id: 'pottedbell0', kind: 'pottedbell', v: 2 }]);
+    expect(normalizeWorld(world).bag).toEqual(world.bag);
+  });
+
+  it('rings its note when tapped, wherever it is', () => {
+    const { scene } = setup();
+    const item = Object.assign(potted(3), { scene });
+    item.onTap();
+    expect(played(scene, 'bell3')).toHaveLength(1);
+    expect(scene.musicNote).toHaveBeenCalled();
+    expect(item.ring).toBe(1);
+    item.update(5);
+    expect(item.ring).toBe(0);
+  });
+
+  it('rings the first note if it has none', () => {
+    const { scene } = setup();
+    const item = Object.assign(potted(), { scene });
+    item.onTap();
+    expect(played(scene, 'bell0')).toHaveLength(1);
+  });
+
+  it('is a present the pink alien keeps beside it, ringing it (no crystal sticker for it)', async () => {
+    const { scene, local } = setup();
+    const item = Object.assign(potted(1), { scene });
+    expect(local.accepts(item)).toBe(true);
+    await local.receive(item);
+    expect(scene.putDown.mock.calls[0][0]).toBe(item);
+    expect(played(scene, 'bell1')).toHaveLength(1);
+    expect(played(scene, 'cheer')).toHaveLength(1);
+    expect(scene.findSticker).not.toHaveBeenCalled();
+    expect(local.busy).toBe(false);
   });
 });
 

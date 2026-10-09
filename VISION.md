@@ -158,8 +158,10 @@ store.
   and night falls in the window, the stars come out and twinkle, and a
   shooting star streaks across; a seed tray on a little table to water, a
   stage at a time, from seeds to shoots to leaves to tiny bluebells in
-  flower (tap it in flower and the bluebells ring, then their seeds blow
-  off to start again); and a bubble bath to swish (bubbles float up and
+  flower (tap it in flower and the bluebells ring, she lifts one out in a
+  little clay pot, then the others' seeds blow off to start again: the
+  potted bluebell is hers to carry about or bag, and rings its note when
+  tapped, wherever it's put); and a bubble bath to swish (bubbles float up and
   pop; drop a friend in and it splashes about, then shakes off and hops
   out); a round, cushioned bed nook in the wall under the window, with
   a little curtain (tap it and she climbs in and snoozes, zzz, the pod
@@ -319,8 +321,9 @@ store.
 - **Drop-on reactions**: anything can opt in to having a dragged thing
   dropped on it (`accepts(item)` / `receive(item)`; the bag still wins).
   Drop the crystal on the pink alien and it cheers, hearts pop, and it keeps
-  the crystal beside it; drop a posy on it and it has a long sniff, sneezes
-  happily and keeps that beside it too (its chat talks of posies before
+  the crystal beside it (a potted bluebell too, which it rings, though the
+  crystal's the one that earns its sticker); drop a posy on it and it
+  has a long sniff, sneezes happily and keeps that beside it too (its chat talks of posies before
   and of its own posy after). Drop three posies on her, one at a time, and
   she weaves them into a flower crown. Drop the geode on the newt and its tail cracks it
   open; bring the always-too-hot newt a giant bluebell from Bluebell and it

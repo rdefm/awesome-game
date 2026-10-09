@@ -6,9 +6,9 @@ import { BED_NOOK, FLOOR_TOP, HOUSE_DOOR, SEED_TRAY, STAR_WINDOW, W, H } from '.
 // Everything painted for the pink alien's pod on Bluebell: the round pod far
 // off in the meadow and the stepping-stone path up to it; and inside: the
 // cosy round room, its round-topped door, the telescope and the window it
-// looks out of, the seed tray, the bubble bath, the bed nook, the pantry
-// cupboard, the kettle on its stove, the chest of drawers, the tassel on
-// the lights' pull-cord, and the photo frame.
+// looks out of, the seed tray (and a bluebell potted from it), the bubble
+// bath, the bed nook, the pantry cupboard, the kettle on its stove, the
+// chest of drawers, the tassel on the lights' pull-cord, and the photo frame.
 
 // The pod's soft pink shell, and the cosy things inside.
 export const PD = {
@@ -46,6 +46,9 @@ export const PD = {
   ironDark: '#3a2e4c',
   flame: '#ff6a2a',
   kettleHot: '#ff7f9f',
+  pot: '#d8784a',
+  potLight: '#f0a070',
+  potDark: '#a8542e',
 };
 
 // How far down the string of little lights swagged across the top of the
@@ -349,6 +352,39 @@ export function drawSeedTray(stage = 0) {
       pm.set(cx + dx, base, PD.stone);
     }
   }
+  return pm.outline(C.outline);
+}
+
+// A bluebell lifted out of the seed tray into a little clay pot: its stem
+// curls over both ways, and a bell hangs off each end (`hang`: where, from
+// the bottom-middle, for the bells drawn on their own with `drawPotBell`, so
+// they can swing). With `bells`, they're drawn in (for its bag icon).
+export const POTTED = { hang: [{ x: -4, y: -13 }, { x: 4, y: -13 }] };
+export function drawPottedBluebell(bells = false) {
+  const pm = new Pixmap(15, 16);
+  pm.grid([
+    '...sss.sss...',
+    '..s...s...s..',
+    bells ? '.bLb..s..bLb.' : '......s......',
+    bells ? '.bBb..s..bBb.' : '......s......',
+    '..gg..s......',
+    '..gGg.s..gg..',
+    '....gGs.gGg..',
+    '.....gsgG....',
+    '......s......',
+    '.PPPPPPPPPPP.',
+    '.ppppppppppp.',
+    '..ppppppppp..',
+    '..ppppppppp..',
+    '...ddddddd...',
+  ], { s: BB.stem, g: BB.grass, G: BB.grassLight, b: BB.bellDark, B: BB.bell, L: BB.bellLight, P: PD.potLight, p: PD.pot, d: PD.potDark }, 1, 1);
+  return pm.outline(C.outline);
+}
+
+// One of the potted bluebell's little bells.
+export function drawPotBell() {
+  const pm = new Pixmap(5, 5);
+  pm.grid(['.b.', 'bLb', 'bBb'], { b: BB.bellDark, B: BB.bell, L: BB.bellLight }, 1, 1);
   return pm.outline(C.outline);
 }
 
