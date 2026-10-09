@@ -11,7 +11,7 @@ import {
 } from './art/decor.js';
 import {
   BLANKETS, BLANKET_W, drawBallPitFront, drawBed, drawBlanket, drawBunkDeck, drawBunkFrame, drawBunkRoom, drawLiftButton, drawLiftFrame,
-  drawLightSwitch, drawNightGlow, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
+  drawGalley, drawLightSwitch, drawMixingPot, drawNightGlow, drawPlayRoom, drawRoomArrow, drawStoreRoom, drawSwingFrame, drawSwingSeat, drawTrampoline,
 } from './art/shipRooms.js';
 import {
   BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBell, drawBird, drawBluebellStem, drawBug, drawBush,
@@ -19,7 +19,8 @@ import {
   drawShipExterior, drawSoilPatch,
 } from './art/bluebell.js';
 import {
-  drawBag, drawBall, drawBoxIcon, drawCookie, drawCrystal, drawHeartIcon, drawJuice, drawStarFruit, drawTeddy,
+  drawBag, drawBall, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon, drawIceLolly,
+  drawJuice, drawOutlineOf, drawSmoothie, drawSnowCone, drawSparkleCake, drawStarFruit, drawTeddy,
 } from './art/items.js';
 import {
   MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
@@ -113,6 +114,11 @@ const strollerFrames = (draw) => bake(Object.fromEntries(STROLLER_FRAMES.map((f)
 export function loadAssets() {
   const textCache = new Map();
   const girlCache = new Map();
+  // What the galley's mixing pot makes (see recipes.js).
+  const galleyFoods = {
+    cocoa: drawCocoa(), icelolly: drawIceLolly(), sparklecake: drawSparkleCake(),
+    bluebelltea: drawBluebellTea(), snowcone: drawSnowCone(), smoothie: drawSmoothie(),
+  };
   const crewCache = new Map();
   const bell = bake(drawBell());
   const stems = [[40, 3], [52, 3], [34, 2], [44, 3]].map(([h, n]) => bake(drawBluebellStem(h, n)));
@@ -158,7 +164,7 @@ export function loadAssets() {
     ballPit: bake(drawBallPitFront()),
     swing: bake({ frame: drawSwingFrame(), seat: drawSwingSeat() }),
     trampoline: bake([drawTrampoline(), drawTrampoline(true)]),
-    // The lift (in the store room and the bunk room): its frame, and its call button [unlit, lit].
+    // The lift (in the store room, the galley and the bunk room): its frame, and its call button [unlit, lit].
     lift: bake({ frame: drawLiftFrame(), button: [drawLiftButton(), drawLiftButton(true)] }),
     // The bunk room, its beds and blankets [flat, tucked in], and the light switch [night, on].
     bunkRoom: bake(drawBunkRoom()),
@@ -168,6 +174,9 @@ export function loadAssets() {
     ]))),
     lightSwitch: bake([drawLightSwitch(false), drawLightSwitch(true)]),
     nightGlow: bake(drawNightGlow()),
+    // The galley, and its mixing pot [still, bubbling].
+    galley: bake(drawGalley()),
+    mixingPot: bake([drawMixingPot(), drawMixingPot(true)]),
     space: bake(drawSpace()),
     poster: bake([drawPoster(0), drawPoster(1)]),
     // [stage][glow]
@@ -440,7 +449,11 @@ export function loadAssets() {
     ball: bake(drawBall()),
     teddy: bake(drawTeddy()),
     crystal: bake([drawCrystal(), drawCrystal(true)]),
-    snacks: bake({ cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake() }),
+    snacks: bake({
+      cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake(), ...galleyFoods,
+    }),
+    // The galley's foods as faint outlines, for recipes not found yet.
+    foodOutlines: bake(Object.fromEntries(Object.entries(galleyFoods).map(([k, pm]) => [k, drawOutlineOf(pm)]))),
     lockerDoor: bake({ front: drawLockerDoor(), back: drawLockerDoor(true) }),
     wardrobeDoor: bake({ front: drawWardrobeDoor(), back: drawWardrobeDoor(true) }),
     // The wardrobe picker's buttons. Hats are shown on top of each hair colour,

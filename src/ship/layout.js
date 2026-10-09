@@ -274,9 +274,10 @@ export const WALL_HANG = { minX: 14, maxX: 242, minY: 40, maxY: 96 };
 export const CREW_POD = { x: 214, y: 118, w: 30, h: 46, spot: { x: 190, y: 126 }, out: { x: 206, y: 138 } };
 export const PRINTER = { x: 128, y: 118, w: 36, h: 42, spot: { x: 102, y: 124 }, out: { x: 132, y: 134 } };
 
-// The lift, a door in the back wall of the store room and the bunk room (the
-// same spot in each): its doorway's bottom-centre on the floor line, `w` wide
-// and `h` high; the call button beside it; where she stands to use it.
+// The lift, a door in the back wall of the store room, the galley and the
+// bunk room (the same spot in each): its doorway's bottom-centre on the
+// floor line, `w` wide and `h` high; the call button beside it; where she
+// stands to use it.
 export const LIFT = { x: 40, y: FLOOR_TOP, w: 26, h: 44, button: { x: 62, y: 84 }, spot: { x: 42, y: 124 } };
 
 // The bunk room, up the lift. Her bed by the back wall, and a bunk bed for
@@ -295,3 +296,11 @@ export const BUNK_LADDER = { x: 233, top: 70 };
 export const LIGHT_SWITCH = { x: 78, y: 78, spot: { x: 78, y: 124 } };
 export const NIGHT_LIGHT = { x: 160, y: 101 };
 export const BUNK_PORTHOLE = { x: 118, y: 46, r: 12 };
+
+// The galley, down the lift. The big mixing pot on the floor, bottom-centre
+// at (x, y), `w` wide and `h` high: things dropped in land at `mouth`, and
+// what comes out is put down at `out`; `spot`, where she stands to stir it.
+// The recipe card on the wall: its top-left, how wide it is, and where she
+// stands to look at it.
+export const MIXING_POT = { x: 170, y: 132, w: 44, h: 32, mouth: { x: 170, y: 106 }, spot: { x: 136, y: 140 }, out: { x: 170, y: 148 } };
+export const RECIPE_CARD = { x: 82, y: 24, w: 128, spot: { x: 146, y: 124 } };

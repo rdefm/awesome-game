@@ -36,3 +36,15 @@ describe('the lift', () => {
     expect(roomBeside('bunkroom', 1)).toBe(null);
   });
 });
+
+describe('the galley', () => {
+  it('is a stop on the lift, between the bunk room and the store room', () => {
+    expect(LIFT_STOPS).toEqual(['bunkroom', 'galley', 'storeroom']);
+    expect(isShipRoom('galley')).toBe(true);
+  });
+
+  it('is only reached by the lift: no rooms through its walls', () => {
+    expect(roomBeside('galley', -1)).toBe(null);
+    expect(roomBeside('galley', 1)).toBe(null);
+  });
+});

@@ -1,4 +1,5 @@
 import { BunkRoomScene } from './bunkRoomScene.js';
+import { GalleyScene } from './galleyScene.js';
 import { PlayRoomScene } from './playRoomScene.js';
 import { ShipScene } from './shipScene.js';
 import { StoreRoomScene } from './storeRoomScene.js';
@@ -11,13 +12,13 @@ const ROOMS = ['storeroom', 'ship', 'playroom'];
 // The ship's other decks, reached by the lift (a door in the store room):
 // every stop it makes, as listed on its panel, top to bottom. A new deck is a
 // stop here, its name and scene below, and a lift in that scene.
-export const LIFT_STOPS = ['bunkroom', 'storeroom'];
+export const LIFT_STOPS = ['bunkroom', 'galley', 'storeroom'];
 
 // What the arrow (or lift button) going to each room says.
-export const ROOM_NAMES = { storeroom: 'STORE ROOM', ship: 'COCKPIT', playroom: 'PLAYROOM', bunkroom: 'BUNK ROOM' };
+export const ROOM_NAMES = { storeroom: 'STORE ROOM', ship: 'COCKPIT', playroom: 'PLAYROOM', bunkroom: 'BUNK ROOM', galley: 'GALLEY' };
 
 // Each room's scene (the cockpit's is the one for anywhere else).
-const SCENES = { storeroom: StoreRoomScene, playroom: PlayRoomScene, bunkroom: BunkRoomScene };
+const SCENES = { storeroom: StoreRoomScene, playroom: PlayRoomScene, bunkroom: BunkRoomScene, galley: GalleyScene };
 
 export const isShipRoom = (where) => ROOMS.includes(where) || LIFT_STOPS.includes(where);
 

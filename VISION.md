@@ -23,8 +23,8 @@ store.
   spinning pilot chair, star map to fly between planets, blast-off poster,
   space plant, and an airlock door. Arrows by the cockpit's side walls lead
   to the ship's other rooms: a store room (left) and a playroom (right).
-  A lift in the store room goes up to the ship's other decks (for now, the
-  bunk room); new rooms are added as lift stops, not by squeezing more
+  A lift in the store room goes up to the ship's other decks (the galley
+  and the bunk room); new rooms are added as lift stops, not by squeezing more
   doors into the cockpit.
   Planets are the scenes you visit.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
@@ -50,7 +50,7 @@ store.
   (`src/engine/`: canvas renderer, game loop, tap/drag input, tweens, synth
   sound effects and music sequencer, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
-  `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
+  `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `GalleyScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
   `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
@@ -68,7 +68,8 @@ store.
   the girl is (ship or planet), her position, the current planet, whether
   the ship has landed, and the **world** (`src/ship/world.js`): where every
   carryable thing lies in each place, and what's in the bag, plus which star
-  stickers she's found (`src/ship/stickers.js`) and the **memories** friends
+  stickers she's found (`src/ship/stickers.js`), which galley recipes she's
+  found (`src/ship/recipes.js`) and the **memories** friends
   chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
@@ -303,7 +304,18 @@ store.
   out in the porthole, the night light glows and the sleepers snore softly
   (she can be tucked up in bed first: then the switch just flicks). Flick it
   back for morning, and everyone in bed sits up for a stretch and a yawn and
-  hops out. A reload puts her back in whichever room she was in.
+  hops out. The **galley** (a lift stop between the store room and the bunk
+  room) has a big bubbling mixing pot: drop two things in and it bubbles and
+  burps, and out pops something new to eat (snowball + fire flower = hot
+  cocoa, lollipop + frost flower = ice lolly, cupcake + crystal = sparkle
+  cake, bluebell + juice = bluebell tea, snowball + gumdrop = snow cone,
+  starfruit + stripe stone = stripy smoothie). A mix that isn't a recipe
+  fizzles and both things pop back out; friends can't go in the pot. The new
+  foods are snacks, so every friend gobbles them up. A recipe card on the
+  wall shows the recipes she's found and outlines for the rest; the recipes
+  are a list in `src/ship/recipes.js`. Things from the planets used up in
+  the pot turn up again back where they came from (any default-world thing
+  missing from a save is put back). A reload puts her back in whichever room she was in.
 
 ## Explicitly deferred
 - Packaging as an installable native app (via Capacitor or similar)

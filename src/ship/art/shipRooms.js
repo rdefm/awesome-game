@@ -3,7 +3,7 @@ import { drawText, measureText } from '../../engine/font.js';
 import { C } from './palette.js';
 import { drawShell } from './room.js';
 import {
-  BALL_PIT, BUNK_LADDER, BUNK_PORTHOLE, FLOOR_TOP, FRIEND_BUNKS, HER_BUNK, LIFT, NIGHT_LIGHT, SWING, TRAMPOLINE, W,
+  BALL_PIT, BUNK_LADDER, BUNK_PORTHOLE, FLOOR_TOP, FRIEND_BUNKS, HER_BUNK, LIFT, MIXING_POT, NIGHT_LIGHT, SWING, TRAMPOLINE, W,
 } from '../layout.js';
 
 export const BALL_COLORS = ['#ff5a5a', '#ffe066', '#4fa8f0', '#7cf28a', '#ff8fc8', '#ff9d3c'];
@@ -451,4 +451,66 @@ export function drawBunkRoom() {
   pm.dither(LOWER_BUNK.x - LOWER_BUNK.w / 2, LOWER_BUNK.y - 2, LOWER_BUNK.w + 14, 3, C.floorDark, 0.7);
   pm.hline(0, W - 1, FLOOR_TOP, C.metalDark);
   return pm;
+}
+
+// -------------------------------------------------------------------- galley
+// The galley: warm tiled walls, a shelf of jars and a rack of hanging
+// spoons, with a stove ring painted on the floor under the mixing pot.
+export function drawGalley() {
+  const pm = drawShell();
+  for (let y = 14; y < 98; y++) {
+    pm.dither(0, y, W, 1, '#5a3a4a', 0.5);
+  }
+  // Tiles along the back of the worktop.
+  for (let y = 92; y < FLOOR_TOP; y += 5) {
+    for (let x = 72; x < W - 4; x += 8) {
+      pm.rect(x + ((y / 5) % 2 ? 4 : 0), y, 7, 4, '#e8d6c4');
+    }
+  }
+  // A shelf of jars, top right.
+  pm.rect(214, 38, 36, 3, '#7a4f33');
+  ['#ff8fc8', '#ffe066', '#7cf28a', '#8fd2ff'].forEach((color, i) => {
+    const x = 217 + i * 8;
+    pm.rect(x, 28, 6, 10, C.white);
+    pm.rect(x + 1, 31, 4, 6, color);
+    pm.rect(x, 26, 6, 2, '#b5835a');
+  });
+  // A rail of hanging spoons and a whisk, right.
+  pm.rect(214, 58, 36, 2, C.metalDark);
+  for (let i = 0; i < 4; i++) {
+    const x = 219 + i * 9;
+    pm.vline(x, 60, 72, C.metalLight);
+    pm.ellipse(x, 75, 2, 3, i === 3 ? C.metalLight : '#b5835a');
+  }
+  // The stove ring under the pot.
+  const { x, y, w } = MIXING_POT;
+  pm.ellipse(x, y - 1, w / 2 + 6, 6, C.metalDark);
+  pm.ellipse(x, y - 1, w / 2 + 3, 4, '#ff6a2a');
+  pm.ellipse(x, y - 1, w / 2, 3, C.metalDark);
+  pm.hline(0, W - 1, FLOOR_TOP, C.metalDark);
+  return pm;
+}
+
+// The mixing pot (bottom-centre on the floor): a big round cauldron with
+// two handles and a rim. `bubbling` fills it to the brim with froth.
+export function drawMixingPot(bubbling = false) {
+  const { w, h } = MIXING_POT;
+  const pm = new Pixmap(w + 8, h + 2);
+  const cx = Math.floor((w + 8) / 2);
+  pm.rect(cx - w / 2 + 6, h - 4, 6, 4, '#3a4060');
+  pm.rect(cx + w / 2 - 12, h - 4, 6, 4, '#3a4060');
+  pm.ellipse(cx, 17, w / 2, 13, '#3a4060');
+  pm.ellipse(cx - 4, 15, w / 2 - 8, 8, '#5a6488');
+  // Handles.
+  pm.ring(3, 12, 3, 1, C.metalLight);
+  pm.ring(w + 4, 12, 3, 1, C.metalLight);
+  // The rim, and the broth inside it.
+  pm.ellipse(cx, 6, w / 2, 5, C.metalLight);
+  pm.ellipse(cx, 6, w / 2 - 3, 3, bubbling ? '#c4f2a0' : '#7cc26a');
+  if (bubbling) {
+    for (const [bx, by, r] of [[-12, 3, 3], [-2, 1, 4], [9, 2, 3], [15, 5, 2], [-17, 6, 2]]) {
+      pm.circle(cx + bx, by + 1, r, '#e8ffd8');
+    }
+  }
+  return pm.outline(C.outline);
 }

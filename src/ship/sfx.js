@@ -318,4 +318,14 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 330, to: 520, dur: 0.35, type: 'triangle', vol: 0.1, attack: 0.08 });
     s.tone({ at: t + 0.35, freq: 520, to: 220, dur: 0.6, type: 'triangle', vol: 0.1 });
   });
+  // The galley's mixing pot: a big happy burp when a recipe works, and a
+  // sad little fizzle when it doesn't.
+  audio.define('burp', (s, t) => {
+    s.tone({ at: t, freq: 95, to: 70, dur: 0.35, type: 'sawtooth', vol: 0.14, attack: 0.03 });
+    s.noise({ at: t, dur: 0.3, filter: 'lowpass', freq: 400, to: 200, vol: 0.15 });
+  });
+  audio.define('fizzle', (s, t) => {
+    s.noise({ at: t, dur: 0.7, filter: 'highpass', freq: 2500, to: 5000, vol: 0.12 });
+    s.tone({ at: t + 0.1, freq: 600, to: 180, dur: 0.6, type: 'square', vol: 0.05 });
+  });
 }

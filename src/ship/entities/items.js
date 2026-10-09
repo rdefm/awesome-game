@@ -1,4 +1,5 @@
 import { ease } from '../../engine/tween.js';
+import { GALLEY_FOODS } from '../recipes.js';
 import { Carryable } from './carryable.js';
 import { clampToFloor } from './girl.js';
 
@@ -108,10 +109,14 @@ export class Teddy extends Carryable {
 
 // ---------------------------------------------------------------- snacks
 // Treats: from the ship's snack locker, cupcakes from Ginger's oven on
-// Candy, or lava cakes from the lava family's pot on Ember. Friends gobble them up (see `feed`).
+// Candy, lava cakes from the lava family's pot on Ember, or whatever comes
+// out of the galley's mixing pot. Friends gobble them up (see `feed`).
 export const LOCKER_SNACKS = ['cookie', 'starfruit', 'juice'];
-export const SNACKS = [...LOCKER_SNACKS, 'cupcake', 'lavacake'];
-const CRUMBS = { cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8', cupcake: '#ff8fc8', lavacake: '#ff6a2a' };
+export const SNACKS = [...LOCKER_SNACKS, 'cupcake', 'lavacake', ...GALLEY_FOODS];
+const CRUMBS = {
+  cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8', cupcake: '#ff8fc8', lavacake: '#ff6a2a',
+  cocoa: '#8a5a3a', icelolly: '#a9d6f2', sparklecake: '#c4a6ff', bluebelltea: '#6f8fe8', snowcone: '#ffffff', smoothie: '#ff9d3c',
+};
 
 export const isSnack = (item) => SNACKS.includes(item.kind);
 

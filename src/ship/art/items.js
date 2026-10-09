@@ -121,6 +121,108 @@ export function drawJuice() {
   ], { p: '#d65a9a', P: C.pink, w: C.white, g: C.greenDark, s: C.white });
 }
 
+// ---------------------------------------------------------- galley foods
+// What comes out of the galley's mixing pot (see recipes.js).
+export function drawCocoa() {
+  return outlinedGrid([
+    '..s.s...',
+    '.s.s....',
+    '..s.s...',
+    'mmmmmm..',
+    'mwwwwmmm',
+    'mCCCCm.m',
+    'mCCCCm.m',
+    'mCCCCmmm',
+    '.mCCm...',
+  ], { s: C.white, m: '#ff8fc8', w: '#f4e2c4', C: '#8a5a3a' });
+}
+
+export function drawIceLolly() {
+  return outlinedGrid([
+    '.bbbb.',
+    'bwBBBb',
+    'bwBpBb',
+    'bBpBBb',
+    'bBBBpb',
+    'bpBBBb',
+    '.bbbb.',
+    '..ss..',
+    '..ss..',
+  ], { b: '#6fb2e8', B: '#a9d6f2', w: C.white, p: '#ff8fc8', s: '#d9a877' });
+}
+
+export function drawSparkleCake() {
+  return outlinedGrid([
+    '....y....',
+    '...yWy...',
+    '....y....',
+    '.vvvvvvv.',
+    'vVwVwVwVv',
+    'vVVVVVVVv',
+    'ppppppppp',
+    'pPPPPPPPp',
+    '.ppppppp.',
+  ], { y: C.yellow, W: C.white, v: '#9a6cf0', V: '#c4a6ff', w: C.white, p: '#d65a9a', P: C.pink });
+}
+
+export function drawBluebellTea() {
+  return outlinedGrid([
+    '..s.s...',
+    '...s....',
+    'wwwwwww.',
+    'wTTTTTwww',
+    'wTbTTTw.w',
+    'wTTTTTw.w',
+    'wwwwwwwww',
+    '.wwwww...',
+    'ddddddd..',
+  ], { s: C.white, w: '#e8ecf6', T: '#6f8fe8', b: '#3f5fc8', d: '#b8c2dc' });
+}
+
+export function drawSnowCone() {
+  return outlinedGrid([
+    '..ggg..',
+    '.gWWWg.',
+    'gWWpWWg',
+    'gWyWWWg',
+    'ccccccc',
+    '.cCcCc.',
+    '.cCcCc.',
+    '..cCc..',
+    '..cCc..',
+    '...c...',
+  ], { g: '#d0e4f4', W: C.white, p: '#ff8fc8', y: '#8ff0c8', c: '#b07a3a', C: '#e0a85a' });
+}
+
+export function drawSmoothie() {
+  return outlinedGrid([
+    '....ss.',
+    '....s..',
+    '.gggsg.',
+    'gOOsOOg',
+    'gYYYYYg',
+    'gOOOOOg',
+    'gYYYYYg',
+    'gOOOOOg',
+    '.ggggg.',
+  ], { g: '#e8ecf6', s: C.white, O: '#ff9d3c', Y: C.yellow });
+}
+
+// A faint outline of a picture (one not found yet, on the recipe card): just
+// its edge, with the inside left empty.
+export function drawOutlineOf(pm, color = '#64729f') {
+  const out = new Pixmap(pm.width, pm.height);
+  for (let y = 0; y < pm.height; y++) {
+    for (let x = 0; x < pm.width; x++) {
+      const edge = !pm.isSet(x - 1, y) || !pm.isSet(x + 1, y) || !pm.isSet(x, y - 1) || !pm.isSet(x, y + 1);
+      if (pm.isSet(x, y) && edge) {
+        out.set(x, y, color);
+      }
+    }
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- the bag
 // A chunky backpack for the bag button. `open` gapes the flap so it looks
 // ready to swallow whatever is being dragged.
