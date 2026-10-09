@@ -1,5 +1,8 @@
 import { Pixmap, bayer, seededRandom } from '../../engine/pixmap.js';
 import { C } from './palette.js';
+import { BB } from './bluebell.js';
+import { MG } from './mushroomGrove.js';
+import { PD } from './pod.js';
 import { CA } from './candy.js';
 import { EM } from './ember.js';
 import { FL, SNOW_CRITTER_COLORS } from './frozenLake.js';
@@ -22,6 +25,7 @@ export const MAP_STYLE = {
   ember: { dot: EM.lavaHi, shade: EM.lavaDark, shadow: EM.rockDark },
   stripey: { dot: '#fff4d8', shade: ST.rockShade, shadow: ST.sandDeep },
   frosty: { dot: '#ffffff', shade: FR.peakDark, shadow: FR.snowDeep },
+  bluebell: { dot: '#ffffff', shade: BB.hillDark, shadow: BB.grassDark },
 };
 
 const BODY = '#ff00ff'; // stand-in colour, striped once the shape's drawn
@@ -436,4 +440,90 @@ export function drawMapBike() {
   pm.circle(8.5, 3, 1.5, C.skin);
   pm.set(9, 3, C.outline);
   return pm.outline(C.outline);
+}
+
+// The pink alien's pod: a round pink dome with a glowing window and a bulb
+// on its antenna.
+export function drawMapPod() {
+  const pm = new Pixmap(30, 28);
+  pm.ellipse(15, 26, 13, 1.5, BB.grassDark);
+  pm.vline(15, 2, 8, PD.shellDeep);
+  pm.circle(15, 2, 1.5, PD.glow);
+  pm.ellipse(15, 18, 13, 9, PD.shell);
+  pm.dither(18, 14, 11, 12, PD.shellDark, 0.45);
+  pm.ellipse(10, 14, 3, 2, PD.shellLight);
+  pm.hline(3, 27, 20, PD.shellDeep);
+  pm.circle(21, 16, 2.5, PD.shellDeep);
+  pm.circle(21, 16, 1.5, PD.glow);
+  pm.circle(13, 24, 3, PD.shellDeep);
+  pm.rect(10, 24, 7, 3, PD.shellDeep);
+  pm.circle(13, 24, 2, PD.glow);
+  return pm.outline(C.outline);
+}
+
+// The mushroom grove: three giant mushrooms in a mossy patch, glowing spores
+// floating up from them.
+export function drawMapMushroomGrove() {
+  const pm = new Pixmap(44, 32);
+  pm.ellipse(22, 27, 20, 4, MG.moss);
+  pm.dither(6, 24, 32, 6, MG.mossDark, 0.4);
+  [[12, 24, 8, 4, 0], [30, 25, 9, 5, 1], [22, 21, 6, 3, 2]].forEach(([x, y, h, rx, v]) => {
+    const k = MG.caps[v];
+    pm.rect(x - 1, y - h, 3, h, MG.stem);
+    pm.ellipse(x, y - h, rx + 2, rx - 0.5, k.cap);
+    pm.dither(x - rx, y - h, rx + 3, rx, k.shade, 0.4);
+    pm.set(x - 1, y - h - 1, k.spot);
+    pm.set(x + 2, y - h, k.spot);
+  });
+  for (const [x, y] of [[8, 5], [24, 3], [38, 8], [16, 9]]) {
+    pm.set(x, y, MG.glow);
+    pm.set(x + 1, y, MG.glowDeep);
+  }
+  return pm.outline(C.outline);
+}
+
+// Bluebell from up high: a green meadow of rolling hills, dotted with giant
+// bluebells, a shady mossy patch of mushrooms where the grove is, under a
+// border of grass and flowers.
+export function drawBluebellMap() {
+  const { w, h } = MAP;
+  const pm = new Pixmap(w, h);
+  const rand = seededRandom(43);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const roll = Math.sin(x / 13 + y / 19) + Math.sin(y / 8 - x / 21);
+      pm.set(x, y, roll > 1.1 && bayer(x, y) < 0.6 ? BB.grassLight : roll < -1.1 && bayer(x, y) < 0.5 ? BB.grassDark : BB.grass);
+    }
+  }
+  // Rolling hills, with shadow off to the lower right.
+  for (const [hx, hy, r] of [[28, 30, 20], [112, 20, 16], [160, 100, 14], [236, 30, 15], [70, 118, 13]]) {
+    pm.ellipse(hx + 4, hy + 4, r, r * 0.7, BB.hillDark);
+    pm.ellipse(hx, hy, r, r * 0.7, BB.hill);
+    pm.ellipse(hx - 2, hy - 2, r * 0.6, r * 0.42, BB.grassLight);
+  }
+  // The mushroom grove's shady patch, round the place it sits.
+  pm.ellipse(192, 109, 34, 15, BB.grassDark);
+  pm.ellipse(192, 109, 30, 12, MG.mossDark);
+  pm.dither(166, 102, 52, 14, MG.moss, 0.4);
+  // Giant bluebells here and there.
+  for (let i = 0; i < 26; i++) {
+    const fx = 8 + Math.floor(rand() * (w - 16));
+    const fy = 8 + Math.floor(rand() * (h - 16));
+    pm.set(fx, fy + 1, BB.stem);
+    pm.circle(fx, fy - 1, 1.5, rand() < 0.5 ? BB.bell : BB.bellLight);
+  }
+  // Glitter.
+  for (let i = 0; i < 60; i++) {
+    pm.set(Math.floor(rand() * w), Math.floor(rand() * h), rand() < 0.5 ? BB.grassLight : BB.bellHi);
+  }
+  // A border of grass and flowers all round.
+  for (let i = 0; i < Math.max(w, h); i++) {
+    const d = 2 + (Math.floor(i / 6) % 2);
+    const color = Math.floor(i / 6) % 2 ? BB.bellLight : BB.hillDark;
+    pm.rect(i, 0, 1, d, color);
+    pm.rect(i, h - d, 1, d, color);
+    pm.rect(0, i, d, 1, color);
+    pm.rect(w - d, i, d, 1, color);
+  }
+  return pm;
 }

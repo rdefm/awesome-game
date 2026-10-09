@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PLANETS } from './art/props.js';
-import { H, W } from './layout.js';
+import { H, MUSHROOM_GROVE, W, spooks } from './layout.js';
 import { arrivingBy, landedOn, placesOn, planetOf } from './planetScenes.js';
 
 describe('landedOn', () => {
@@ -196,5 +196,28 @@ describe('the frozen lake on Frosty', () => {
 
   it('puts her back by the ice on a reload', () => {
     expect(landedOn({ where: 'frozenlake', landed: true })).toBe('frozenlake');
+  });
+});
+
+describe('the mushroom grove on Bluebell', () => {
+  it('is out of doors on Bluebell, after the landing site and the pod', () => {
+    expect(placesOn('bluebell').map((place) => place.where)).toEqual(['bluebell', 'pod', 'mushroomgrove']);
+    expect(placesOn('bluebell').find((place) => place.where === 'mushroomgrove').kind).toBe('site');
+    expect(planetOf('mushroomgrove')).toBe('bluebell');
+  });
+
+  it('is ridden to on the hoverbike', () => {
+    expect(arrivingBy('mushroomgrove')).toEqual({ fromShip: false, byBike: true });
+  });
+
+  it('puts her back among the mushrooms on a reload', () => {
+    expect(landedOn({ where: 'mushroomgrove', landed: true })).toBe('mushroomgrove');
+  });
+
+  it('keeps the shy creature hiding only when she is close', () => {
+    const at = MUSHROOM_GROVE.creature;
+    expect(spooks({ x: at.x + 10, y: at.y + 4 }, at)).toBe(true);
+    expect(spooks({ x: at.x + 90, y: at.y }, at)).toBe(false);
+    expect(spooks({ x: at.x, y: at.y + 40 }, at)).toBe(false);
   });
 });

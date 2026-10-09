@@ -118,7 +118,27 @@ export const HOVERBIKE = {
   oasis: { x: 34, y: 142 },
   frosty: { x: 96, y: 152 }, // below the frost flower, clear of the snowball
   frozenlake: { x: 34, y: 142 },
+  bluebell: { x: 92, y: 150 }, // between the ship and the rock
+  mushroomgrove: { x: 34, y: 142 },
 };
+
+// The mushroom grove on Bluebell: two giant mushrooms to bounce on (bottom-
+// centre x, y; `top` how high above its foot the middle of its cap is, `rx`
+// how wide the cap is), and the shy mushroom creature standing among them,
+// which hides under its cap when she's within `shy` pixels.
+export const MUSHROOM_GROVE = {
+  shrooms: [
+    { x: 118, y: 138, top: 27, rx: 17 },
+    { x: 196, y: 146, top: 31, rx: 19 },
+  ],
+  creature: { x: 156, y: 128 },
+  shy: 40,
+};
+
+// Whether she's close enough to (x, y) that the shy creature there hides.
+export function spooks(girl, { x, y }, shy = MUSHROOM_GROVE.shy) {
+  return Math.hypot(girl.x - x, (girl.y - y) * 1.6) < shy;
+}
 
 // The frozen lake on Frosty: a sheet of ice (an ellipse round x, y) from the
 // back right up to the floor she walks on, to slide across from one of its

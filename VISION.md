@@ -29,7 +29,7 @@ store.
   opens onto that planet's scene. All five are landable. A planet can have
   places to go inside (the pink alien's pod on Bluebell, Candy's
   gingerbread house, the lava family's house on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
-  lava falls, Stripey's oasis, Frosty's frozen lake). Where
+  lava falls, Stripey's oasis, Frosty's frozen lake, Bluebell's mushroom grove). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
   places popping now and then to show they can be tapped); tap a place and
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -84,7 +84,19 @@ store.
   a note, a hopping puffball critter, butterflies, a friendly pink alien.
   Far off in the meadow is the pink alien's round pink pod, with a glowing
   window and an antenna on top: tap it and she walks up the stepping-stone
-  path, getting smaller, and in through the round-topped door
+  path, getting smaller, and in through the round-topped door. A hoverbike
+  parked by the ship rides her anywhere on Bluebell's town map (rolling
+  green hills dotted with giant bluebells, the ship, the pod and the grove)
+- The mushroom grove on Bluebell (by hoverbike): a shady corner of the
+  meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
+  (she hops up on the cap and bounces higher each time, the cap squashing
+  and puffing out glowing spores; every third go is a big one); glowing
+  spores drifting up to tap and pop with a chime, lighting up the ones near
+  them; and a shy mushroom creature that pulls its cap down and turns into
+  just another mushroom when she comes near, pops back out when she steps
+  away, and when tapped peeks out and giggles, then looks all round and
+  blushes, then at last comes right out for a little dance in a cloud of
+  spores
 - Inside the pod: a cosy round room, ribbed like a seed pod and strung with
   little lights. A telescope pointing up at a round window: look through it
   and night falls in the window, the stars come out and twinkle, and a

@@ -55,10 +55,12 @@ import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
 import {
-  MAP_STYLE, drawCandyMap, drawEmberMap, drawFrostyMap, drawMapBike, drawMapFalls, drawMapFrozenLake, drawMapGingerbread,
-  drawMapIceCave, drawMapLake, drawMapLavaHouse, drawMapOasis, drawMapShip, drawMapZigHut, drawStripeyMap,
+  MAP_STYLE, drawBluebellMap, drawCandyMap, drawEmberMap, drawFrostyMap, drawMapBike, drawMapFalls, drawMapFrozenLake, drawMapGingerbread,
+  drawMapIceCave, drawMapLake, drawMapLavaHouse, drawMapMushroomGrove, drawMapOasis, drawMapPod, drawMapShip, drawMapZigHut,
+  drawStripeyMap,
 } from './art/townMap.js';
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
+import { drawBounceShroom, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, POD, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
@@ -231,6 +233,13 @@ export function loadAssets() {
         puff: '#ffffff',
         snow: true,
       }),
+      // Not a planet: the mushroom grove on Bluebell.
+      mushroomgrove: bake({
+        ground: drawMushroomGrove({ horizon: HORIZON }),
+        clouds: [drawCloud(1), drawCloud(0)],
+        dust: '#c9f0b0',
+        puff: '#e8f7ff',
+      }),
       // Not a planet: the oasis on Stripey.
       oasis: bake({
         ground: drawOasis({ horizon: HORIZON }),
@@ -243,7 +252,9 @@ export function loadAssets() {
     // picture, each place's picture on it (by its `where`), and her on the bike.
     hoverbike: bake([drawHoverbike(0), drawHoverbike(1)]),
     townMap: bake({
-      ground: { candy: drawCandyMap(), ember: drawEmberMap(), stripey: drawStripeyMap(), frosty: drawFrostyMap() },
+      ground: {
+        candy: drawCandyMap(), ember: drawEmberMap(), stripey: drawStripeyMap(), frosty: drawFrostyMap(), bluebell: drawBluebellMap(),
+      },
       places: {
         candy: drawMapShip(MAP_STYLE.candy.shadow),
         gingerbread: drawMapGingerbread(),
@@ -257,6 +268,9 @@ export function loadAssets() {
         frosty: drawMapShip(MAP_STYLE.frosty.shadow),
         icecave: drawMapIceCave(),
         frozenlake: drawMapFrozenLake(),
+        bluebell: drawMapShip(MAP_STYLE.bluebell.shadow),
+        pod: drawMapPod(),
+        mushroomgrove: drawMapMushroomGrove(),
       },
       bike: drawMapBike(),
     }),
@@ -341,6 +355,11 @@ export function loadAssets() {
     snowCritters: SNOW_CRITTER_COLORS.map((_, v) => bake(Object.fromEntries(
       ['stand', 'step', 'blink', 'belly'].map((f) => [f, drawSnowCritter(f, v)]),
     ))),
+    // The mushroom grove on Bluebell: the bouncy mushrooms, and the shy creature.
+    bounceShrooms: bake([drawBounceShroom(0), drawBounceShroom(1)]),
+    shroomCreature: bake(Object.fromEntries(
+      ['out', 'blink', 'peek', 'hide', 'dance1', 'dance2'].map((f) => [f, drawMushroomCreature(f)]),
+    )),
     furNest: bake({ back: drawFurNest(true), front: drawFurNest() }),
     // [flicker 0, flicker 1, flared 0, flared 1]
     campfire: bake([drawCampfire(0), drawCampfire(1), drawCampfire(0, true), drawCampfire(1, true)]),

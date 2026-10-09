@@ -8,6 +8,7 @@ import { IceCaveScene } from './iceCaveScene.js';
 import { LavaFallsScene } from './lavaFallsScene.js';
 import { LavaHouseScene } from './lavaHouseScene.js';
 import { MilkshakeLakeScene } from './milkshakeLakeScene.js';
+import { MushroomGroveScene } from './mushroomGroveScene.js';
 import { OasisScene } from './oasisScene.js';
 import { PodScene } from './podScene.js';
 import { StripeyScene } from './stripeyScene.js';
@@ -24,8 +25,9 @@ import { ZigHutScene } from './zigHutScene.js';
 // PLANETS; a test keeps the two in step).
 const PLACES = {
   bluebell: [
-    { where: 'bluebell', name: 'Landing site', kind: 'landing', spot: { x: 128, y: 96 }, scene: BluebellScene },
+    { where: 'bluebell', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: BluebellScene },
     { where: 'pod', name: 'Pod', kind: 'house', spot: { x: 176, y: 72 }, scene: PodScene },
+    { where: 'mushroomgrove', name: 'Mushroom grove', kind: 'site', spot: { x: 198, y: 128 }, scene: MushroomGroveScene },
   ],
   ember: [
     { where: 'ember', name: 'Landing site', kind: 'landing', spot: { x: 80, y: 104 }, scene: EmberScene },

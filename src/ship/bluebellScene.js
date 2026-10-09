@@ -8,11 +8,13 @@ import { PodScene } from './podScene.js';
 // puffball, butterflies and a friendly local, with our ship parked on the left
 // (and a few secrets: a rock, a bush and a molehill). Far off in the meadow
 // is the pink alien's round pod: tap it and she walks up the path, getting
-// smaller, and goes inside.
+// smaller, and goes inside. Beside the ship is the hoverbike, to ride off
+// anywhere else on Bluebell.
 export class BluebellScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'bluebell', opts);
     this.addHouse(new Pod(assets), (o) => new PodScene(assets, o));
+    this.addBike();
     this.add(new Rock(assets));
     this.add(new Bush(assets));
     this.add(new MoleHole(assets));
