@@ -2,8 +2,8 @@ import { ease } from '../../engine/tween.js';
 import { FR } from '../art/frosty.js';
 import { IC, NEST } from '../art/iceCave.js';
 import { CAMPFIRE, FUR_NEST, ICE_CAVE, ICICLES, POND_WINDOW } from '../layout.js';
-import { hold, isFriendItem } from './friends.js';
-import { FarHouse, HouseProp, drawZzz, inRect, wakeAndHopOut } from './house.js';
+import { isFriendItem } from './friends.js';
+import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
 
 // ---------------------------------------------------------------- the house
 // The yetis' ice cave, in the mountainside at the back of Frosty, with its
@@ -164,30 +164,25 @@ export class PondWindow extends HouseProp {
 
 // The fur-rug nest: tap it and she fluffs it up. Drop a friend in it and it
 // curls up for a nap (zzz), then wakes with a big stretch and hops out.
-export class FurNest extends HouseProp {
+export class FurNest extends FriendBed {
   constructor(assets) {
-    super();
+    super({ x: FUR_NEST.x, y: FUR_NEST.spot.y });
     this.imgs = assets.furNest;
     this.spot = FUR_NEST.spot;
-    this.friend = null; // napping in it
-    this.sleepy = false;
     this.fluffing = false;
+  }
+
+  get inUse() {
+    return this.fluffing;
   }
 
   hitTest(px, py) {
     return inRect(px, py, FUR_NEST.x - NEST.w / 2, FUR_NEST.y - NEST.h, NEST.w, NEST.h);
   }
 
-  accepts(item) {
-    return isFriendItem(item) && !this.friend && !this.fluffing;
-  }
-
-  async use() {
+  async play() {
     const { scene } = this;
     const { engine, girl } = scene;
-    if (this.fluffing) {
-      return;
-    }
     this.fluffing = true;
     girl.faceToward(FUR_NEST.x);
     for (let i = 0; i < 2; i++) {
@@ -200,28 +195,9 @@ export class FurNest extends HouseProp {
     this.fluffing = false;
   }
 
-  // A friend napping in it is tapped (it's sat in us, like a seat).
-  spin() {
-    this.use();
-  }
-
-  // A napping friend can't be picked up (it's held), but if it were, it'd
-  // simply leave.
-  release() {
-    this.friend = null;
-  }
-
-  // A friend dropped on it: in it goes (sat in it, so it's drawn here), naps,
-  // then wakes with a stretch and hops back out.
-  async receive(friend) {
-    const { scene } = this;
-    const { engine } = scene;
-    hold(friend);
-    this.fluffing = true;
-    await scene.putDown(friend, FUR_NEST.x, FUR_NEST.spot.y);
-    friend.seat = this;
-    this.friend = friend;
-    this.fluffing = false;
+  // A friend in it has a nap.
+  async stay(friend) {
+    const { engine } = this.scene;
     engine.audio.play('rustle');
     await engine.wait(0.4);
     this.sleepy = true;
@@ -229,20 +205,13 @@ export class FurNest extends HouseProp {
     engine.audio.play('lullaby');
     await engine.wait(3);
     this.sleepy = false;
-    await wakeAndHopOut(this, friend, FUR_NEST.x);
   }
 
   draw(r) {
     const { x, y } = FUR_NEST;
     const s = this.bounce;
     r.image(this.imgs.back, x, y, { scaleX: s, scaleY: 2 - s });
-    const { friend } = this;
-    if (friend) {
-      r.image(friend.seatFrame(), x, y - 4, { flipX: friend.facing < 0 });
-      if (this.sleepy) {
-        drawZzz(r, this.scene, x, y);
-      }
-    }
+    this.drawFriend(r, x, y, 4);
     r.image(this.imgs.front, x, y, { scaleX: s, scaleY: 2 - s });
   }
 }

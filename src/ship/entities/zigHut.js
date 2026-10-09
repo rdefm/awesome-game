@@ -1,8 +1,7 @@
 import { ease } from '../../engine/tween.js';
 import { GOGGLE_COLORS, HUT_WALLS, SLING, TIMER_GLASS, TIMER_SAND, sandHalf } from '../art/zigHut.js';
 import { EASEL, GOGGLE_SHELF, HAMMOCK, SAND_TIMER, ZIG_HUT } from '../layout.js';
-import { hold, isFriendItem } from './friends.js';
-import { FarHouse, HouseProp, drawZzz, inRect, wakeAndHopOut } from './house.js';
+import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
 
 // ---------------------------------------------------------------- the house
 // Zig's stripy dome hut, out among the mesas at the back of Stripey, with its
@@ -209,44 +208,29 @@ export class GoggleShelf extends HouseProp {
 
 // The hammock, slung between two hooks: tap it and it swings. Drop a friend
 // in it and it swings them off to sleep (zzz), then out they hop.
-export class Hammock extends HouseProp {
+export class Hammock extends FriendBed {
   constructor(assets) {
-    super();
+    super({ x: (HAMMOCK.x1 + HAMMOCK.x2) / 2, y: HAMMOCK.spot.y });
     this.img = assets.sling;
     this.spot = HAMMOCK.spot;
     this.rock = 0; // how far over it's swung, -1..1
     this.swinging = false;
-    this.friend = null; // napping in it
-    this.sleepy = false;
   }
 
   get centre() {
-    return (HAMMOCK.x1 + HAMMOCK.x2) / 2;
+    return this.at.x;
+  }
+
+  get inUse() {
+    return this.swinging;
   }
 
   hitTest(px, py) {
     return inRect(px, py, HAMMOCK.x1 + 4, HAMMOCK.sag - SLING.h - 4, HAMMOCK.x2 - HAMMOCK.x1 - 8, SLING.h + 4);
   }
 
-  accepts(item) {
-    return isFriendItem(item) && !this.swinging && !this.friend;
-  }
-
-  use() {
-    if (!this.swinging) {
-      this.swing(3);
-    }
-  }
-
-  // A friend napping in it is tapped (it's sat in us, like a seat).
-  spin() {
-    this.use();
-  }
-
-  // A napping friend can't be picked up (it's held), but if it were, it'd
-  // simply leave.
-  release() {
-    this.friend = null;
+  play() {
+    return this.swing(3);
   }
 
   // Swings to and fro `n` times.
@@ -267,17 +251,9 @@ export class Hammock extends HouseProp {
     this.swinging = false;
   }
 
-  // A friend dropped on it: in it goes (sat in it, so it's drawn here), swung
-  // off to sleep, then it wakes with a stretch and hops back out.
-  async receive(friend) {
-    const { scene } = this;
-    const { engine } = scene;
-    hold(friend);
-    this.swinging = true;
-    await scene.putDown(friend, this.centre, HAMMOCK.spot.y);
-    friend.seat = this;
-    this.friend = friend;
-    this.swinging = false;
+  // A friend in it is swung off to sleep.
+  async stay(friend) {
+    const { engine } = this.scene;
     const swung = this.swing(4);
     await engine.wait(1);
     this.sleepy = true;
@@ -285,7 +261,6 @@ export class Hammock extends HouseProp {
     await swung;
     await engine.wait(0.6);
     this.sleepy = false;
-    await wakeAndHopOut(this, friend, this.centre);
   }
 
   draw(r) {
@@ -301,13 +276,7 @@ export class Hammock extends HouseProp {
         r.pixel(end.hook + ((end.x - end.hook) * i) / steps, top + ((endY - top) * i) / steps, '#e8d2a0');
       }
     }
-    const { friend } = this;
-    if (friend) {
-      r.image(friend.seatFrame(), cx, sag - 5, { flipX: friend.facing < 0 });
-      if (this.sleepy) {
-        drawZzz(r, this.scene, cx, sag);
-      }
-    }
+    this.drawFriend(r, cx, sag, 5);
     r.image(this.img, cx, sag, { scaleX: s, scaleY: 2 - s });
   }
 }

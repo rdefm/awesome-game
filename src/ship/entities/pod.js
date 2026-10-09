@@ -3,8 +3,7 @@ import { seededRandom } from '../../engine/pixmap.js';
 import { BB } from '../art/bluebell.js';
 import { BATH, PD, SCOPE, TRAY } from '../art/pod.js';
 import { BUBBLE_BATH, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE } from '../layout.js';
-import { hold, isFriendItem } from './friends.js';
-import { FarHouse, HouseProp, inRect, wakeAndHopOut } from './house.js';
+import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
 
 // ---------------------------------------------------------------- the house
 // The pink alien's round pod, far off in Bluebell's meadow, with its
@@ -23,23 +22,22 @@ const BUBBLE_TOP = 40; // how far up a bubble floats before it pops
 // The bubble bath. Tap it and she swishes the water: bubbles float up out of
 // it and pop. Drop a friend in and it splashes about in the bubbles, then
 // gives a big shake and hops back out.
-export class BubbleBath extends HouseProp {
+export class BubbleBath extends FriendBed {
   constructor(assets) {
-    super();
+    super({ x: BUBBLE_BATH.x, y: BUBBLE_BATH.spot.y });
     this.imgs = assets.bubbleBath;
     this.bubble = assets.bubble;
     this.spot = BUBBLE_BATH.spot;
-    this.friend = null; // splashing in it
     this.swishing = false;
     this.bubbles = []; // from the middle of the water
   }
 
-  hitTest(px, py) {
-    return inRect(px, py, BUBBLE_BATH.x - BATH.w / 2, BUBBLE_BATH.y - BATH.h, BATH.w, BATH.h);
+  get inUse() {
+    return this.swishing;
   }
 
-  accepts(item) {
-    return isFriendItem(item) && !this.friend && !this.swishing;
+  hitTest(px, py) {
+    return inRect(px, py, BUBBLE_BATH.x - BATH.w / 2, BUBBLE_BATH.y - BATH.h, BATH.w, BATH.h);
   }
 
   // A few bubbles up out of the water.
@@ -49,12 +47,9 @@ export class BubbleBath extends HouseProp {
     }
   }
 
-  async use() {
+  async play() {
     const { scene } = this;
     const { engine, girl } = scene;
-    if (this.swishing) {
-      return;
-    }
     this.swishing = true;
     girl.faceToward(BUBBLE_BATH.x);
     for (let i = 0; i < 2; i++) {
@@ -68,28 +63,10 @@ export class BubbleBath extends HouseProp {
     this.swishing = false;
   }
 
-  // A friend splashing in it is tapped (it's sat in us, like a seat).
-  spin() {
-    this.use();
-  }
-
-  // A friend in the bath can't be picked up (it's held), but if it were,
-  // it'd simply leave.
-  release() {
-    this.friend = null;
-  }
-
-  // A friend dropped in it: in it goes (sat in it, so it's drawn here),
-  // splashes about, then shakes off and hops back out.
-  async receive(friend) {
+  // A friend in it splashes about in the bubbles.
+  async stay(friend) {
     const { scene } = this;
     const { engine } = scene;
-    hold(friend);
-    this.swishing = true;
-    await scene.putDown(friend, BUBBLE_BATH.x, BUBBLE_BATH.spot.y);
-    friend.seat = this;
-    this.friend = friend;
-    this.swishing = false;
     for (let i = 0; i < 3; i++) {
       engine.audio.play('splash');
       friend.pose?.(i % 2 ? 'hop' : 'idle');
@@ -97,7 +74,6 @@ export class BubbleBath extends HouseProp {
       this.froth(2);
       await engine.wait(0.6);
     }
-    await wakeAndHopOut(this, friend, BUBBLE_BATH.x);
   }
 
   update(dt) {
@@ -119,10 +95,7 @@ export class BubbleBath extends HouseProp {
     const { x, y } = BUBBLE_BATH;
     const s = this.bounce;
     r.image(this.imgs.back, x, y, { scaleX: s, scaleY: 2 - s });
-    const { friend } = this;
-    if (friend) {
-      r.image(friend.seatFrame(), x, y - 8, { flipX: friend.facing < 0 });
-    }
+    this.drawFriend(r, x, y, 8);
     r.image(this.imgs.front, x, y, { scaleX: s, scaleY: 2 - s });
   }
 

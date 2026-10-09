@@ -1,6 +1,6 @@
 import { ease } from '../../engine/tween.js';
 import { HOUSE_DOOR } from '../layout.js';
-import { letGo } from './friends.js';
+import { hold, isFriendItem, letGo } from './friends.js';
 
 export const inRect = (px, py, x, y, w, h, pad = 3) => px >= x - pad && px <= x + w + pad && py >= y - pad && py <= y + h + pad;
 
@@ -82,31 +82,90 @@ export class HouseProp {
   }
 }
 
-// A friend napping in `bed` (a hammock, a nest...) wakes with a big stretch
-// and hops back out, away from her, beside x.
-export async function wakeAndHopOut(bed, friend, x) {
-  const { scene } = bed;
-  const { engine, girl } = scene;
-  friend.pose?.('wave1'); // a big stretch
-  engine.audio.play('giggle');
-  await engine.wait(0.4);
-  bed.friend = null;
-  friend.seat = null;
-  friend.facing = girl.x < x ? -1 : 1;
-  friend.pose?.('hop');
-  friend.lift = 10;
-  await engine.tweens.to(friend, { lift: 0 }, 0.3, ease.inQuad);
-  scene.hearts(friend.x, friend.y - 20, 2);
-  girl.say('heart', 1.4);
-  letGo(friend);
-}
+// Something in a house a friend can be dropped into (a nest, a hammock, a
+// bath...): in it goes (sat in it, so it's drawn here), `stay`s a while,
+// then hops back out. Tapped, it does its own thing (`play`), unless it's
+// already busy. `at`: where a friend in it is put down. Subclasses say when
+// they're `inUse` with something of their own, and draw the friend with
+// `drawFriend`.
+export class FriendBed extends HouseProp {
+  constructor(at) {
+    super();
+    this.at = at;
+    this.friend = null; // in it
+    this.settling = false; // a friend's being put down in it
+    this.sleepy = false; // the friend in it is asleep (zzz)
+  }
 
-// Zzzs drifting up off a friend asleep at (x, y).
-export function drawZzz(r, scene, x, y) {
-  const t = scene.engine.time;
-  for (let i = 0; i < 2; i++) {
-    const k = (t * 0.5 + i * 0.5) % 1;
-    r.image(scene.assets.text('Z', '#ffffff'), x + 8 + k * 6, y - 30 - k * 10, { alpha: 1 - k });
+  get inUse() {
+    return false;
+  }
+
+  accepts(item) {
+    return isFriendItem(item) && !this.friend && !this.settling && !this.inUse;
+  }
+
+  async use() {
+    if (!this.settling && !this.inUse) {
+      await this.play();
+    }
+  }
+
+  // A friend in it is tapped (it's sat in us, like a seat).
+  spin() {
+    this.use();
+  }
+
+  // A friend in it can't be picked up (it's held), but if it were, it'd
+  // simply leave.
+  release() {
+    this.friend = null;
+  }
+
+  async receive(friend) {
+    hold(friend);
+    this.settling = true;
+    await this.scene.putDown(friend, this.at.x, this.at.y);
+    friend.seat = this;
+    this.friend = friend;
+    this.settling = false;
+    await this.stay(friend);
+    await this.hopOut(friend);
+  }
+
+  // The friend in it wakes with a big stretch and hops back out, away from her.
+  async hopOut(friend) {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    friend.pose?.('wave1'); // a big stretch
+    engine.audio.play('giggle');
+    await engine.wait(0.4);
+    this.friend = null;
+    friend.seat = null;
+    friend.facing = girl.x < this.at.x ? -1 : 1;
+    friend.pose?.('hop');
+    friend.lift = 10;
+    await engine.tweens.to(friend, { lift: 0 }, 0.3, ease.inQuad);
+    scene.hearts(friend.x, friend.y - 20, 2);
+    girl.say('heart', 1.4);
+    letGo(friend);
+  }
+
+  // The friend in it (if any), its feet `lift` above (x, y), with zzzs
+  // drifting up off it while it's asleep.
+  drawFriend(r, x, y, lift) {
+    const { friend } = this;
+    if (!friend) {
+      return;
+    }
+    r.image(friend.seatFrame(), x, y - lift, { flipX: friend.facing < 0 });
+    if (this.sleepy) {
+      const t = this.scene.engine.time;
+      for (let i = 0; i < 2; i++) {
+        const k = (t * 0.5 + i * 0.5) % 1;
+        r.image(this.scene.assets.text('Z', '#ffffff'), x + 8 + k * 6, y - 30 - k * 10, { alpha: 1 - k });
+      }
+    }
   }
 }
 
