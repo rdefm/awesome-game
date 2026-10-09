@@ -239,6 +239,34 @@ export function drawBerryJuice() {
   ], { g: '#e8ecf6', s: C.white, P: '#9a3fc4', b: '#4f6fe8' });
 }
 
+// ---------------------------------------------------------- pantry treats
+// What comes out of the pantry cupboard in the pink alien's pod: a little
+// pot of golden nectar with a dipper in it, and a cookie dotted with seeds.
+export function drawNectar() {
+  return outlinedGrid([
+    '....d..',
+    '....d..',
+    '.llldl.',
+    'nNNNdNn',
+    '.nNNNn.',
+    'nNyNNNn',
+    'nNNNNNn',
+    '.nnnnn.',
+  ], { d: '#c08a5a', l: '#fff0a0', n: '#e8a020', N: '#ffc83a', y: '#fff0a0' });
+}
+
+export function drawSeedCookie() {
+  return outlinedGrid([
+    '..bbbb..',
+    '.bBsBBb.',
+    'bBBBBsBb',
+    'bsBBBBBb',
+    'bBBsBBsb',
+    '.bBBBBb.',
+    '..bbbb..',
+  ], { b: '#b07a3a', B: '#e0b070', s: '#6a4a32' });
+}
+
 // A faint outline of a picture (one not found yet, on the recipe card): just
 // its edge, with the inside left empty.
 export function drawOutlineOf(pm, color = '#64729f') {

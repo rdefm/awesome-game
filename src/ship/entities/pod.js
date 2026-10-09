@@ -1,10 +1,11 @@
 import { ease } from '../../engine/tween.js';
 import { seededRandom } from '../../engine/pixmap.js';
 import { BB } from '../art/bluebell.js';
-import { BATH, NOOK, PD, POD_LIGHTS, SCOPE, TRAY } from '../art/pod.js';
-import { BED_NOOK, BUBBLE_BATH, H, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W } from '../layout.js';
+import { BATH, CUPBOARD, KETTLE_ART, NOOK, PD, POD_LIGHTS, SCOPE, STOVE, TRAY } from '../art/pod.js';
+import { BED_NOOK, BUBBLE_BATH, H, KETTLE, PANTRY, POD, SEED_TRAY, STAR_WINDOW, TELESCOPE, W } from '../layout.js';
 import { FriendBunk, tuckHerIn, wakeHer } from './bunkroom.js';
 import { FarHouse, FriendBed, HouseProp, inRect } from './house.js';
+import { PANTRY_SNACKS } from './items.js';
 
 // ---------------------------------------------------------------- the house
 // The pink alien's round pod, far off in Bluebell's meadow, with its
@@ -340,5 +341,157 @@ export class BedNook extends FriendBunk {
       });
     }
     super.drawOver(r);
+  }
+}
+
+// The pantry cupboard. Tap it and its doors swing open on its shelves of
+// jars, and out pops a nectar pot, then a seed cookie next time, and so on
+// (but only so many lying about the pod at once).
+export const MAX_PANTRY_SNACKS = 4;
+
+export class Pantry extends HouseProp {
+  constructor(assets) {
+    super();
+    this.imgs = assets.pantry;
+    this.spot = PANTRY.spot;
+    this.open = false;
+    this.giving = false;
+    this.nextSnack = 0; // which of PANTRY_SNACKS comes out next
+  }
+
+  hitTest(px, py) {
+    return inRect(px, py, PANTRY.x - CUPBOARD.body / 2, PANTRY.y - CUPBOARD.h, CUPBOARD.body, CUPBOARD.h, 2);
+  }
+
+  async use() {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    if (this.giving) {
+      return;
+    }
+    girl.faceToward(PANTRY.x);
+    if (scene.entities.filter((e) => PANTRY_SNACKS.includes(e.kind)).length >= MAX_PANTRY_SNACKS) {
+      girl.say('heart', 1.2);
+      scene.toast('PLENTY OF SNACKS!');
+      return;
+    }
+    this.giving = true;
+    girl.act('reach', 0.4);
+    engine.audio.play('creak');
+    this.open = true;
+    this.squash = 1;
+    engine.tweens.to(this, { squash: 0 }, 0.4, ease.outElastic);
+    await engine.wait(0.3);
+    const kind = PANTRY_SNACKS[this.nextSnack % PANTRY_SNACKS.length];
+    this.nextSnack += 1;
+    const snack = scene.spawn(kind, PANTRY.x, PANTRY.y - 14);
+    if (snack) {
+      engine.audio.play('pop');
+      scene.sparkles(PANTRY.x, PANTRY.y - 16, 5);
+      await scene.putDown(snack, PANTRY.x - 6, PANTRY.spot.y + 6);
+    }
+    girl.say('heart', 1.2);
+    await engine.wait(0.3);
+    engine.audio.play('close');
+    this.open = false;
+    this.giving = false;
+  }
+
+  draw(r) {
+    const s = this.bounce;
+    r.image(this.imgs[this.open ? 1 : 0], PANTRY.x, PANTRY.y, { scaleX: s, scaleY: 2 - s });
+  }
+}
+
+const RATTLES = 4; // rattles as it heats up, before it whistles
+const STEAM_TIME = 1.6; // seconds of steam it puffs out as it whistles
+const COOL_RATE = 0.4; // how fast it cools off afterwards, per second
+
+// The kettle on its little stove. Tap it and the stove lights and it heats
+// up, rattling its lid, then whistles a cheerful tune with a puff of steam
+// from its spout, and cools off again.
+export class Kettle extends HouseProp {
+  constructor(assets) {
+    super();
+    this.imgs = assets.kettle;
+    this.puffImg = assets.steam;
+    this.spot = KETTLE.spot;
+    this.heat = 0; // 0 = cold, 1 = on the boil
+    this.rattle = 0; // how hard its lid's rattling, 0..1
+    this.steam = 0; // seconds of steam left to puff
+    this.boiling = false;
+    this.puffs = [];
+  }
+
+  // Where the steam comes out: the whistle on the end of its spout.
+  get spout() {
+    const { hob, spout } = KETTLE_ART;
+    return { x: KETTLE.x + hob + spout.x, y: KETTLE.y - STOVE.h + 1 + spout.y };
+  }
+
+  hitTest(px, py) {
+    const h = STOVE.h + KETTLE_ART.h;
+    return inRect(px, py, KETTLE.x - STOVE.w / 2, KETTLE.y - h, STOVE.w, h, 2);
+  }
+
+  async use() {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    if (this.boiling) {
+      return;
+    }
+    this.boiling = true;
+    girl.faceToward(KETTLE.x);
+    girl.act('reach', 0.4);
+    engine.audio.play('click');
+    for (let i = 1; i <= RATTLES; i++) {
+      await engine.wait(0.35);
+      this.heat = i / RATTLES;
+      this.rattle = 1;
+      engine.audio.play('rattle');
+    }
+    engine.audio.play('whistle');
+    this.steam = STEAM_TIME;
+    scene.sparkles(this.spout.x, this.spout.y, 3);
+    girl.say('note', 1.4);
+    await engine.wait(STEAM_TIME);
+    this.boiling = false;
+  }
+
+  update(dt) {
+    this.rattle = Math.max(0, this.rattle - dt * 3);
+    if (!this.boiling) {
+      this.heat = Math.max(0, this.heat - dt * COOL_RATE);
+    }
+    if (this.steam > 0) {
+      this.steam = Math.max(0, this.steam - dt);
+      const { x, y } = this.spout;
+      this.puffs.push({ x, y, vx: 14 + Math.random() * 10, vy: -(24 + Math.random() * 12), age: 0, life: 0.8 + Math.random() * 0.4 });
+    }
+    for (const p of this.puffs) {
+      p.age += dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= 1 - dt * 2;
+    }
+    this.puffs = this.puffs.filter((p) => p.age < p.life);
+  }
+
+  draw(r) {
+    const s = this.bounce;
+    const hot = this.heat > 0.5 ? 1 : 0;
+    const t = this.scene.engine.time;
+    const jiggle = this.rattle > 0 ? Math.round(Math.sin(t * 60) * this.rattle) : 0;
+    r.image(this.imgs.stove[this.boiling || this.heat > 0 ? 1 : 0], KETTLE.x, KETTLE.y, { scaleX: s, scaleY: 2 - s });
+    r.image(this.imgs.kettle[hot], KETTLE.x + KETTLE_ART.hob + jiggle, KETTLE.y - STOVE.h + 1 - Math.abs(jiggle), { scaleX: s, scaleY: 2 - s });
+  }
+
+  // The steam billows up over everything.
+  drawOver(r) {
+    for (const p of this.puffs) {
+      const k = p.age / p.life;
+      const s = 0.4 + k * 1.2;
+      r.image(this.puffImg, p.x, p.y, { ay: 0.5, scaleX: s, scaleY: s, alpha: 0.8 * (1 - k) });
+    }
   }
 }

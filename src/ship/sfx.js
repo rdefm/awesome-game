@@ -371,6 +371,16 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 95, to: 70, dur: 0.35, type: 'sawtooth', vol: 0.14, attack: 0.03 });
     s.noise({ at: t, dur: 0.3, filter: 'lowpass', freq: 400, to: 200, vol: 0.15 });
   });
+  // The pod's kettle: its lid rattling as it heats up, then a cheerful
+  // whistled tune.
+  audio.define('rattle', (s, t) => {
+    [0, 0.05, 0.1].forEach((d) => s.noise({ at: t + d, dur: 0.04, filter: 'bandpass', freq: 2400, vol: 0.1, q: 4 }));
+  });
+  audio.define('whistle', (s, t) => {
+    s.tone({ at: t, freq: 1200, to: 1760, dur: 0.3, type: 'sine', vol: 0.08, attack: 0.1 });
+    [1760, 1976, 2217, 1976, 2349, 2217, 1760].forEach((f, i) => s.tone({ at: t + 0.3 + i * 0.16, freq: f, dur: 0.15, type: 'sine', vol: 0.08 }));
+    s.noise({ at: t, dur: 1.5, filter: 'highpass', freq: 4000, vol: 0.05, attack: 0.1 });
+  });
   audio.define('fizzle', (s, t) => {
     s.noise({ at: t, dur: 0.7, filter: 'highpass', freq: 2500, to: 5000, vol: 0.12 });
     s.tone({ at: t + 0.1, freq: 600, to: 180, dur: 0.6, type: 'square', vol: 0.05 });

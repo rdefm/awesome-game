@@ -20,7 +20,8 @@ import {
 } from './art/bluebell.js';
 import {
   drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
-  drawIceLolly, drawJuice, drawOutlineOf, drawSandwich, drawSmoothie, drawSnowCone, drawSparkleCake, drawStarFruit, drawTeddy,
+  drawIceLolly, drawJuice, drawNectar, drawOutlineOf, drawSandwich, drawSeedCookie, drawSmoothie, drawSnowCone, drawSparkleCake,
+  drawStarFruit, drawTeddy,
 } from './art/items.js';
 import {
   MOTH_COLORS, drawEmberPlain, drawFirebloom, drawGeode, drawLavaFish, drawLavaPool, drawNewt, drawSmoke, drawSteam,
@@ -50,8 +51,8 @@ import {
   drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
 } from './art/iceCave.js';
 import {
-  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawNightSky, drawPod, drawPodDoor, drawPodPath, drawPodRoom,
-  drawSeedTray, drawTelescope,
+  NOOK_QUILT, TRAY, drawBedNook, drawBubble, drawBubbleBath, drawKettle, drawNightSky, drawPantry, drawPod, drawPodDoor,
+  drawPodPath, drawPodRoom, drawSeedTray, drawStove, drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawGonzo, drawMonkey } from './art/shipFriends.js';
@@ -367,6 +368,9 @@ export function loadAssets() {
     seedTray: bake([...Array(TRAY.stages).keys()].map((stage) => drawSeedTray(stage))),
     bubbleBath: bake({ back: drawBubbleBath(true), front: drawBubbleBath() }),
     bubble: bake(drawBubble()),
+    // The pantry cupboard [shut, open], and the kettle [cold, hot] on its stove.
+    pantry: bake([drawPantry(), drawPantry(true)]),
+    kettle: bake({ stove: [drawStove(), drawStove(true)], kettle: [drawKettle(), drawKettle(true)] }),
     // The bed nook, its curtain, and its quilt [flat, tucked in].
     bedNook: bake({
       nook: drawBedNook(),
@@ -479,7 +483,7 @@ export function loadAssets() {
     crystal: bake([drawCrystal(), drawCrystal(true)]),
     snacks: bake({
       cookie: drawCookie(), starfruit: drawStarFruit(), juice: drawJuice(), cupcake: drawCupcake(), lavacake: drawLavaCake(), ...galleyFoods,
-      sandwich: drawSandwich(), berryjuice: drawBerryJuice(),
+      sandwich: drawSandwich(), berryjuice: drawBerryJuice(), nectar: drawNectar(), seedcookie: drawSeedCookie(),
     }),
     // The galley's foods as faint outlines, for recipes not found yet.
     foodOutlines: bake(Object.fromEntries(Object.entries(galleyFoods).map(([k, pm]) => [k, drawOutlineOf(pm)]))),

@@ -6,7 +6,8 @@ import { BED_NOOK, FLOOR_TOP, HOUSE_DOOR, SEED_TRAY, STAR_WINDOW, W, H } from '.
 // Everything painted for the pink alien's pod on Bluebell: the round pod far
 // off in the meadow and the stepping-stone path up to it; and inside: the
 // cosy round room, its round-topped door, the telescope and the window it
-// looks out of, the seed tray, the bubble bath, and the bed nook.
+// looks out of, the seed tray, the bubble bath, the bed nook, the pantry
+// cupboard, and the kettle on its stove.
 
 // The pod's soft pink shell, and the cosy things inside.
 export const PD = {
@@ -39,6 +40,11 @@ export const PD = {
   curtain: '#8adcc8',
   curtainDark: '#58a894',
   dimmed: '#2a1040',
+  iron: '#5a4a72',
+  ironLight: '#7e6c9c',
+  ironDark: '#3a2e4c',
+  flame: '#ff6a2a',
+  kettleHot: '#ff7f9f',
 };
 
 // How far down the string of little lights swagged across the top of the
@@ -461,3 +467,125 @@ export function drawBedNook({ curtain = false } = {}) {
 
 // The quilt over whoever's in the nook (see drawBlanket).
 export const NOOK_QUILT = { face: '#ff7fbf', light: '#ffb8dc', dark: '#c8508e' };
+
+// The pantry cupboard, bottom-centre on the floor: a little mint-green
+// cupboard with a scalloped top and two doors with brass knobs. `open`, its
+// doors are swung out either side onto two shelves inside: golden pots of
+// nectar on the top one, a glass jar of seed cookies and a couple more pots
+// on the bottom.
+export const CUPBOARD = { w: 34, h: 36, body: 24 };
+export function drawPantry(open = false) {
+  const { w, h, body } = CUPBOARD;
+  const pm = new Pixmap(w, h);
+  const left = (w - body) / 2;
+  const right = left + body - 1;
+  const top = 6;
+  // The scalloped top, and the body on its little feet.
+  for (let x = left; x <= right; x++) {
+    const bump = Math.round(Math.abs(Math.sin(((x - left) * Math.PI) / 8)) * 3);
+    pm.vline(x, top - bump, top, PD.curtainDark);
+  }
+  pm.rect(left, top + 1, body, h - top - 4, PD.curtain);
+  pm.hline(left, right, h - 4, PD.curtainDark);
+  for (const x of [left + 1, right - 2]) {
+    pm.rect(x, h - 3, 2, 3, PD.woodDark);
+  }
+  const dTop = top + 3;
+  const dBottom = h - 6;
+  const mid = left + body / 2;
+  if (!open) {
+    // Two doors, a heart cut in each, knobs by the middle.
+    for (const [d0, d1] of [[left + 2, mid - 1], [mid, right - 2]]) {
+      pm.rect(d0, dTop, d1 - d0 + 1, dBottom - dTop + 1, PD.curtain);
+      pm.hline(d0, d1, dTop, PD.curtainDark);
+      pm.hline(d0, d1, dBottom, PD.curtainDark);
+      pm.vline(d0, dTop, dBottom, PD.curtainDark);
+      pm.vline(d1, dTop, dBottom, PD.curtainDark);
+      const hx = Math.round((d0 + d1) / 2);
+      pm.set(hx - 1, dTop + 4, PD.shellDark);
+      pm.set(hx + 1, dTop + 4, PD.shellDark);
+      pm.hline(hx - 1, hx + 1, dTop + 5, PD.shellDark);
+      pm.set(hx, dTop + 6, PD.shellDark);
+    }
+    pm.set(mid - 3, dTop + 11, PD.brass);
+    pm.set(mid + 2, dTop + 11, PD.brass);
+    return pm.outline(C.outline);
+  }
+  // Inside: dark wood, with two shelves.
+  pm.rect(left + 2, dTop, body - 4, dBottom - dTop + 1, PD.woodDark);
+  const shelves = [dTop + 9, dBottom];
+  for (const y of shelves) {
+    pm.hline(left + 2, right - 2, y, PD.wood);
+  }
+  // Pots of nectar on the top shelf.
+  for (const x of [left + 5, left + 11, left + 17]) {
+    pm.rect(x - 2, shelves[0] - 5, 5, 5, PD.brass);
+    pm.hline(x - 2, x + 2, shelves[0] - 6, PD.glow);
+    pm.set(x - 1, shelves[0] - 3, PD.glow);
+  }
+  // A glass jar of seed cookies on the bottom, and another pot of nectar.
+  const jx = left + 7;
+  pm.rect(jx - 4, shelves[1] - 9, 9, 9, PD.lens);
+  pm.hline(jx - 3, jx + 3, shelves[1] - 10, PD.shellDeep);
+  for (const [dx, dy] of [[-2, -2], [1, -3], [-1, -5], [2, -6]]) {
+    pm.circle(jx + dx, shelves[1] + dy, 1.5, PD.wood);
+  }
+  pm.rect(left + 15, shelves[1] - 5, 5, 5, PD.brass);
+  pm.hline(left + 15, left + 19, shelves[1] - 6, PD.glow);
+  // The doors swung out either side, edge on, knobs showing.
+  for (const [x0, knob] of [[0, 4], [right + 1, right + 1]]) {
+    pm.rect(x0, dTop - 1, left, dBottom - dTop + 3, PD.curtainDark);
+    pm.vline(knob, dTop + 1, dBottom - 1, PD.curtain);
+    pm.set(knob, dTop + 11, PD.brass);
+  }
+  return pm.outline(C.outline);
+}
+
+// The little stove the kettle sits on, bottom-centre on the floor: a round
+// iron pot-belly on stubby legs, its hob on top, and a grate that glows when
+// it's `hot`.
+export const STOVE = { w: 22, h: 18 };
+export function drawStove(hot = false) {
+  const { w, h } = STOVE;
+  const pm = new Pixmap(w, h);
+  const cx = (w - 1) / 2;
+  pm.rect(2, 0, w - 4, 3, PD.iron); // the hob
+  pm.hline(2, w - 3, 0, PD.ironLight);
+  pm.ellipse(cx, 9, 9, 6, PD.iron);
+  pm.ellipse(cx - 3, 7, 3, 2, PD.ironLight);
+  // The grate.
+  pm.rect(cx - 4, 9, 9, 4, hot ? PD.glowDeep : PD.ironDark);
+  for (const dx of [-2, 0, 2]) {
+    pm.vline(Math.round(cx + dx), 9, 12, hot ? PD.flame : PD.iron);
+  }
+  for (const dx of [-7, 6]) {
+    pm.rect(Math.round(cx + dx), h - 3, 2, 3, PD.ironDark);
+  }
+  return pm.outline(C.outline);
+}
+
+// The kettle, bottom-centre on the stove's hob: round and pink with a curly
+// spout to the right, a hooped handle over the top, and a lid with a knob.
+// `hot`, it's flushed rosy and its spout's whistle is up. `hob`: how far
+// right of the stove's middle it sits; `spout`: where its whistle is, from
+// its bottom-centre.
+export const KETTLE_ART = { w: 18, h: 15, hob: 2, spout: { x: 7, y: -12 } };
+export function drawKettle(hot = false) {
+  const { w, h } = KETTLE_ART;
+  const pm = new Pixmap(w, h);
+  const cx = 7;
+  pm.ring(cx, 6, 5, 4, PD.brassDark); // the handle
+  pm.ellipse(cx, h - 5, 6, 4.5, hot ? PD.kettleHot : PD.shell);
+  pm.hline(cx - 5, cx + 5, h - 1, PD.shellDeep);
+  pm.ellipse(cx - 2, h - 7, 2, 1, PD.shellLight);
+  pm.hline(cx - 3, cx + 3, h - 9, PD.shellDark); // the lid
+  pm.set(cx, h - 10, PD.brass);
+  // The spout, curling up and out, with its whistle on the end.
+  pm.line(cx + 5, h - 4, w - 3, h - 9, PD.shellDark, 2);
+  pm.rect(w - 3, h - (hot ? 12 : 11), 2, 2, PD.brass);
+  if (hot) {
+    pm.set(cx - 3, h - 4, PD.shellDark);
+    pm.set(cx + 3, h - 4, PD.shellDark);
+  }
+  return pm.outline(C.outline);
+}

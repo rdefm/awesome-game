@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BED_NOOK, POD, STAR_WINDOW, distanceScale } from '../layout.js';
+import { BED_NOOK, POD, STAR_WINDOW, WALK, distanceScale } from '../layout.js';
+import { isFriend, makeCarryable } from '../kinds.js';
+import { defaultWorld, normalizeWorld } from '../world.js';
 import { Local } from './bluebell.js';
 import { Girl } from './girl.js';
-import { Snack } from './items.js';
-import { BedNook, BubbleBath, SeedTray, Telescope } from './pod.js';
+import { PANTRY_SNACKS, Snack, isSnack } from './items.js';
+import { BedNook, BubbleBath, Kettle, MAX_PANTRY_SNACKS, Pantry, SeedTray, Telescope } from './pod.js';
 
 const assets = {
-  local: {}, snacks: {}, bubbleBath: {}, telescope: {}, seedTray: [], bedNook: { quilt: [] },
+  local: {}, snacks: { nectar: {}, seedcookie: {} }, bubbleBath: {}, telescope: {}, seedTray: [], bedNook: { quilt: [] },
+  pantry: {}, kettle: {}, steam: {},
   girl: () => ({}), emotes: {},
 };
 
@@ -24,6 +27,13 @@ function setup() {
     settle: vi.fn(),
     dust: vi.fn(),
     putDown: vi.fn(() => Promise.resolve()),
+    spawn: vi.fn((kind, x, y) => {
+      const item = makeCarryable(assets, { id: `${kind}${scene.entities.length}`, kind, x, y });
+      item.scene = scene;
+      scene.entities.push(item);
+      return item;
+    }),
+    toast: vi.fn(),
     hearts: vi.fn(),
     sparkles: vi.fn(),
     bits: vi.fn(),
@@ -210,6 +220,97 @@ describe('the seed tray', () => {
     expect(played(scene, 'plink').length).toBeGreaterThanOrEqual(3);
     expect(played(scene, 'poof')).toHaveLength(1);
     expect(tray.tending).toBe(false);
+  });
+});
+
+describe('the pantry snacks', () => {
+  it('are snacks like any other: carryable, feedable, and not friends', () => {
+    const { local } = setup();
+    for (const kind of PANTRY_SNACKS) {
+      const item = makeCarryable(assets, { id: `${kind}0`, kind, x: 100, y: 140 });
+      expect(item, kind).toBeInstanceOf(Snack);
+      expect(isSnack(item)).toBe(true);
+      expect(isFriend(kind)).toBe(false);
+      expect(local.accepts(item)).toBe(true);
+    }
+  });
+
+  it('keep in the bag, and old saves load fine without them', () => {
+    const world = normalizeWorld({ placed: {}, bag: [{ id: 'nectar0', kind: 'nectar' }, { id: 'seedcookie0', kind: 'seedcookie' }] });
+    expect(world.bag.map((e) => e.kind)).toEqual(['nectar', 'seedcookie']);
+    const old = normalizeWorld({ placed: { ship: [] }, bag: [{ id: 'juice0', kind: 'juice' }] });
+    expect(old.bag).toEqual([{ id: 'juice0', kind: 'juice' }]);
+    expect(old.placed.pod ?? []).toEqual(defaultWorld().placed.pod ?? []);
+  });
+});
+
+describe('the pantry cupboard', () => {
+  it('opens and gives a nectar pot, then a seed cookie, then a nectar pot...', async () => {
+    const { scene, make } = setup();
+    const pantry = make(Pantry);
+    let openWhenOut = null;
+    scene.spawn.mockImplementationOnce((kind, x, y) => {
+      openWhenOut = pantry.open;
+      const item = makeCarryable(assets, { id: 'n', kind, x, y });
+      item.scene = scene;
+      scene.entities.push(item);
+      return item;
+    });
+    for (let i = 0; i < 3; i++) {
+      await pantry.use();
+    }
+    expect(scene.spawn.mock.calls.map(([kind]) => kind)).toEqual(['nectar', 'seedcookie', 'nectar']);
+    expect(openWhenOut).toBe(true);
+    expect(pantry.open).toBe(false);
+    expect(pantry.giving).toBe(false);
+    expect(scene.putDown).toHaveBeenCalledTimes(3);
+  });
+
+  it('stops giving once there are plenty of its snacks about the pod', async () => {
+    const { scene, make } = setup();
+    const pantry = make(Pantry);
+    for (let i = 0; i < MAX_PANTRY_SNACKS + 2; i++) {
+      await pantry.use();
+    }
+    expect(scene.spawn).toHaveBeenCalledTimes(MAX_PANTRY_SNACKS);
+    expect(scene.toast).toHaveBeenCalled();
+    scene.entities = scene.entities.filter((e) => e.kind !== 'nectar'); // some eaten or bagged
+    await pantry.use();
+    expect(scene.spawn).toHaveBeenCalledTimes(MAX_PANTRY_SNACKS + 1);
+  });
+
+  it('has her stand where she can walk to', () => {
+    const { make } = setup();
+    const { spot } = make(Pantry);
+    expect(spot.y).toBeGreaterThanOrEqual(WALK.minY);
+  });
+});
+
+describe('the kettle', () => {
+  it('heats up and rattles, then whistles a tune with a puff of steam', async () => {
+    const { scene, make } = setup();
+    const kettle = make(Kettle);
+    await kettle.use();
+    expect(played(scene, 'rattle').length).toBeGreaterThanOrEqual(1);
+    expect(played(scene, 'whistle')).toHaveLength(1);
+    expect(kettle.boiling).toBe(false);
+    expect(kettle.heat).toBe(1);
+    kettle.update(0.1);
+    expect(kettle.puffs.length).toBeGreaterThan(0);
+    for (let i = 0; i < 100; i++) {
+      kettle.update(0.1);
+    }
+    expect(kettle.puffs).toHaveLength(0);
+    expect(kettle.heat).toBe(0);
+  });
+
+  it('pays no mind to another tap while it is on the boil', async () => {
+    const { scene, make } = setup();
+    const kettle = make(Kettle);
+    const first = kettle.use();
+    await kettle.use();
+    await first;
+    expect(played(scene, 'whistle')).toHaveLength(1);
   });
 });
 

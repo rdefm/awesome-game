@@ -110,15 +110,16 @@ export class Teddy extends Carryable {
 // ---------------------------------------------------------------- snacks
 // Treats: from the ship's snack locker, cupcakes from Ginger's oven on
 // Candy, lava cakes from the lava family's pot on Ember, whatever comes out
-// of the galley's mixing pot, or the picnic basket on Bluebell. Friends
-// gobble them up (see `feed`).
+// of the galley's mixing pot, the picnic basket on Bluebell, or the pantry
+// cupboard in the pink alien's pod. Friends gobble them up (see `feed`).
 export const LOCKER_SNACKS = ['cookie', 'starfruit', 'juice'];
 export const PICNIC_SNACKS = ['sandwich', 'berryjuice'];
-export const SNACKS = [...LOCKER_SNACKS, 'cupcake', 'lavacake', ...GALLEY_FOODS, ...PICNIC_SNACKS];
+export const PANTRY_SNACKS = ['nectar', 'seedcookie'];
+export const SNACKS = [...LOCKER_SNACKS, 'cupcake', 'lavacake', ...GALLEY_FOODS, ...PICNIC_SNACKS, ...PANTRY_SNACKS];
 const CRUMBS = {
   cookie: '#b07a3a', starfruit: '#ffe066', juice: '#ff8fc8', cupcake: '#ff8fc8', lavacake: '#ff6a2a',
   cocoa: '#8a5a3a', icelolly: '#a9d6f2', sparklecake: '#c4a6ff', bluebelltea: '#6f8fe8', snowcone: '#ffffff', smoothie: '#ff9d3c',
-  sandwich: '#fbe6b8', berryjuice: '#9a3fc4',
+  sandwich: '#fbe6b8', berryjuice: '#9a3fc4', nectar: '#ffc83a', seedcookie: '#d9a45a',
 };
 
 export const isSnack = (item) => SNACKS.includes(item.kind);
