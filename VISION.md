@@ -27,8 +27,8 @@ store.
 - **Planets**: five on the star map (Bluebell, Ember, Frosty, Candy,
   Stripey). Tap the planet in the windshield to land; once landed, the door
   opens onto that planet's scene. All five are landable. A planet can have
-  places to go inside (Candy's gingerbread house, the lava family's house
-  on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
+  places to go inside (the pink alien's pod on Bluebell, Candy's
+  gingerbread house, the lava family's house on Ember, the yetis' ice cave on Frosty, Zig's hut on Stripey) and other places out of doors (Candy's milkshake lake, Ember's
   lava falls, Stripey's oasis, Frosty's frozen lake). Where
   a planet has a hoverbike, it's parked by the ship: hop on and a town map
   slides up (an illustrated overview of the planet, Aha World-style, its
@@ -45,7 +45,7 @@ store.
   sound effects, pixel font). No game framework.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
-  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`) sharing a `PlayScene` base (tap-to-walk,
+  `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`) sharing a `PlayScene` base (tap-to-walk,
   particles, banners, fade transitions); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
@@ -81,7 +81,20 @@ store.
   poster
 - Airlock door (locked in space, opens when landed)
 - Bluebell meadow: parked ship to re-board, giant bluebells that each chime
-  a note, a hopping puffball critter, butterflies, a friendly pink alien
+  a note, a hopping puffball critter, butterflies, a friendly pink alien.
+  Far off in the meadow is the pink alien's round pink pod, with a glowing
+  window and an antenna on top: tap it and she walks up the stepping-stone
+  path, getting smaller, and in through the round-topped door
+- Inside the pod: a cosy round room, ribbed like a seed pod and strung with
+  little lights. A telescope pointing up at a round window: look through it
+  and night falls in the window, the stars come out and twinkle, and a
+  shooting star streaks across; a seed tray on a little table to water, a
+  stage at a time, from seeds to shoots to leaves to tiny bluebells in
+  flower (tap it in flower and the bluebells ring, then their seeds blow
+  off to start again); and a bubble bath to swish (bubbles float up and
+  pop; drop a friend in and it splashes about, then shakes off and hops
+  out). The pink alien lives outside, but she can bring it in. The door
+  goes back out
 - Ember volcanic plain: smouldering sky and a glowing volcano, parked ship,
   fire flowers that flare when tapped, a geode, a scurrying fire newt,
   glowing moths, a steam vent that erupts and a lava pool with a leaping fish.

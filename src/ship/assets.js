@@ -44,6 +44,10 @@ import {
 import {
   drawCampfire, drawFurNest, drawIceCave, drawIceDoor, drawIceFish, drawIcePath, drawIceRoom, drawIcicle,
 } from './art/iceCave.js';
+import {
+  TRAY, drawBubble, drawBubbleBath, drawNightSky, drawPod, drawPodDoor, drawPodPath, drawPodRoom, drawSeedTray,
+  drawTelescope,
+} from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
@@ -53,7 +57,7 @@ import {
 } from './art/townMap.js';
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, ZIG_HUT, distanceScale } from './layout.js';
+import { GINGERBREAD_HOUSE, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, POD, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -278,6 +282,19 @@ export function loadAssets() {
     hearth: bake([drawHearth(), drawHearth(true)]),
     lavaLamp: bake(drawLavaLamp()),
     cradle: bake({ back: drawCradle(), front: drawCradle(true) }),
+    // The pink alien's pod on Bluebell, and inside it.
+    pod: bake({
+      shut: drawPod(),
+      open: drawPod({ open: true }),
+      path: drawPodPath(POD.path, (y) => distanceScale(y, POD)),
+    }),
+    podRoom: bake(drawPodRoom()),
+    podDoor: bake({ shut: drawPodDoor(), open: drawPodDoor(true) }),
+    telescope: bake(drawTelescope()),
+    nightSky: bake(drawNightSky()),
+    seedTray: bake([...Array(TRAY.stages).keys()].map((stage) => drawSeedTray(stage))),
+    bubbleBath: bake({ back: drawBubbleBath(true), front: drawBubbleBath() }),
+    bubble: bake(drawBubble()),
     // Planet Frosty.
     mumYeti: strollerFrames((f) => drawYeti(f, 'mum')),
     babyYeti: strollerFrames((f) => drawYeti(f, 'baby')),

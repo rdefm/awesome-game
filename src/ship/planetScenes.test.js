@@ -32,6 +32,11 @@ describe('landedOn', () => {
     expect(landedOn({ where: 'icecave', landed: false })).toBe(null);
   });
 
+  it('puts her back inside the pink alien\'s pod if that\'s where she was', () => {
+    expect(landedOn({ where: 'pod', landed: true })).toBe('pod');
+    expect(landedOn({ where: 'pod', landed: false })).toBe(null);
+  });
+
   it('puts her back in the ship otherwise', () => {
     expect(landedOn({})).toBe(null);
     expect(landedOn({ where: 'ship', landed: true })).toBe(null);
@@ -92,6 +97,7 @@ describe('placesOn', () => {
     expect(placesOn('ember').find((place) => place.where === 'lavahouse').kind).toBe('house');
     expect(placesOn('stripey').find((place) => place.where === 'zighut').kind).toBe('house');
     expect(placesOn('frosty').find((place) => place.where === 'icecave').kind).toBe('house');
+    expect(placesOn('bluebell').find((place) => place.where === 'pod').kind).toBe('house');
   });
 
   it('has the milkshake lake on Candy, out of doors with no ship', () => {
@@ -119,6 +125,7 @@ describe('planetOf', () => {
     expect(planetOf('lavahouse')).toBe('ember');
     expect(planetOf('zighut')).toBe('stripey');
     expect(planetOf('icecave')).toBe('frosty');
+    expect(planetOf('pod')).toBe('bluebell');
     expect(planetOf('ship')).toBe(null);
   });
 });
@@ -133,6 +140,7 @@ describe('arrivingBy', () => {
     expect(arrivingBy('gingerbread')).toEqual({ fromDoor: true });
     expect(arrivingBy('zighut')).toEqual({ fromDoor: true });
     expect(arrivingBy('icecave')).toEqual({ fromDoor: true });
+    expect(arrivingBy('pod')).toEqual({ fromDoor: true });
   });
 });
 

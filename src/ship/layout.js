@@ -87,6 +87,14 @@ export const ICE_CAVE = {
   far: 0.34,
 };
 
+// ...and the pink alien's round pod, far off in Bluebell's meadow.
+export const POD = {
+  x: 214,
+  y: 99,
+  path: [{ x: 210, y: 129 }, { x: 226, y: 120 }, { x: 206, y: 112 }, { x: 220, y: 105 }, { x: 214, y: 99 }],
+  far: 0.34,
+};
+
 // How big things look at height y on a house's path: full size at its near
 // end, shrinking steadily to `far` at the house's doorstep.
 export function distanceScale(y, house = GINGERBREAD_HOUSE) {
@@ -212,6 +220,14 @@ export const CAMPFIRE = {
   spot: { x: 182, y: 134 },
   seats: [{ x: 234, y: 134 }, { x: 222, y: 150 }, { x: 196, y: 150 }],
 };
+
+// Inside the pink alien's pod: the same front door, a telescope on the
+// floor pointing up at a round window onto the sky (stars come out in it),
+// a seed tray on a little table, and a bubble bath on the right.
+export const STAR_WINDOW = { x: 112, y: 44, r: 20 };
+export const TELESCOPE = { x: 76, y: 120, spot: { x: 58, y: 126 } };
+export const SEED_TRAY = { x: 168, y: 98, spot: { x: 168, y: 124 } };
+export const BUBBLE_BATH = { x: 216, y: 144, spot: { x: 184, y: 140 } };
 
 // The ship's other rooms sit either side of the cockpit (same screen and
 // walkable band): an arrow by each side wall goes through to the next room.
