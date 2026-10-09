@@ -1,5 +1,5 @@
 import { ease } from '../../engine/tween.js';
-import { WALK } from '../layout.js';
+import { WALK, floorMaxX } from '../layout.js';
 
 // Friends are the carryables that can sit in the pilot chair (they have a
 // `seatFrame()`), and that greet her and play with each other. Each one keeps
@@ -85,7 +85,7 @@ export async function play(friend, other) {
   hold(other);
   let side = friend.x < other.x ? -1 : 1;
   const x = other.x + side * 16;
-  if (x < WALK.minX || x > WALK.maxX) {
+  if (x < WALK.minX || x > floorMaxX(scene.width)) {
     side = -side; // no room against the wall: the other side, then
   }
   await scene.putDown(friend, other.x + side * 16, other.y);

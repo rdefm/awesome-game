@@ -61,7 +61,7 @@ export class Carryable {
   // Where the girl stands to use it: beside it, on whichever side she's on.
   get spot() {
     const side = this.scene.girl.x < this.x ? -1 : 1;
-    return clampToFloor(this.x + side * this.reach, this.y + 4);
+    return clampToFloor(this.x + side * this.reach, this.y + 4, this.scene.width);
   }
 
   // Default tap: a squash, then the girl walks over and uses it (if it has a use).
@@ -93,7 +93,7 @@ export class Carryable {
   }
 
   onDrag(p) {
-    this.x = clamp(p.x + this.grab.x, 6, 250);
+    this.x = clamp(p.x + this.grab.x, 6, this.scene.width - 6);
     this.y = clamp(p.y + this.grab.y, 20, 158);
   }
 

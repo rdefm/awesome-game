@@ -29,6 +29,7 @@ export class OutdoorScene extends PlayScene {
     this.tune = tuneOf(where);
     this.backdrop = assets.backdrops[where];
     this.dustColor = this.backdrop.dust;
+    this.width = this.backdrop.ground.width; // as wide as its ground is painted
     this.roam = { minX: 92, maxX: 244 }; // where critters wander: clear of the ship
     this.fromShip = fromShip && !fromHouse && !byBike && ship;
     this.fromHouse = fromHouse;
@@ -52,7 +53,7 @@ export class OutdoorScene extends PlayScene {
 
   addGirl() {
     const save = loadSave();
-    const start = this.fromShip ? PARKED_SHIP.spot : this.byBike ? this.bike.spot : clampToFloor(save.bx ?? 90, save.by ?? 134);
+    const start = this.fromShip ? PARKED_SHIP.spot : this.byBike ? this.bike.spot : clampToFloor(save.bx ?? 90, save.by ?? 134, this.width);
     this.girl = this.add(new Girl(this.assets, start.x, start.y, this.look));
     if (this.fromHouse) {
       const { layout } = this.house;
@@ -192,12 +193,14 @@ export class OutdoorScene extends PlayScene {
   }
 
   draw(r) {
-    drawBackdrop(r, this.backdrop, this.engine.time);
-    this.drawEntities(r);
-    for (const e of this.entities) {
-      e.drawOver?.(r);
-    }
-    this.drawParticles(r);
+    this.inWorld(r, () => {
+      drawBackdrop(r, this.backdrop, this.engine.time);
+      this.drawEntities(r);
+      for (const e of this.entities) {
+        e.drawOver?.(r);
+      }
+      this.drawParticles(r);
+    });
     drawWeather(r, this.backdrop, this.engine.time);
     this.modal?.draw(r);
     this.drawOverlay(r);

@@ -100,6 +100,8 @@ export function defineSfx(audio) {
   chatter('chatLavaDad', [150, 175, 140], { gap: 0.1, dur: 0.09, bend: 0.9, type: 'triangle', vol: 0.2 });
   chatter('chatLavaMum', [392, 440, 392], { gap: 0.09, dur: 0.08, bend: 1.05, vol: 0.14 });
   chatter('chatCrew', [980, 1180, 1050], { gap: 0.06, dur: 0.05, bend: 1.1, type: 'triangle', vol: 0.12 });
+  chatter('chatMonkey', [880, 1175, 880, 1175], { gap: 0.06, dur: 0.05, bend: 1.25, vol: 0.12 });
+  chatter('chatGonzo', [440, 330, 494], { gap: 0.08, dur: 0.07, bend: 0.7, type: 'square', vol: 0.05 });
   chatter('chatLavaBaby', [700, 840, 760], { gap: 0.06, dur: 0.05, bend: 1.2, vol: 0.14 });
   audio.define('select', (s, t) => {
     s.tone({ at: t, freq: 1046, dur: 0.08, vol: 0.1 });
@@ -226,6 +228,20 @@ export function defineSfx(audio) {
   audio.define('lick', (s, t) => {
     s.noise({ at: t, dur: 0.18, filter: 'bandpass', freq: 1200, to: 2400, vol: 0.15, q: 2 });
     s.tone({ at: t + 0.05, freq: 600, to: 900, dur: 0.12, type: 'sine', vol: 0.1 });
+  });
+  // On the ship: Monkey's "ooh ooh!", Gonzo's drumroll and his ta-da.
+  audio.define('oohooh', (s, t) => {
+    [0, 0.18].forEach((at) => s.tone({ at: t + at, freq: 500, to: 900, dur: 0.14, type: 'sine', vol: 0.2 }));
+  });
+  audio.define('drumroll', (s, t) => {
+    for (let i = 0; i < 8; i++) {
+      s.noise({ at: t + i * 0.055, dur: 0.05, filter: 'lowpass', freq: 600, to: 300, vol: 0.12 + i * 0.015 });
+    }
+  });
+  audio.define('tada', (s, t) => {
+    s.tone({ at: t, freq: 784, dur: 0.12, type: 'triangle', vol: 0.12 });
+    s.tone({ at: t + 0.12, freq: 1047, dur: 0.4, type: 'triangle', vol: 0.12 });
+    s.tone({ at: t + 0.12, freq: 1319, dur: 0.4, type: 'triangle', vol: 0.08 });
   });
   audio.define('creak', (s, t) => {
     s.tone({ at: t, freq: 300, to: 480, dur: 0.25, type: 'triangle', vol: 0.08 });

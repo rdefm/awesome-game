@@ -51,7 +51,7 @@ class Decor extends Carryable {
     if (this.hangsOnWall && this.scene.hasWall) {
       return { x: clamp(x, WALL_HANG.minX, WALL_HANG.maxX), y: clamp(y, WALL_HANG.minY, WALL_HANG.maxY) };
     }
-    return clampToFloor(x, y);
+    return clampToFloor(x, y, this.scene.width);
   }
 }
 
@@ -175,7 +175,7 @@ export class Beanbag extends Decor {
     this.sitter = who;
     this.draggable = false;
     who.x = this.x;
-    who.y = clampToFloor(this.x, this.y + 1).y;
+    who.y = clampToFloor(this.x, this.y + 1, this.scene.width).y;
     who.lift = 20;
     strike(who, 'sit', 'hop');
     await engine.tweens.to(who, { lift: this.shape.sink }, 0.22, ease.inQuad);
@@ -189,7 +189,7 @@ export class Beanbag extends Decor {
       scene.hearts(this.x, this.y - this.shape.sink - 19, 1);
     }
     // And out again, beside it.
-    const out = clampToFloor(this.x + side * 20, this.y + 2);
+    const out = clampToFloor(this.x + side * 20, this.y + 2, this.scene.width);
     strike(who, 'cheer', 'hop');
     await engine.tweens.to(who, { lift: 16, x: (this.x + out.x) / 2 }, 0.18, ease.outQuad);
     await engine.tweens.to(who, { lift: 0, x: out.x, y: out.y }, 0.2, ease.inQuad);

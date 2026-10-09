@@ -1,6 +1,6 @@
 // Movement (in game pixels) before a press becomes a drag. Generous, because
 // kids' taps wobble.
-const DRAG_THRESHOLD = 4;
+export const DRAG_THRESHOLD = 4;
 
 const byDepth = (a, b) => (a.depth ?? a.y) - (b.depth ?? b.y);
 

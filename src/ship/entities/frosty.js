@@ -186,7 +186,7 @@ export class BabyYeti extends Stroller {
     }
     // Toddles back to mum's side.
     const side = Math.random() < 0.5 ? -1 : 1;
-    return clampToFloor(mum.x + side * (16 + Math.random() * 10), mum.y + 2 + (Math.random() - 0.5) * 8);
+    return clampToFloor(mum.x + side * (16 + Math.random() * 10), mum.y + 2 + (Math.random() - 0.5) * 8, this.scene.width);
   }
 
   onTap() {

@@ -204,7 +204,8 @@ export class Chat {
     const color = them ? this.tree.color : ME_COLOR;
     const rows = wrap(text, WRAP).map((row) => this.assets.text(row, color, { outline: OUTLINE }));
     const widest = Math.max(...rows.map((img) => img.width));
-    const x = Math.max(2 + widest / 2, Math.min(W - 2 - widest / 2, by.x));
+    const onScreen = by.x - this.scene.camX; // the chat sits on screen, not in the (maybe wider) place
+    const x = Math.max(2 + widest / 2, Math.min(W - 2 - widest / 2, onScreen));
     const pop = ease.outBack(Math.min(1, this.t / 0.18));
     let y = Math.max(rows.length * 7 + 2, by.headTop - 3);
     for (let i = rows.length - 1; i >= 0; i--) {

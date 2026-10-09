@@ -92,7 +92,7 @@ export class Stroller extends Carryable {
   // it clear of the ship).
   nextStroll() {
     const { minX, maxX } = this.scene.roam ?? WALK;
-    return clampToFloor(clamp(this.x + (Math.random() - 0.5) * this.wander, minX, maxX), this.y + (Math.random() - 0.5) * 16);
+    return clampToFloor(clamp(this.x + (Math.random() - 0.5) * this.wander, minX, maxX), this.y + (Math.random() - 0.5) * 16, this.scene.width);
   }
 
   update(dt) {

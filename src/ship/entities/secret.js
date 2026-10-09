@@ -34,7 +34,7 @@ export class Secret {
   // Where the girl stands to look: beside it, on whichever side she's on.
   get spot() {
     const side = this.scene.girl.x < this.x ? -1 : 1;
-    return clampToFloor(this.x + side * this.reach, this.y + 2);
+    return clampToFloor(this.x + side * this.reach, this.y + 2, this.scene.width);
   }
 
   hitTest(px, py) {

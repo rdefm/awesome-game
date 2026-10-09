@@ -18,6 +18,8 @@ export const HAT_SPOTS = {
   lavaBaby: { x: 1, y: 3, scale: 0.5 },
   zig: { x: 0, y: 4, scale: 0.5 },
   crew: { x: 0, y: 8, scale: 1 },
+  monkey: { x: -1, y: 4, scale: 0.75 },
+  gonzo: { x: -1, y: 4, scale: 0.75 },
 };
 
 export const hatSpot = (kind) => HAT_SPOTS[kind] ?? null;

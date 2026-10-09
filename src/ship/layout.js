@@ -4,8 +4,15 @@ export const W = 256;
 export const H = 160;
 export const FLOOR_TOP = 112;
 
-// The band of floor her feet can stand on (gives a little depth).
+// The band of floor her feet can stand on (gives a little depth), in a
+// one-screen place; a wider place's floor reaches on further right (see
+// clampToFloor).
 export const WALK = { minX: 12, maxX: 244, minY: 122, maxY: 154 };
+
+// The far right of the floor in a place `width` wide.
+export function floorMaxX(width = W) {
+  return WALK.maxX + width - W;
+}
 
 export const PORTHOLE = { x: 34, y: 50, r: 13, spot: { x: 46, y: 126 } };
 export const POSTER = { x: 64, y: 26, w: 24, h: 32, spot: { x: 76, y: 124 } };
@@ -46,6 +53,9 @@ export const DOOR = { x: 3, y: 66, w: 20, h: 46, spot: { x: 14, y: 124 } };
 // the land meets the sky, and where our ship parks, on every planet.
 export const HORIZON = 100;
 export const PARKED_SHIP = { x: 58, y: 120, spot: { x: 57, y: 123 } };
+// Bluebell's landing site is two screens wide: the view pans to follow her
+// (see camera.js), with more meadow off to the right of the usual screen.
+export const MEADOW_W = W * 2;
 // Bluebell's secrets (bottom-centres), placed in the gaps between the giant bluebells.
 export const MEADOW_SECRETS = { rock: { x: 112, y: 152 }, bush: { x: 150, y: 119 }, hole: { x: 192, y: 151 } };
 // Ember's secrets: a steam vent at the back and a lava pool at the front.

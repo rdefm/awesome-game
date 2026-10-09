@@ -54,6 +54,7 @@ import {
   drawTelescope,
 } from './art/pod.js';
 import { drawHoverbike } from './art/hoverbike.js';
+import { drawGonzo, drawMonkey } from './art/shipFriends.js';
 import { drawCherry, drawMilkshakeLake, drawStraw, drawWaferBoat } from './art/milkshakeLake.js';
 import { drawLavaBubble, drawLavaFalls, drawPumice, drawSteppingStone } from './art/lavaFalls.js';
 import {
@@ -64,7 +65,7 @@ import {
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import { drawBounceShroom, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
-import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, POD, ZIG_HUT, distanceScale } from './layout.js';
+import { FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, POD, ZIG_HUT, distanceScale } from './layout.js';
 import { LOOK_OPTIONS } from './look.js';
 import {
   ALIEN_COLORS, PLANETS, PLANT_STAGES, chairBackLayer, chairFrontLayer, chairRearView, drawAlien, drawEmote,
@@ -194,7 +195,7 @@ export function loadAssets() {
     // landed, what drifts across its sky, and the colour of its dust.
     backdrops: {
       bluebell: bake({
-        ground: drawMeadow({ horizon: HORIZON }),
+        ground: drawMeadow({ horizon: HORIZON, width: MEADOW_W }),
         window: drawMeadow({ horizon: 52 }),
         clouds: [drawCloud(0), drawCloud(1)],
         dust: '#c9f0b0',
@@ -387,6 +388,9 @@ export function loadAssets() {
       open: drawGingerbreadHouse({ open: true }),
       path: drawCandyPath(GINGERBREAD_HOUSE.path, distanceScale),
     }),
+    // The friends who live on the ship from the start.
+    monkey: strollerFrames(drawMonkey),
+    gonzo: strollerFrames(drawGonzo),
     gummy: strollerFrames(drawGummy),
     ginger: strollerFrames(drawGinger),
     // [colour][swirl turned 0..3]

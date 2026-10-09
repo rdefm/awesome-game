@@ -12,6 +12,7 @@ import { dress } from './friendHats.js';
 import { Crew } from './entities/crew.js';
 import { Ball, Crystal, SNACKS, Snack, Teddy } from './entities/items.js';
 import { Plant, plantStage } from './entities/props.js';
+import { Gonzo, Monkey } from './entities/shipFriends.js';
 
 // Every kind of carryable thing: how to build it from its world entry, the
 // picture shown for it in the bag, and whether it's a friend (friends live
@@ -52,6 +53,8 @@ export const KINDS = {
   fairylights: { make: (a, s) => new FairyLights(a, s), icon: (a) => a.decor.fairylights[0] },
   planetmobile: { make: (a, s) => new PlanetMobile(a, s), icon: (a) => a.decor.planetmobile },
   crew: { friend: true, make: (a, s) => new Crew(a, s), icon: (a, s) => a.crewFrames(normalizeCrew(s.crew)).idle },
+  monkey: { friend: true, make: (a, s) => new Monkey(a, s), icon: (a) => a.monkey.idle },
+  gonzo: { friend: true, make: (a, s) => new Gonzo(a, s), icon: (a) => a.gonzo.idle },
   zig: { friend: true, make: (a, s) => new Zig(a, s), icon: (a, s) => a.zig[(s.stage ?? 0) % a.zig.length].idle },
 };
 

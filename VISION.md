@@ -18,6 +18,11 @@ store.
   walks over and uses it; tap empty floor to walk there. She can also be
   dragged and dropped (e.g. straight into the pilot chair). Touch targets are
   generous because kids' taps wobble.
+- **Wide places**: most places are one screen wide, but a place can be
+  wider (Bluebell's landing site is two screens of meadow). The view eases
+  along after her as she walks toward a side, dragging on empty ground pans
+  it by hand, and carrying something to a side creeps the view along. The
+  bag, music button, banners and chats stay put on screen.
 - **Theme/setting**: a cosy spaceship. The hero is a small girl with red
   hair in a blue flight suit. The ship's interior is the hub: porthole alien,
   spinning pilot chair, star map to fly between planets, blast-off poster,
@@ -52,7 +57,9 @@ store.
 - **Game code**: `src/ship/` — one scene class per place (`ShipScene`,
   `StoreRoomScene`, `PlayRoomScene`, `BunkRoomScene`, `GalleyScene`, `BluebellScene`, `EmberScene`, `FrostyScene`, `CandyScene`, `StripeyScene`,
   `GingerbreadScene`, `LavaHouseScene`, `IceCaveScene`, `PodScene`, `ZigHutScene`, `MilkshakeLakeScene`, `LavaFallsScene`, `OasisScene`, `FrozenLakeScene`, `MushroomGroveScene`) sharing a `PlayScene` base (tap-to-walk,
-  particles, banners, fade transitions); planet scenes share an
+  particles, banners, fade transitions, and the view along a place wider
+  than the screen: its `width` and `camX`, with the pure panning maths in
+  `src/ship/camera.js`); planet scenes share an
   `OutdoorScene` base (backdrop, parked ship, ramp, and the walk up the
   path to a house far off at the back, the hoverbike ride), houses' insides share an
   `IndoorScene` base (room, front door back out), and they're listed in
@@ -73,7 +80,8 @@ store.
   chat about that leave no sticker (a lava cuddle, say). No account, no
   backend, no login.
 - **Tests**: Vitest (`npm test`) on the pure, DOM-free parts (pixmap, font,
-  tweens, music sequencer, world, stickers, decor, drop receivers, chat trees).
+  tweens, music sequencer, world, stickers, decor, drop receivers, chat trees,
+  camera panning).
 - **Deployment**: static site built with Vite, deployed to GitHub Pages on
   every push to `master` (`.github/workflows/deploy.yml`). Opened via URL in
   the tablet's browser; "Add to Home Screen" gives it an app-like icon and a

@@ -1,6 +1,7 @@
-import { findReceiver, Scene } from '../engine/scene.js';
+import { DRAG_THRESHOLD, findReceiver, Scene } from '../engine/scene.js';
 import { ease } from '../engine/tween.js';
 import { Bag } from './bag.js';
+import { centreOn, clampCam, easeCam, followCam, nudgeCam } from './camera.js';
 import { clampToFloor } from './entities/girl.js';
 import { makeCarryable } from './kinds.js';
 import { MusicButton } from './musicButton.js';
@@ -41,9 +42,24 @@ export class PlayScene extends Scene {
     this.fade = 1; // black overlay; scenes fade in on enter
     this.toastMsg = null;
     this.hasWall = false; // the ship's rooms have a wall to hang decor on
+    // How wide this place is: one screen, unless it's somewhere roomier,
+    // when the view pans along it (see camera.js) and `camX` is how far
+    // along it the screen's left edge is. Entities live in the place's
+    // coordinates; the bag, music button and banners stay put on screen.
+    this.width = W;
+    this.camX = 0;
+    this.following = false; // the view is easing along after her
+    this.lastGirlX = null; // where she was last frame, to notice her moving
+    this.pointer = null; // where the finger is, on screen
+    this.panFrom = null; // where a press started, on screen, and the view then
+    this.panning = false; // true while a drag on empty ground pans the view
   }
 
   enter() {
+    if (this.girl) {
+      this.camX = centreOn(this.girl.x, this.width);
+      this.lastGirlX = this.girl.x;
+    }
     this.engine.tweens.to(this, { fade: 0 }, 0.5);
     this.engine.music.setTune(this.tune);
   }
@@ -136,7 +152,7 @@ export class PlayScene extends Scene {
     this.sparkles(x, y, 10);
     const { found: n, total } = tally(found);
     this.toast(`+1 STAR STICKER! ${n}/${total}`, 2.5);
-    this.flyOff({ img: this.assets.stickers[id], x, y, scale: 1, alpha: 1 });
+    this.flyOff({ img: this.assets.stickers[id], x: x - this.camX, y, scale: 1, alpha: 1 });
     return true;
   }
 
@@ -174,7 +190,7 @@ export class PlayScene extends Scene {
     if (!item) {
       return null;
     }
-    this.world = add(this.world, this.where, { id, kind, ...extra, ...clampToFloor(x, y) });
+    this.world = add(this.world, this.where, { id, kind, ...extra, ...clampToFloor(x, y, this.width) });
     this.saveWorld();
     this.add(item);
     return item;
@@ -190,7 +206,7 @@ export class PlayScene extends Scene {
   // A dragged carryable was let go: into the bag, onto something that wants
   // it, or down onto the floor.
   dropCarryable(item, p) {
-    if (this.bag.isDropTarget(p)) {
+    if (this.bag.isDropTarget(this.toScreen(p))) {
       this.stashItem(item);
       return;
     }
@@ -205,7 +221,7 @@ export class PlayScene extends Scene {
   // Where a carryable let go at (x, y) comes to rest: on the floor (or, for
   // wall decor, up on the wall).
   restingSpot(item, x, y) {
-    return item.restingSpot?.(x, y) ?? clampToFloor(x, y);
+    return item.restingSpot?.(x, y) ?? clampToFloor(x, y, this.width);
   }
 
   // Drops a carryable onto the floor at (or near) (x, y) and remembers it there.
@@ -224,32 +240,34 @@ export class PlayScene extends Scene {
     this.saveWorld();
     this.engine.audio.play('stash');
     this.bag.swallow();
-    this.sparkles(this.bag.center.x, this.bag.center.y, 6);
+    this.sparkles(this.bag.center.x + this.camX, this.bag.center.y, 6);
     if (this.girl.mode === 'idle') {
       this.girl.say('heart', 1);
     }
   }
 
-  // Dragged up out of the bag tray: it appears under her finger, already held.
+  // Dragged up out of the bag tray (at `p` on screen): it appears under her
+  // finger, already held.
   takeFromBag(entry, p) {
-    const item = makeCarryable(this.assets, { ...entry, x: p.x, y: p.y });
+    const at = this.toWorld(p);
+    const item = makeCarryable(this.assets, { ...entry, x: at.x, y: at.y });
     if (!item) {
       return;
     }
     this.add(item);
     this.engine.audio.play('unpack');
     this.uiPress = false;
-    this.press = { start: p, target: item, dragging: true };
-    item.onDragStart(p);
+    this.press = { start: at, target: item, dragging: true };
+    item.onDragStart(at);
     item.grab = { x: 0, y: 8 }; // hang it just below the fingertip
-    item.onDrag(p);
+    item.onDrag(at);
   }
 
   // Tapped in the bag tray: it pops out onto the floor beside her.
   placeFromBag(entry) {
     const girl = this.girl;
     const maxY = this.bag.isOpen ? 130 : WALK.maxY; // keep it clear of the open tray
-    const floor = clampToFloor(girl.x + girl.facing * 20, Math.min(girl.y + 2, maxY));
+    const floor = clampToFloor(girl.x + girl.facing * 20, Math.min(girl.y + 2, maxY), this.width);
     const item = makeCarryable(this.assets, { ...entry, x: floor.x, y: floor.y - 16 });
     if (!item) {
       return;
@@ -264,8 +282,27 @@ export class PlayScene extends Scene {
     item.fall(spot);
   }
 
-  // The bag gets first look at every press; the rest goes to the scene.
+  // A point on screen in the place's coordinates, and back.
+  toWorld(p) {
+    return { x: p.x + this.camX, y: p.y };
+  }
+
+  toScreen(p) {
+    return { x: p.x - this.camX, y: p.y };
+  }
+
+  // A point on screen as the scene's gesture handling wants it: as it is
+  // for a modal (which sits on screen), else in the place's coordinates.
+  forScene(p) {
+    return this.modal ? p : this.toWorld(p);
+  }
+
+  // Input arrives in screen coordinates. The music button and the bag get
+  // first look at every press (on screen); a modal (a chat, the town map)
+  // sits on screen too; the rest goes to the scene, in the place's
+  // coordinates.
   pointerDown(p) {
+    this.pointer = p;
     if (this.musicButton.hitTest(p)) {
       this.musicPress = true;
       return;
@@ -275,10 +312,12 @@ export class PlayScene extends Scene {
       this.bag.pointerDown(p);
       return;
     }
-    super.pointerDown(p);
+    this.panFrom = { x: p.x, y: p.y, camX: this.camX };
+    super.pointerDown(this.forScene(p));
   }
 
   pointerMove(p) {
+    this.pointer = p;
     if (this.musicPress) {
       return;
     }
@@ -286,7 +325,25 @@ export class PlayScene extends Scene {
       this.bag.pointerMove(p);
       return;
     }
-    super.pointerMove(p);
+    if (this.startsPan(p)) {
+      this.panning = true;
+      this.following = false;
+    }
+    if (this.panning) {
+      this.camX = clampCam(this.panFrom.camX - (p.x - this.panFrom.x), this.width);
+      return;
+    }
+    super.pointerMove(this.forScene(p));
+  }
+
+  // Whether a press has just become a drag on empty ground (or on something
+  // that can't be carried), in a place wide enough to pan along.
+  startsPan(p) {
+    const { press, panFrom } = this;
+    if (this.panning || this.modal || !press || press.dragging || press.target?.draggable || this.width <= W) {
+      return false;
+    }
+    return Math.hypot(p.x - panFrom.x, p.y - panFrom.y) > DRAG_THRESHOLD;
   }
 
   pointerUp(p) {
@@ -302,11 +359,53 @@ export class PlayScene extends Scene {
       this.bag.pointerUp(p);
       return;
     }
-    super.pointerUp(p);
+    if (this.panning) {
+      this.panning = false;
+      this.press = null;
+      return;
+    }
+    super.pointerUp(this.forScene(p));
+  }
+
+  // The view, in a place wider than the screen: creeping toward a side while
+  // something's carried near it, else easing after her once she moves.
+  moveView(dt) {
+    const { girl, press } = this;
+    if (this.width <= W || this.panning || !girl) {
+      return;
+    }
+    if (press?.dragging && this.pointer && !this.modal) {
+      // Held over the bag (tucked in a corner) it's going in there: no creeping.
+      const overBag = this.bag.isDropTarget(this.pointer);
+      const camX = overBag ? this.camX : nudgeCam(this.camX, this.pointer.x, dt, this.width);
+      if (camX !== this.camX) {
+        this.camX = camX;
+        press.target.onDrag?.(this.toWorld(this.pointer)); // it stays under the finger
+      }
+      this.lastGirlX = girl.x;
+      return;
+    }
+    if (girl.x !== this.lastGirlX) {
+      this.following = true;
+      this.lastGirlX = girl.x;
+    }
+    if (this.following) {
+      const want = followCam(this.camX, girl.x, this.width);
+      this.camX = easeCam(this.camX, want, dt);
+      this.following = this.camX !== want;
+    }
+  }
+
+  // Draws with `draw()` in the place's coordinates, scrolled along with the view.
+  inWorld(r, draw) {
+    const offsetX = r.offsetX;
+    r.offsetX = offsetX - Math.round(this.camX);
+    draw();
+    r.offsetX = offsetX;
   }
 
   onTapEmpty(p) {
-    const target = clampToFloor(p.x, Math.max(p.y, FLOOR_TOP + 10));
+    const target = clampToFloor(p.x, Math.max(p.y, FLOOR_TOP + 10), this.width);
     this.ripple(target.x, target.y);
     this.girl.walkTo(target.x, target.y);
   }
@@ -369,6 +468,7 @@ export class PlayScene extends Scene {
   update(dt) {
     super.update(dt);
     this.bag.update(dt);
+    this.moveView(dt);
     for (const p of this.particles) {
       p.age += dt;
       if (!p.ring) {
@@ -421,7 +521,7 @@ export class PlayScene extends Scene {
     this.bag.draw(r);
     this.musicButton.draw(r);
     if (this.carried && !this.modal) {
-      this.carried.draw(r);
+      this.inWorld(r, () => this.carried.draw(r));
     }
     for (const s of this.flyingStickers) {
       r.image(s.img, s.x, s.y, { ay: 0.5, scaleX: s.scale, scaleY: s.scale, alpha: s.alpha });

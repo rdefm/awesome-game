@@ -46,11 +46,14 @@ export class ParkedShip {
 // --------------------------------------------------------------- flutterers
 // A butterfly (or moth) drifting about. `kinds` is the set of two-frame
 // pictures to pick from; tap one three times and it shakes off `sticker`.
+// `fromX`: how far along a place wider than the screen its patch of sky
+// starts (it flutters about a screen's width from there).
 export class Butterfly {
-  constructor(kinds, i, sticker) {
+  constructor(kinds, i, sticker, fromX = 0) {
     this.imgs = kinds[i % kinds.length];
     this.sticker = sticker;
-    this.x = 100 + i * 50;
+    this.fromX = fromX;
+    this.x = fromX + 100 + i * 50;
     this.y = 80 + i * 12;
     this.depth = 500;
     this.speed = 18;
@@ -60,7 +63,7 @@ export class Butterfly {
   }
 
   pickTarget() {
-    this.target = { x: 80 + Math.random() * 170, y: 64 + Math.random() * 64 };
+    this.target = { x: this.fromX + 80 + Math.random() * 170, y: 64 + Math.random() * 64 };
   }
 
   hitTest(px, py) {

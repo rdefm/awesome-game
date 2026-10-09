@@ -294,7 +294,7 @@ export class Newt extends Carryable {
     if (this.restIn <= 0) {
       // Off somewhere nearby in its patch (the planet keeps it clear of the ship).
       const { minX, maxX } = this.scene.roam ?? WALK;
-      const to = clampToFloor(clamp(this.x + (Math.random() - 0.5) * 70, minX, maxX), this.y + (Math.random() - 0.5) * 16);
+      const to = clampToFloor(clamp(this.x + (Math.random() - 0.5) * 70, minX, maxX), this.y + (Math.random() - 0.5) * 16, this.scene.width);
       this.walk = { x: to.x, y: to.y, steps: 0 };
     }
   }

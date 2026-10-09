@@ -1,6 +1,6 @@
 import { ease } from '../../engine/tween.js';
 import { hatHeight } from '../art/girl.js';
-import { WALK } from '../layout.js';
+import { W, WALK, floorMaxX } from '../layout.js';
 import { greet, isFriendItem } from './friends.js';
 
 const WALK_SPEED = 72; // game px per second
@@ -8,8 +8,10 @@ const HOLD_OFFSET = 16; // when carried, the finger holds her by the shoulders
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-export function clampToFloor(x, y) {
-  return { x: clamp(x, WALK.minX, WALK.maxX), y: clamp(y, WALK.minY, WALK.maxY) };
+// The nearest spot on the floor to (x, y), in a place `width` wide (one
+// screen unless it says otherwise: see PlayScene.width).
+export function clampToFloor(x, y, width = W) {
+  return { x: clamp(x, WALK.minX, floorMaxX(width)), y: clamp(y, WALK.minY, WALK.maxY) };
 }
 
 // The player character. Mostly a small state machine:
@@ -56,7 +58,7 @@ export class Girl {
     if (this.mode === 'seated') {
       this.scene.chair.release();
     }
-    const target = clampToFloor(x, y);
+    const target = clampToFloor(x, y, this.scene.width);
     return new Promise((resolve) => {
       this.walkJob = { ...target, resolve };
       this.mode = 'walk';
@@ -225,7 +227,7 @@ export class Girl {
 
   onDrag(p) {
     this.faceToward(p.x);
-    this.x = clamp(p.x, 8, 248);
+    this.x = clamp(p.x, 8, this.scene.width - 8);
     this.y = clamp(p.y + HOLD_OFFSET, 30, 158);
   }
 
@@ -272,7 +274,7 @@ export class Girl {
       return;
     }
     // Fall down to the floor (or stay put if dropped onto it).
-    const floor = clampToFloor(this.x, this.y);
+    const floor = clampToFloor(this.x, this.y, this.scene.width);
     const fallFrom = this.y;
     this.mode = 'act';
     this.pose = { frame: 'held', token: {} };

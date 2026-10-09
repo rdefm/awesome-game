@@ -1,8 +1,10 @@
 import { BABY_YETI } from './babyYeti.js';
 import { CREW } from './crew.js';
 import { GINGER } from './ginger.js';
+import { GONZO } from './gonzo.js';
 import { GUMMY_BEAR } from './gummyBear.js';
 import { LAVA_BABY, LAVA_DAD, LAVA_MUM } from './lavaFamily.js';
+import { MONKEY } from './monkey.js';
 import { MUM_YETI } from './mumYeti.js';
 import { NEWT } from './newt.js';
 import { PINK_ALIEN } from './pinkAlien.js';
@@ -21,6 +23,8 @@ export const TALKS = {
   ginger: GINGER,
   zig: ZIG,
   crew: CREW,
+  monkey: MONKEY,
+  gonzo: GONZO,
   lavaDad: LAVA_DAD,
   lavaMum: LAVA_MUM,
   lavaBaby: LAVA_BABY,

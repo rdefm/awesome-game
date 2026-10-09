@@ -33,7 +33,7 @@ describe('world', () => {
     let w = defaultWorld();
     w = stash(w, 'ball');
     w = stash(w, 'plant');
-    expect(placedIn(w, 'ship').map((e) => e.id)).toEqual(['teddy']);
+    expect(placedIn(w, 'ship').map((e) => e.id)).toEqual(['teddy', 'monkey', 'gonzo']);
     expect(w.bag).toEqual([{ id: 'plant', kind: 'plant' }, { id: 'ball', kind: 'ball' }]);
   });
 
@@ -95,7 +95,7 @@ describe('world', () => {
   it('discards a thing for good, wherever it is', () => {
     let w = discard(defaultWorld(), 'ball');
     expect(find(w, 'ball')).toBeNull();
-    expect(placedIn(w, 'ship').map((e) => e.id)).toEqual(['plant', 'teddy']);
+    expect(placedIn(w, 'ship').map((e) => e.id)).toEqual(['plant', 'teddy', 'monkey', 'gonzo']);
     w = discard(stash(w, 'teddy'), 'teddy');
     expect(w.bag).toEqual([]);
     expect(find(w, 'teddy')).toBeNull();
@@ -152,6 +152,14 @@ describe('world', () => {
     expect(w.bag).toEqual([{ id: 'ball', kind: 'ball' }]);
     expect(placedIn(w, 'ship').filter((e) => e.id === 'ball')).toHaveLength(0);
     expect(find(w, 'critter')).toMatchObject({ x: 160, y: 132 });
+  });
+
+  it('gives an old save the bluebells along the far stretch of the meadow', () => {
+    const saved = { placed: { bluebell: [{ id: 'bluebell0', kind: 'bluebell', x: 60, y: 140, v: 0 }] }, bag: [] };
+    const w = normalizeWorld(saved);
+    expect(find(w, 'bluebell0')).toMatchObject({ x: 60, y: 140 });
+    const far = placedIn(w, 'bluebell').filter((e) => e.kind === 'bluebell' && e.x > 256);
+    expect(far.map((e) => e.id)).toEqual(['bluebell4', 'bluebell5', 'bluebell6']);
   });
 
   it('gives an old save Ember\'s things, keeping her progress everywhere else', () => {
@@ -218,6 +226,13 @@ describe('world', () => {
     expect(placedIn(w, 'gingerbread').map((e) => e.id)).toEqual(['ginger']);
     expect(find(w, 'mumYeti')).toMatchObject({ x: 120, y: 140 });
     expect(w.bag).toEqual([{ id: 'snowball0', kind: 'snowball' }]);
+  });
+
+  it('has Monkey and Gonzo on the ship from the start, and gives them to old saves', () => {
+    expect(placedIn(defaultWorld(), 'ship').map((e) => e.kind)).toEqual(expect.arrayContaining(['monkey', 'gonzo']));
+    const old = normalizeWorld({ placed: { ship: [{ id: 'teddy', kind: 'teddy', x: 60, y: 134 }] }, bag: [] });
+    expect(find(old, 'monkey')).toMatchObject({ kind: 'monkey' });
+    expect(find(old, 'gonzo')).toMatchObject({ kind: 'gonzo' });
   });
 
   it('has a gummy bear and sweets on Candy, and Ginger at home', () => {

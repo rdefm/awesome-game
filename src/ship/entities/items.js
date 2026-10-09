@@ -33,7 +33,7 @@ export class Ball extends Carryable {
 
   // Bounces away across the floor: right for `dir` 1, left for -1.
   kick(dir) {
-    const to = clampToFloor(this.x + dir * (30 + Math.random() * 20), this.y + (Math.random() - 0.5) * 10);
+    const to = clampToFloor(this.x + dir * (30 + Math.random() * 20), this.y + (Math.random() - 0.5) * 10, this.scene.width);
     this.roll = { dir, dx: to.x - this.x, dy: to.y - this.y, sx: this.x, sy: this.y, bounce: 0, p: 0 };
     this.scene.engine.audio.play('boing');
   }
@@ -150,7 +150,7 @@ export async function feed(friend, snack) {
   scene.useUp(snack);
   const side = snack.x < friend.x ? -1 : 1;
   friend.facing = side;
-  const spot = clampToFloor(friend.x + side * 10, friend.y);
+  const spot = clampToFloor(friend.x + side * 10, friend.y, scene.width);
   await engine.tweens.to(snack, { x: spot.x, y: spot.y }, 0.2, ease.outQuad);
   girl.faceToward(friend.x);
   for (let bite = 1; bite <= 3; bite++) {

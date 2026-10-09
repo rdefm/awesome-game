@@ -18,9 +18,13 @@ export function defaultWorld() {
         { id: 'plant', kind: 'plant', x: 152, y: 120 },
         { id: 'teddy', kind: 'teddy', x: 62, y: 134 },
         { id: 'ball', kind: 'ball', x: 118, y: 146 },
+        { id: 'monkey', kind: 'monkey', x: 196, y: 140 },
+        { id: 'gonzo', kind: 'gonzo', x: 90, y: 150 },
       ],
       bluebell: [
         ...[[104, 121], [140, 148], [176, 119], [244, 127]].map(([x, y], v) => ({ id: `bluebell${v}`, kind: 'bluebell', x, y, v })),
+        // ...and more along the far stretch of the meadow, off the first screen.
+        ...[[318, 124], [384, 147], [458, 121]].map(([x, y], i) => ({ id: `bluebell${i + 4}`, kind: 'bluebell', x, y, v: (i + 2) % 4 })),
         { id: 'local', kind: 'local', x: 214, y: 138 },
         { id: 'critter', kind: 'critter', x: 160, y: 132 },
         { id: 'crystal', kind: 'crystal', x: 190, y: 150 },

@@ -136,7 +136,7 @@ export class LavaBaby extends Stroller {
       return super.nextStroll();
     }
     const side = Math.random() < 0.5 ? -1 : 1;
-    return clampToFloor(parent.x + side * (16 + Math.random() * 10), parent.y + 2 + (Math.random() - 0.5) * 8);
+    return clampToFloor(parent.x + side * (16 + Math.random() * 10), parent.y + 2 + (Math.random() - 0.5) * 8, this.scene.width);
   }
 
   hitTest(px, py) {

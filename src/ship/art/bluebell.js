@@ -31,14 +31,15 @@ function ridge(x, base, amp, scale, seed) {
 
 // The meadow, with its horizon at `horizon`. Used both as the full-screen
 // backdrop on the planet and (with a higher horizon) as the view out of the
-// ship's windows once it has landed.
-export function drawMeadow({ horizon = 100, seed = 4 } = {}) {
-  const pm = new Pixmap(W, H);
+// ship's windows once it has landed. `width`: wider than the screen for the
+// landing site, which the view pans along.
+export function drawMeadow({ horizon = 100, seed = 4, width = W } = {}) {
+  const pm = new Pixmap(width, H);
   const rand = seededRandom(seed);
   // Sky: dithered bands from deep blue to pale at the horizon.
   for (let y = 0; y < H; y++) {
     const t = y / Math.max(1, horizon);
-    for (let x = 0; x < W; x++) {
+    for (let x = 0; x < width; x++) {
       const k = t + (bayer(x, y) - 0.5) * 0.18;
       pm.set(x, y, k < 0.3 ? BB.skyTop : k < 0.7 ? BB.sky : BB.skyLow);
     }
@@ -58,7 +59,7 @@ export function drawMeadow({ horizon = 100, seed = 4 } = {}) {
   }
   pm.circle(sx, sy, 4, '#fffbe6');
   // Far misty mountains, then rolling green hills.
-  for (let x = 0; x < W; x++) {
+  for (let x = 0; x < width; x++) {
     const far = ridge(x, horizon - 4, horizon * 0.32, 40, seed + 1);
     for (let y = far; y < horizon; y++) {
       pm.set(x, y, y - far < 2 ? BB.haze : BB.hazeDark);
@@ -71,24 +72,24 @@ export function drawMeadow({ horizon = 100, seed = 4 } = {}) {
   // The meadow floor: lighter at the back, darker toward the viewer.
   for (let y = horizon + 4; y < H; y++) {
     const depth = (y - horizon) / (H - horizon);
-    for (let x = 0; x < W; x++) {
+    for (let x = 0; x < width; x++) {
       pm.set(x, y, BB.grass);
     }
-    pm.dither(0, y, W, 1, BB.grassLight, 0.35 - depth * 0.6);
-    pm.dither(0, y, W, 1, BB.grassDark, depth * 0.55 - 0.15);
+    pm.dither(0, y, width, 1, BB.grassLight, 0.35 - depth * 0.6);
+    pm.dither(0, y, width, 1, BB.grassDark, depth * 0.55 - 0.15);
   }
   // Distant drifts of bluebells on the hills.
-  for (let i = 0; i < 160; i++) {
-    const x = Math.floor(rand() * W);
+  for (let i = 0; i < Math.round((160 * width) / W); i++) {
+    const x = Math.floor(rand() * width);
     const y = horizon + 2 + Math.floor(rand() * 8);
     if (pm.get(x, y)[1] > 120) {
       pm.set(x, y, rand() < 0.5 ? BB.bell : BB.bellLight);
     }
   }
   // Grass tufts and little bluebells, bigger the closer they are.
-  const n = Math.round((H - horizon) * 3.2);
+  const n = Math.round(((H - horizon) * 3.2 * width) / W);
   for (let i = 0; i < n; i++) {
-    const x = Math.floor(rand() * W);
+    const x = Math.floor(rand() * width);
     const y = horizon + 8 + Math.floor(rand() * (H - horizon - 8));
     const near = (y - horizon) / (H - horizon);
     if (rand() < 0.55) {
