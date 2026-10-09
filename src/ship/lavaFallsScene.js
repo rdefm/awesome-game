@@ -15,7 +15,7 @@ export class LavaFallsScene extends OutdoorScene {
     this.addBike();
     this.add(new Falls());
     this.bubbles = this.add(new LavaBubbles(assets));
-    this.stones = FALLS_STONES.map((_, i) => this.add(new SteppingStone(assets, i)));
+    this.stones = FALLS_STONES.map((at) => this.add(new SteppingStone(assets.steppingStone, at)));
     this.add(new FallsGeyser(assets));
     this.addPlaced();
     for (let i = 0; i < 2; i++) {

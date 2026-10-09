@@ -1,6 +1,6 @@
 import { ease } from '../../engine/tween.js';
 import { EM } from '../art/ember.js';
-import { FALLS_GEYSER, FALLS_POOL, LAVA_FALLS, FALLS_STONES } from '../layout.js';
+import { FALLS_GEYSER, FALLS_POOL, LAVA_FALLS } from '../layout.js';
 import { clampToFloor } from './girl.js';
 import { Secret } from './secret.js';
 
@@ -162,13 +162,15 @@ export class LavaBubbles {
 // Warm flat stones along the near shore. Tap one and she walks to whichever
 // end of the row is nearer and hops across them all, each one glowing and
 // ringing a note higher than the last, then hops off the far end and cheers.
+// (Bluebell's stream has a row of its own: see stream.js.)
 export class SteppingStone {
-  // `i` picks which of FALLS_STONES it is.
-  constructor(assets, i) {
-    this.imgs = assets.steppingStone;
-    this.i = i;
-    this.x = FALLS_STONES[i].x;
-    this.y = FALLS_STONES[i].y;
+  // At `at` (bottom-centre). `imgs`: it plain and lit up; `spark`: the colour
+  // of the bits that fly up as she lands on it.
+  constructor(imgs, at, spark = EM.lavaLight) {
+    this.imgs = imgs;
+    this.x = at.x;
+    this.y = at.y;
+    this.spark = spark;
     this.squash = 0;
     this.glow = 0;
   }
@@ -187,7 +189,7 @@ export class SteppingStone {
     const { row } = this;
     const mid = (row[0].x + row[row.length - 1].x) / 2;
     const end = this.scene.girl.x < mid ? row[0] : row[row.length - 1];
-    return clampToFloor(end.x + (end === row[0] ? -16 : 16), end.y + 1);
+    return clampToFloor(end.x + (end === row[0] ? -16 : 16), end.y + 1, this.scene.width);
   }
 
   hitTest(px, py) {
@@ -215,7 +217,7 @@ export class SteppingStone {
     this.glow = 1;
     scene.engine.tweens.to(this, { glow: 0 }, 1.6, ease.inQuad);
     scene.engine.audio.play('plink', { note });
-    scene.bits(this.x, this.y - 3, 3, EM.lavaLight);
+    scene.bits(this.x, this.y - 3, 3, this.spark);
   }
 
   async use() {
@@ -223,7 +225,7 @@ export class SteppingStone {
     const { girl } = scene;
     const stones = girl.x < this.row[0].x ? this.row : [...this.row].reverse();
     const last = stones[stones.length - 1];
-    const off = clampToFloor(last.x + (stones === this.row ? 16 : -16), last.y + 1);
+    const off = clampToFloor(last.x + (stones === this.row ? 16 : -16), last.y + 1, scene.width);
     await scene.scripted(async () => {
       for (const [i, stone] of stones.entries()) {
         await this.hopTo(stone.x, stone.y + 1, STONE_REST);

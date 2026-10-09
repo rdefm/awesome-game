@@ -1,7 +1,7 @@
 import { Pixmap, bayer, fractalNoise, seededRandom } from '../../engine/pixmap.js';
 import { C } from './palette.js';
 import { drawAlien } from './props.js';
-import { W, H } from '../layout.js';
+import { HORIZON, STREAM, W, H, streamAt } from '../layout.js';
 
 // Everything painted for planet Bluebell: the meadow, the parked ship seen
 // from outside, and the locals.
@@ -608,6 +608,51 @@ export function drawBabyPuff({ body, dark }) {
   pm.set(6, 4, C.outline);
   pm.set(2, 5, C.cheek);
   pm.set(7, 5, C.cheek);
+  return pm.outline(C.outline);
+}
+
+// ------------------------------------------------------------------ stream
+// The little stream across the far end of the meadow (see STREAM), painted
+// as one picture whose bottom-left sits at (STREAM_ART.x, H): clear water,
+// deeper down the middle, with grassy banks and the odd pebble.
+export const WATER = { deep: '#3f86d6', water: '#5fa8ec', shallow: '#8ccaf6', foam: '#e8f7ff' };
+export const STREAM_ART = { x: STREAM.front.x - STREAM.front.half - 3, w: STREAM.front.half * 2 + 20 };
+export function drawStream() {
+  const pm = new Pixmap(STREAM_ART.w, H - HORIZON);
+  const rand = seededRandom(11);
+  for (let y = HORIZON; y < H; y++) {
+    const { x: mid, half } = streamAt(y);
+    const left = Math.round(mid - half) - STREAM_ART.x;
+    const right = Math.round(mid + half) - STREAM_ART.x;
+    const row = y - HORIZON;
+    for (let x = left; x <= right; x++) {
+      const k = Math.abs(x + STREAM_ART.x - mid) / Math.max(1, half) + (bayer(x, y) - 0.5) * 0.3;
+      pm.set(x, row, k < 0.45 ? WATER.deep : k < 0.85 ? WATER.water : WATER.shallow);
+    }
+    // Grassy banks, a little overhang of darker grass either side.
+    pm.set(left - 1, row, BB.grassDark);
+    pm.set(right + 1, row, BB.grassDark);
+    if (row > 20 && rand() < 0.25) {
+      const side = rand() < 0.5 ? left - 2 : right + 2;
+      pm.set(side, row, rand() < 0.5 ? STONE.mid : STONE.light);
+    }
+  }
+  return pm;
+}
+
+// A flat stepping stone, bottom-centre on the stream bed. `wet`: shining
+// where she's just hopped on it.
+export function drawStreamStone(wet = false) {
+  const pm = new Pixmap(12, 6);
+  pm.ellipse(5.5, 3, 5.5, 2.5, STONE.mid);
+  pm.ellipse(5.5, 2.5, 4, 1.5, wet ? BB.bellHi : STONE.light);
+  pm.hline(2, 9, 5, STONE.dark);
+  pm.set(2, 3, STONE.moss);
+  pm.set(9, 4, STONE.moss);
+  if (wet) {
+    pm.set(4, 2, '#ffffff');
+    pm.set(7, 2, '#ffffff');
+  }
   return pm.outline(C.outline);
 }
 

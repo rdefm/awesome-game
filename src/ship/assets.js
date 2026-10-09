@@ -15,8 +15,8 @@ import {
 } from './art/shipRooms.js';
 import {
   BABY_PUFF_COLORS, BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBabyPuff, drawBell, drawBird,
-  drawBluebellStem, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
-  drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch,
+  drawBluebellStem, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
+  drawPicnicBlanket, drawPosy, drawPosyPatch, drawRock, drawShipExterior, drawSoilPatch, drawStream,
 } from './art/bluebell.js';
 import {
   drawBag, drawBall, drawBerryJuice, drawBluebellTea, drawBoxIcon, drawCocoa, drawCookie, drawCrystal, drawHeartIcon,
@@ -317,6 +317,9 @@ export function loadAssets() {
     // The puffball burrow (empty / puffball asleep in it), and the babies living in it.
     burrow: bake({ empty: drawBurrow(), asleep: drawBurrow(true) }),
     babyPuff: BABY_PUFF_COLORS.map((c) => bake(drawBabyPuff(c))),
+    // The stream across the far end of the meadow, and its stepping stones (dry / just hopped on).
+    stream: bake(drawStream()),
+    streamStone: bake([drawStreamStone(), drawStreamStone(true)]),
     local: bake({
       idle: drawLocal('idle'), blink: drawLocal('blink'), wave1: drawLocal('wave1'), wave2: drawLocal('wave2'),
       hop: drawLocal('idle', true),

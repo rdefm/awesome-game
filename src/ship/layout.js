@@ -68,6 +68,29 @@ export const POSY_PATCH = { x: 352, y: 140, half: 15, h: 10 };
 // The puffball burrow in a grassy bank at the back of the far stretch
 // (bottom-centre), between two giant bluebells.
 export const PUFF_BURROW = { x: 290, y: 123 };
+// The little stream across the far end of the meadow, running down out of
+// the hills towards the viewer: where its middle is, and how wide it is
+// either side of that, where it starts at the back (y = HORIZON) and at the
+// front (y = H), widening in between. Stepping stones cross it partway down
+// (bottom-centres, left to right).
+export const STREAM = {
+  back: { x: 488, half: 4 },
+  front: { x: 476, half: 16 },
+  stones: [{ x: 472, y: 138 }, { x: 481, y: 135 }, { x: 490, y: 138 }],
+};
+
+// The stream's middle and half its width at height `y`.
+export function streamAt(y) {
+  const k = Math.max(0, Math.min(1, (y - HORIZON) / (H - HORIZON)));
+  const { back, front } = STREAM;
+  return { x: back.x + (front.x - back.x) * k, half: back.half + (front.half - back.half) * k };
+}
+
+// Whether (x, y) is in the stream's water.
+export function inStream(x, y) {
+  const { x: mid, half } = streamAt(y);
+  return y >= HORIZON && Math.abs(x - mid) <= half;
+}
 // Ember's secrets: a steam vent at the back and a lava pool at the front.
 export const EMBER_SECRETS = { vent: { x: 124, y: 124 }, pool: { x: 182, y: 151 } };
 // Frosty's secret: a snow drift at the back, a snow hare hiding behind it.

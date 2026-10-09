@@ -1,10 +1,12 @@
 import { Bush, MoleHole, Rock } from './entities/bluebell.js';
 import { PuffBurrow } from './entities/burrow.js';
+import { Carryable } from './entities/carryable.js';
 import { Butterfly } from './entities/outdoors.js';
 import { W, floorMaxX } from './layout.js';
 import { Basket, Blanket } from './entities/picnic.js';
 import { Pod } from './entities/pod.js';
 import { PosyPatch } from './entities/posies.js';
+import { Stream, besideStream, streamStones } from './entities/stream.js';
 import { OutdoorScene } from './outdoorScene.js';
 import { PodScene } from './podScene.js';
 
@@ -17,7 +19,8 @@ import { PodScene } from './podScene.js';
 // the view follows her along it, and the far stretch has more bluebells and
 // butterflies of its own, a picnic (a checked blanket to sit on and a
 // basket of sandwiches and berry juice), a patch of little bluebells to
-// pick posies from, and a burrow of baby puffballs in a grassy bank.
+// pick posies from, a burrow of baby puffballs in a grassy bank, and a
+// little stream at the far end with stepping stones across it.
 export class BluebellScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'bluebell', opts);
@@ -31,7 +34,13 @@ export class BluebellScene extends OutdoorScene {
     this.add(new Basket(assets));
     this.add(new PosyPatch(assets));
     this.add(new PuffBurrow(assets));
+    this.add(new Stream(assets));
+    this.stones = streamStones(assets).map((stone) => this.add(stone));
     this.addPlaced();
+    // (Anything an older save left where the stream now runs sits on its bank.)
+    for (const e of this.entities.filter((e) => e instanceof Carryable)) {
+      Object.assign(e, besideStream(e, this.width));
+    }
     for (let i = 0; i < 3; i++) {
       this.add(new Butterfly(assets.butterflies, i, 'bluebell.butterfly'));
     }
@@ -40,5 +49,11 @@ export class BluebellScene extends OutdoorScene {
       this.add(new Butterfly(assets.butterflies, i + 1, 'bluebell.butterfly', W));
     }
     this.addGirl();
+  }
+
+  // Nothing put down comes to rest in the stream (only things dropped right
+  // in, which float off).
+  restingSpot(item, x, y) {
+    return besideStream(super.restingSpot(item, x, y), this.width);
   }
 }

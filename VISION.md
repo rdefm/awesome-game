@@ -118,7 +118,14 @@ store.
   in a ring, or bouncing together higher and higher). Drop the puffball on
   it and it wriggles in for a nap (snoring, zzzs drifting up), popping back
   out when the burrow's tapped or after a while (nothing saved: napping when
-  she leaves, it's just back out next time)
+  she leaves, it's just back out next time). At the far end, a little stream
+  runs down out of the hills (she can splash straight through it). Tap one
+  of the stepping stones across it and she hops over them all, each ringing
+  a note higher than the last, there and back. Drop a thing in the water and
+  it bobs off downstream, out of sight, then washes up on the bank a moment
+  later; drop a friend in and it paddles across to the far bank and shakes
+  itself dry (either way it's saved on the bank straight away, so nothing's
+  ever lost)
 - The mushroom grove on Bluebell (by hoverbike): a shady corner of the
   meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
   (she hops up on the cap and bounces higher each time, the cap squashing

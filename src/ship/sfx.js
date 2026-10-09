@@ -316,6 +316,10 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 700, to: 180, dur: 0.15, type: 'sine', vol: 0.22 });
     s.noise({ at: t, dur: 0.5, filter: 'bandpass', freq: 2200, to: 600, vol: 0.2, q: 1 });
   });
+  // Bluebell's stream: a friend shaking itself dry, brrrr.
+  audio.define('shake', (s, t) => {
+    [0, 0.07, 0.14, 0.21, 0.28].forEach((d) => s.noise({ at: t + d, dur: 0.06, filter: 'bandpass', freq: 2600, to: 1600, vol: 0.14, q: 1 }));
+  });
   // Decor: the printer whirring away, and a lamp's switch.
   audio.define('whirr', (s, t) => {
     s.tone({ at: t, freq: 220, to: 330, dur: 0.9, type: 'square', vol: 0.05, attack: 0.1 });
