@@ -31,7 +31,8 @@ export class Stroller extends Carryable {
 
   hitTest(px, py) {
     const y = this.y - this.perch;
-    return Math.abs(px - this.x) < this.width / 2 && py > y - this.height - this.lift && py < y + 3;
+    const s = this.shrinkScale;
+    return Math.abs(px - this.x) < (this.width / 2) * s && py > y - (this.height + this.lift) * s && py < y + 3;
   }
 
   get free() {
@@ -40,7 +41,7 @@ export class Stroller extends Carryable {
 
   // The top of its head, where its chat lines go.
   get headTop() {
-    return this.y - this.perch - this.height - this.lift;
+    return this.y - this.perch - (this.height + this.lift) * this.shrinkScale;
   }
 
   onPickUp() {

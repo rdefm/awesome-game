@@ -99,6 +99,32 @@ export function drawBounceShroom(variant = 0) {
   return pm.outline(C.outline);
 }
 
+// The fairy ring, flat on the floor: a ring of tiny mushrooms round a patch of
+// glowing moss, centred on its middle (it's 2 * rx + 5 wide, 2 * ry + 7 tall).
+export function drawFairyRing() {
+  const { rx, ry } = MUSHROOM_GROVE.ring;
+  const w = rx * 2 + 5;
+  const h = ry * 2 + 7;
+  const cx = Math.floor(w / 2);
+  const cy = h - ry - 3;
+  const pm = new Pixmap(w, h);
+  pm.ellipse(cx, cy, rx - 2, ry - 1, MG.moss);
+  pm.dither(cx - rx, cy - ry, w, ry * 2, MG.glowDeep, 0.3);
+  // Back half of the ring first, then the front, so nearer caps overlap.
+  const n = 14;
+  const spots = Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2;
+    return { x: Math.round(cx + Math.cos(a) * rx), y: Math.round(cy + Math.sin(a) * ry), k: MG.caps[i % 3] };
+  }).sort((a, b) => a.y - b.y);
+  for (const { x, y, k } of spots) {
+    pm.vline(x, y - 1, y, MG.stem);
+    pm.hline(x - 1, x + 1, y - 2, k.cap);
+    pm.set(x, y - 3, k.cap);
+    pm.set(x - 1, y - 2, k.light);
+  }
+  return pm;
+}
+
 // The shy mushroom creature: a little round fellow with a spotted cap and
 // stubby legs, facing right. frame: 'idle' | 'blink' | 'peek' (cap lifted,
 // one eye showing) | 'hide' (pulled right down: just a mushroom) | 'dance1' |

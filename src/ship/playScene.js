@@ -518,7 +518,7 @@ export class PlayScene extends Scene {
   drawEntities(r) {
     for (const e of this.sorted()) {
       if (!e.held) {
-        e.draw?.(r);
+        r.scaled(e.x, e.y, e.shrinkScale ?? 1, () => e.draw?.(r));
       }
     }
   }

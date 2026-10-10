@@ -178,6 +178,11 @@ export function defineSfx(audio) {
     [0, 0.14, 0.24].forEach((d) => s.tone({ at: t + d, freq: 2200, to: 3200, dur: 0.07, type: 'sine', vol: 0.12 }));
     s.tone({ at: t + 0.36, freq: 3000, to: 2000, dur: 0.15, type: 'sine', vol: 0.1 });
   });
+  // The fairy ring in the grove: a twinkle down to tiny, and tiny squeaky steps.
+  audio.define('shrink', (s, t) => {
+    [2637, 2349, 2093, 1760, 1568].forEach((f, i) => s.tone({ at: t + i * 0.05, freq: f, to: f * 0.9, dur: 0.1, type: 'triangle', vol: 0.07 }));
+  });
+  audio.define('tinystep', (s, t) => s.tone({ at: t, freq: 2600, to: 3400, dur: 0.04, type: 'sine', vol: 0.06 }));
   audio.define('pop', (s, t) => {
     s.tone({ at: t, freq: 200, to: 900, dur: 0.1, type: 'sine', vol: 0.28 });
     s.noise({ at: t, dur: 0.12, freq: 900, to: 200, vol: 0.12 });

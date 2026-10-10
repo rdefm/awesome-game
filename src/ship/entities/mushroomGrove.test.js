@@ -4,7 +4,7 @@ import { TALKS } from '../talks/index.js';
 import { defaultWorld, find, normalizeWorld } from '../world.js';
 import { isFriendItem } from './friends.js';
 import { Girl } from './girl.js';
-import { MushroomCreature } from './mushroomGrove.js';
+import { FairyRing, MushroomCreature, TINY } from './mushroomGrove.js';
 
 const assets = { shroomCreature: {}, girl: () => ({}), emotes: {}, snacks: {} };
 
@@ -121,5 +121,107 @@ describe('the shy mushroom creature', () => {
     expect(shroom.chat().tree).toBe(TALKS.shroom);
     expect(shroom.chat().facts).toEqual({ home: true });
     expect(scene.add).toHaveBeenCalled(); // the chat bubble
+  });
+});
+
+describe('the fairy ring', () => {
+  // The grove with a fairy ring in it; `steps` seconds of frames pass.
+  function withRing(stage) {
+    const s = setup(stage);
+    const ring = new FairyRing({});
+    ring.scene = s.scene;
+    s.scene.entities.push(ring);
+    const run = (seconds) => {
+      for (let t = 0; t < seconds; t += 0.05) {
+        ring.update(0.05);
+      }
+    };
+    return { ...s, ring, run };
+  }
+
+  const into = (who, ring) => Object.assign(who, { x: ring.x, y: ring.y });
+
+  it('shrinks her down tiny when she steps inside, and grows her back with a pop when she steps out', () => {
+    const { scene, girl, ring, run } = withRing();
+    girl.x = ring.x + ring.rx + 30;
+    run(0.2); // settles in (she's outside)
+    expect(girl.scale).toBe(1);
+    into(girl, ring);
+    run(1);
+    expect(girl.scale).toBe(TINY);
+    girl.x = ring.x - ring.rx - 20;
+    run(1);
+    expect(girl.scale).toBe(1);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('pop');
+  });
+
+  it('sends her to the middle when tapped, and back out (on her side) when tapped with her in it', () => {
+    const { girl, ring } = withRing();
+    girl.x = ring.x - 40;
+    expect(ring.spot).toEqual({ x: ring.x, y: ring.y });
+    into(girl, ring);
+    girl.x -= 2;
+    expect(ring.holds(ring.spot)).toBe(false);
+    expect(ring.spot.x).toBeLessThan(ring.x);
+  });
+
+  it("doesn't shrink her while she's just walking through it on her way somewhere", () => {
+    const { girl, ring, run } = withRing();
+    girl.x = ring.x + ring.rx + 30;
+    run(0.1);
+    into(girl, ring);
+    girl.mode = 'walk';
+    run(1);
+    expect(girl.scale).toBe(1);
+  });
+
+  it('makes her steps squeak while she is tiny', () => {
+    const { scene, girl, ring, run } = withRing();
+    into(girl, ring);
+    run(1);
+    scene.engine.audio.play.mockClear();
+    girl.mode = 'walk';
+    run(0.5);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('tinystep');
+  });
+
+  it('grows her back if she is picked up out of it', () => {
+    const { girl, ring, run } = withRing();
+    into(girl, ring);
+    run(1);
+    girl.mode = 'held';
+    run(1);
+    expect(girl.scale).toBe(1);
+  });
+
+  it('shrinks a friend dropped in it, and grows it back when it is picked up', () => {
+    const { shroom, ring, run } = withRing(1);
+    into(shroom, ring);
+    run(1);
+    expect(shroom.shrinkScale).toBe(TINY);
+    shroom.held = true;
+    run(1);
+    expect(shroom.shrinkScale).toBe(1);
+  });
+
+  it("doesn't shrink a friend while it's still falling in", () => {
+    const { shroom, ring, run } = withRing(1);
+    into(shroom, ring);
+    shroom.falling = true;
+    run(1);
+    expect(shroom.shrinkScale).toBe(1);
+  });
+
+  it('is already tiny on a reload inside it, and never saves anyone being tiny', () => {
+    const { scene, girl, shroom, ring } = withRing(1);
+    into(girl, ring);
+    into(shroom, ring);
+    ring.update(0.05);
+    expect(girl.scale).toBe(TINY);
+    expect(shroom.shrinkScale).toBe(TINY);
+    expect(scene.saveStage).not.toHaveBeenCalled();
+    expect(scene.settle).not.toHaveBeenCalled();
+    // Anywhere else she's a new girl, full size.
+    expect(new Girl(assets, ring.x, ring.y, {}).scale).toBe(1);
   });
 });

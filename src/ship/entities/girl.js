@@ -199,7 +199,7 @@ export class Girl {
   }
 
   hitTest(px, py) {
-    const top = (this.mode === 'seated' ? this.y - 38 : this.y - 28 - this.lift - this.perch) - this.hatHeight;
+    const top = this.mode === 'seated' ? this.y - 38 - this.hatHeight : this.y - (28 + this.lift + this.perch + this.hatHeight) * this.scale;
     const bottom = this.mode === 'seated' ? this.y - 12 : this.y + 2 - this.perch;
     return px >= this.x - 11 && px <= this.x + 11 && py >= top && py <= bottom;
   }

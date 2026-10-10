@@ -51,6 +51,23 @@ export class Renderer {
   pixel(x, y, color, alpha = 1) {
     this.rect(x, y, 1, 1, color, alpha);
   }
+
+  // Runs `draw()` shrunk (or grown) by `s` about the point (x, y).
+  scaled(x, y, s, draw) {
+    if (s === 1) {
+      draw();
+      return;
+    }
+    const ctx = this.ctx;
+    const ox = Math.round(x + this.offsetX);
+    const oy = Math.round(y + this.offsetY);
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.scale(s, s);
+    ctx.translate(-ox, -oy);
+    draw();
+    ctx.restore();
+  }
 }
 
 // Owns the canvas, the main loop, pointer input and the active scene. The game

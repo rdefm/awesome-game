@@ -4,7 +4,7 @@ import { offerChat } from '../chat.js';
 import { MUSHROOM_GROVE, W, spooks } from '../layout.js';
 import { SHROOM } from '../talks/shroom.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
-import { clampToFloor } from './girl.js';
+import { clampToFloor, herSide } from './girl.js';
 import { isSnack } from './items.js';
 import { Stroller } from './stroller.js';
 
@@ -207,6 +207,130 @@ export class Spores {
         r.rect(px, py - 2, 1, 5, '#ffffff', m.lit * 0.8);
       }
     }
+  }
+}
+
+// --------------------------------------------------------------- fairy ring
+// A ring of tiny mushrooms on the floor. Whoever stands in it (her, or a
+// friend dropped in) shrinks right down with a twinkle, so everything else
+// looks giant, and her steps squeak; out of it (walked out, or picked up)
+// they grow back with a pop. Tap it and she steps into the middle; tap it
+// again with her in it and she steps out. Being tiny is never saved:
+// anywhere else she's always full size.
+export const TINY = 0.5;
+const GROW_SPEED = 2.5; // scale per second
+
+export class FairyRing {
+  constructor(assets) {
+    this.img = assets.fairyRing;
+    Object.assign(this, MUSHROOM_GROVE.ring);
+    this.depth = this.y - this.ry - 4; // flat on the floor, under anyone in it
+    this.priority = -1; // anyone standing in it wins a tap
+    this.tiny = new Set(); // who's shrunk down in it
+    this.settled = false; // a reload in the ring starts out tiny, no fuss
+    this.squeakIn = 0;
+  }
+
+  holds({ x, y }) {
+    return ((x - this.x) / this.rx) ** 2 + ((y - this.y) / this.ry) ** 2 <= 1;
+  }
+
+  // The middle, or (with her in it) just outside, on her side.
+  get spot() {
+    const { girl } = this.scene;
+    if (!this.holds(girl)) {
+      return { x: this.x, y: this.y };
+    }
+    return clampToFloor(this.x + herSide(this.scene, this.x) * (this.rx + 8), girl.y, this.scene.width);
+  }
+
+  hitTest(px, py) {
+    return ((px - this.x) / (this.rx + 3)) ** 2 + ((py - this.y) / (this.ry + 4)) ** 2 <= 1;
+  }
+
+  onTap() {
+    const { scene } = this;
+    scene.engine.audio.play('tinkle');
+    if (!scene.busy) {
+      scene.interact(this);
+    }
+  }
+
+  // Nothing to do once she's there: stepping in (or out) is the thing (see update).
+  use() {}
+
+  // Whether `who` should be tiny: standing in the ring, feet on the floor.
+  shrinks(who) {
+    if (!this.holds(who)) {
+      return false;
+    }
+    if (who === this.scene.girl) {
+      // Only once she stops in it, not just walking through on her way somewhere.
+      return who.onFeet && !who.perch && !who.riding && (who.mode !== 'walk' || this.tiny.has(who));
+    }
+    return !who.held && !who.falling && !who.seat;
+  }
+
+  shrink(who) {
+    const { scene } = this;
+    scene.engine.audio.play('shrink');
+    scene.sparkles(who.x, who.y - 8, 6);
+    if (who === scene.girl) {
+      who.say('star', 1.2);
+    }
+  }
+
+  grow(who) {
+    const { scene } = this;
+    scene.engine.audio.play('pop');
+    scene.bits(who.x, who.y - 4, 6, MG.glow);
+    if (who === scene.girl && who.onFeet) {
+      who.hop(6);
+    }
+  }
+
+  update(dt) {
+    const { girl } = this.scene;
+    for (const who of this.scene.entities) {
+      if (who !== girl && !isFriendItem(who)) {
+        continue;
+      }
+      const key = who === girl ? 'scale' : 'shrinkScale';
+      const want = this.shrinks(who);
+      if (want !== this.tiny.has(who)) {
+        if (want) {
+          this.tiny.add(who);
+        } else {
+          this.tiny.delete(who);
+        }
+        if (!this.settled) {
+          who[key] = want ? TINY : 1;
+        } else if (want) {
+          this.shrink(who);
+        } else {
+          this.grow(who);
+        }
+      }
+      const to = want ? TINY : 1;
+      const step = GROW_SPEED * dt;
+      who[key] = Math.abs(to - who[key]) <= step ? to : who[key] + Math.sign(to - who[key]) * step;
+    }
+    this.settled = true;
+    // Squeak, squeak go her little feet.
+    if (this.tiny.has(girl) && girl.mode === 'walk') {
+      this.squeakIn -= dt;
+      if (this.squeakIn <= 0) {
+        this.squeakIn = 0.16;
+        this.scene.engine.audio.play('tinystep');
+      }
+    } else {
+      this.squeakIn = 0;
+    }
+  }
+
+  draw(r) {
+    const { img } = this;
+    r.image(img, this.x, this.y, { ax: Math.floor(img.width / 2) / img.width, ay: (img.height - this.ry - 3) / img.height });
   }
 }
 

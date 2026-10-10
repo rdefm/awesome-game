@@ -25,6 +25,7 @@ export class Carryable {
     this.seat = null; // the chair it's sitting in, if any (friends only)
     this.picnicking = false; // sat on the picnic blanket till picked up (friends only)
     this.turn = 0; // how far round a twirl it is, 0..1 (friends only)
+    this.shrinkScale = 1; // shrunk right down in a fairy ring (friends only; never saved)
     this.hat = LOOK_OPTIONS.hat.includes(state.hat) ? state.hat : 'none'; // (friends only)
   }
 

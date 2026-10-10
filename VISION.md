@@ -148,7 +148,13 @@ store.
   (she hops up on the cap and bounces higher each time, the cap squashing
   and puffing out glowing spores; every third go is a big one); glowing
   spores drifting up to tap and pop with a chime, lighting up the ones near
-  them; and a shy mushroom creature that pulls its cap down and turns into
+  them; a fairy ring of tiny mushrooms on the floor: tap it and she steps
+  inside with a twinkle and shrinks right down tiny, so everything round her
+  looks giant and her steps squeak; tap it again (or anywhere outside it)
+  and she hops out and grows back with a pop. A friend dropped in shrinks
+  too, and grows back when it's picked up. Being tiny is never saved:
+  leaving the grove she's always back to her full size; and a shy mushroom
+  creature that pulls its cap down and turns into
   just another mushroom when she comes near, pops back out when she steps
   away, and when tapped peeks out and giggles, then looks all round and
   blushes, then at last comes right out for a little dance in a cloud of

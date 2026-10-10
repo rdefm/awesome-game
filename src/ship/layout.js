@@ -197,6 +197,9 @@ export const MUSHROOM_GROVE = {
     { x: 196, y: 146, top: 31, rx: 19 },
   ],
   shy: 40,
+  // The fairy ring: tiny mushrooms round an ellipse on the floor, between the
+  // hoverbike and the first bounce mushroom.
+  ring: { x: 64, y: 134, rx: 18, ry: 7 },
 };
 
 // Whether she's close enough to (x, y) that the shy creature there hides.
