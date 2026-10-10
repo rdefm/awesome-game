@@ -203,6 +203,13 @@ export const MUSHROOM_GROVE = {
   // The glow pond: a dark little pond (an ellipse round x, y) at the back,
   // between the two bounce mushrooms, off the floor she walks on.
   pond: { x: 156, y: 114, rx: 20, ry: 5 },
+  // The snail race, along the front of the floor: two lanes (their y), from
+  // the twig start line at `start` to the finish at `finish`.
+  // Clear of the fairy ring's front edge.
+  race: { lanes: [148, 153], start: 88, finish: 128 },
+  // The hollow log, lying along the front of the floor: (x, y) the middle of
+  // its bottom, `hl` from the middle to either open end.
+  log: { x: 158, y: 151, hl: 15 },
 };
 
 // Whether she's close enough to (x, y) that the shy creature there hides.

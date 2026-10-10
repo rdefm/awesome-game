@@ -157,8 +157,15 @@ store.
   looks giant and her steps squeak; tap it again (or anywhere outside it)
   and she hops out and grows back with a pop. A friend dropped in shrinks
   too, and grows back when it's picked up. Being tiny is never saved:
-  leaving the grove she's always back to her full size; and a shy mushroom
-  creature that pulls its cap down and turns into
+  leaving the grove she's always back to her full size; two snails at a
+  little twig start line: tap one and she cheers it on and both set off,
+  inching along and overtaking each other, and the one she cheered usually
+  (not always) wins, with a tiny flag popping up at the finish and a
+  fanfare, then they turn up back at the start for another go; a hollow log
+  lying on the floor: tap it and she crawls in one end, bumping about
+  inside, and pops out the other, and sometimes a beetle or a hedgehog
+  scuttles out ahead of her and runs off (none of the snails or the log is
+  saved); and a shy mushroom creature that pulls its cap down and turns into
   just another mushroom when she comes near, pops back out when she steps
   away, and when tapped peeks out and giggles, then looks all round and
   blushes, then at last comes right out for a little dance in a cloud of

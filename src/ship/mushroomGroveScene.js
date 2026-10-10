@@ -1,4 +1,6 @@
-import { BounceShroom, FairyRing, GlowPond, Spores } from './entities/mushroomGrove.js';
+import {
+  BounceShroom, FairyRing, GlowPond, HollowLog, SnailRace, Spores,
+} from './entities/mushroomGrove.js';
 import { Butterfly } from './entities/outdoors.js';
 import { OutdoorScene } from './outdoorScene.js';
 
@@ -6,10 +8,12 @@ import { OutdoorScene } from './outdoorScene.js';
 // shady corner of the meadow under giant mushrooms, two to bounce on,
 // glowing spores drifting up to pop, a dark little pond of glowing fish
 // (pop a spore over it and a lily blooms on the water), a fairy ring that
-// shrinks whoever stands in it down tiny, and a shy mushroom creature that
-// hides under its cap when she comes near (it lives in the world, see world.js,
-// so that once it's her friend she can take it anywhere). The ship isn't
-// here, so the hoverbike (parked on the left) is how she gets anywhere else.
+// shrinks whoever stands in it down tiny, two snails to cheer on in a race, a
+// hollow log to crawl through (sometimes something else comes scuttling out
+// first), and a shy mushroom creature that hides under its cap when she
+// comes near (it lives in the world, see world.js, so that once it's her
+// friend she can take it anywhere). The ship isn't here, so the hoverbike
+// (parked on the left) is how she gets anywhere else.
 export class MushroomGroveScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'mushroomgrove', { ...opts, ship: false });
@@ -17,6 +21,8 @@ export class MushroomGroveScene extends OutdoorScene {
     this.addBike();
     const pond = this.add(new GlowPond(assets));
     this.add(new FairyRing(assets));
+    this.add(new SnailRace(assets));
+    this.add(new HollowLog(assets));
     this.add(new BounceShroom(assets, 0));
     this.add(new BounceShroom(assets, 1));
     this.add(new Spores(pond));

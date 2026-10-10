@@ -192,6 +192,17 @@ export function defineSfx(audio) {
   audio.define('bloom', (s, t) => {
     [1047, 1319, 1568, 2093].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, dur: 0.35, type: 'sine', vol: 0.06, attack: 0.03 }));
   });
+  // The hollow log in the grove: a hollow wooden knock as she bumps along
+  // inside, and a beetle's quick little patter as it scuttles out.
+  audio.define('logknock', (s, t) => {
+    s.tone({ at: t, freq: 240, to: 170, dur: 0.09, type: 'triangle', vol: 0.2 });
+    s.noise({ at: t, dur: 0.05, filter: 'bandpass', freq: 600, vol: 0.1, q: 2 });
+  });
+  audio.define('scuttle', (s, t) => {
+    for (let i = 0; i < 8; i++) {
+      s.noise({ at: t + i * 0.04, dur: 0.025, filter: 'bandpass', freq: 4200 + (i % 2) * 800, vol: 0.08, q: 4 });
+    }
+  });
   audio.define('tinystep', (s, t) => s.tone({ at: t, freq: 2600, to: 3400, dur: 0.04, type: 'sine', vol: 0.06 }));
   audio.define('pop', (s, t) => {
     s.tone({ at: t, freq: 200, to: 900, dur: 0.1, type: 'sine', vol: 0.28 });

@@ -349,6 +349,311 @@ export class GlowPond {
   }
 }
 
+// --------------------------------------------------------------- snail race
+// Two snails at a little twig start line along the front of the floor. Tap
+// one and she cheers it on, and both set off, inching along and overtaking
+// each other; the one she cheered usually (not always) wins, and a tiny flag
+// pops up at the finish with a fanfare. A little while after they're both
+// over the line they fade away and turn up back at the start for another go.
+// None of it is ever saved.
+const CHEERED_WINS = 0.75; // how often the one she cheered on wins
+const RACE_TIME = 6; // seconds the winner takes
+const RESET_AFTER = 3; // seconds after both are over the line
+const FADE = 0.5;
+
+export class SnailRace {
+  constructor(assets) {
+    this.imgs = assets.snails;
+    Object.assign(this, MUSHROOM_GROVE.race);
+    this.depth = this.lanes[0]; // flat along the floor
+    this.priority = -1; // anyone standing over them wins a tap
+    this.snails = this.lanes.map((y) => ({ x: this.start, y, alpha: 1, crawl: 0 }));
+    this.racing = false; // from the off until they're back at the start
+    this.cheered = null; // which one she cheered on
+    this.winner = null; // which one got over the line first
+    this.runs = []; // each one's run, settled at the off (see go)
+    this.t = 0; // seconds since the off
+    this.wonAt = 0; // when the winner got over the line
+    this.after = 0; // seconds since they were both over the line
+  }
+
+  // Which snail (if any) is under (px, py).
+  snailAt(px, py) {
+    const i = this.snails.findIndex((sn) => Math.abs(px - sn.x) <= 7 && py >= sn.y - 9 && py <= sn.y + 2);
+    return i < 0 ? null : i;
+  }
+
+  hitTest(px, py) {
+    return this.snailAt(px, py) !== null;
+  }
+
+  onTap(p) {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    const i = this.snailAt(p.x, p.y);
+    girl.faceToward(this.snails[i].x);
+    if (girl.onFeet) {
+      girl.act('cheer', 0.6);
+    }
+    girl.say('heart', 1);
+    if (this.racing) {
+      engine.audio.play('tap');
+      return;
+    }
+    engine.audio.play('cheer');
+    this.go(i);
+  }
+
+  // Off they go, `i` the one she cheered on. Who'll win, and how long each
+  // takes, is settled at the off; `bend` is how much each surges ahead and
+  // drops back along the way (opposite ways, so they overtake each other).
+  go(i) {
+    this.racing = true;
+    this.cheered = i;
+    this.winner = null;
+    this.t = 0;
+    this.after = 0;
+    const wins = Math.random() < CHEERED_WINS ? i : 1 - i;
+    const bend = Math.random() < 0.5 ? 0.6 : -0.6;
+    this.runs = this.snails.map((_, j) => (j === wins
+      ? { time: RACE_TIME, bend, done: false }
+      : { time: RACE_TIME + 0.6 + Math.random() * 0.8, bend: -bend, done: false }));
+  }
+
+  // How far along (0..1) a snail is `u` of the way through its run: never
+  // going backwards, as 1 + bend * cos(...) is never below zero.
+  static along(u, bend) {
+    return u + (bend / (2 * Math.PI)) * Math.sin(2 * Math.PI * u);
+  }
+
+  finished(i) {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    if (this.winner !== null) {
+      return;
+    }
+    this.winner = i;
+    this.wonAt = this.t;
+    engine.audio.play('fanfare');
+    scene.sparkles(this.finish + 6, this.snails[i].y - 6, 6);
+    if (girl.mode === 'idle') {
+      girl.faceToward(this.finish);
+      if (i === this.cheered) {
+        girl.say('heart', 1.4);
+        girl.act('cheer', 0.8);
+      } else {
+        girl.say('star', 1.4);
+        girl.act('surprised', 0.8);
+      }
+    }
+  }
+
+  update(dt) {
+    if (!this.racing) {
+      return;
+    }
+    this.t += dt;
+    this.runs.forEach((run, i) => {
+      const sn = this.snails[i];
+      if (run.done) {
+        return;
+      }
+      const u = Math.min(1, this.t / run.time);
+      sn.x = this.start + (this.finish - this.start) * SnailRace.along(u, run.bend);
+      sn.crawl += dt;
+      if (u >= 1) {
+        run.done = true;
+        sn.x = this.finish;
+        this.finished(i);
+      }
+    });
+    if (!this.runs.every((run) => run.done)) {
+      return;
+    }
+    // Both over the line: a wait, then fade away and back at the start.
+    this.after += dt;
+    const k = (this.after - RESET_AFTER) / FADE;
+    if (k <= 0) {
+      return;
+    }
+    if (k < 1) {
+      this.setAlpha(1 - k);
+    } else if (k < 2) {
+      for (const sn of this.snails) {
+        sn.x = this.start;
+      }
+      this.winner = null;
+      this.setAlpha(k - 1);
+    } else {
+      this.setAlpha(1);
+      this.racing = false;
+      this.cheered = null;
+    }
+  }
+
+  setAlpha(a) {
+    for (const sn of this.snails) {
+      sn.alpha = a;
+    }
+  }
+
+  draw(r) {
+    const [back, front] = this.lanes;
+    // The twig start line, just in front of their noses, and a row of pebbles at the finish.
+    r.rect(this.start + 6, back - 3, 1, front - back + 5, MG.twig);
+    r.rect(this.start + 7, back - 2, 1, 1, MG.moss);
+    for (let y = back - 2; y <= front + 1; y += 2) {
+      r.rect(this.finish + 6, y, 1, 1, '#ffffff', 0.6);
+    }
+    this.snails.forEach((sn, i) => {
+      const moving = this.racing && !this.runs[i].done;
+      const frame = moving && Math.floor(sn.crawl * 4) % 2 ? 'b' : 'a';
+      r.image(this.imgs[i][frame], Math.round(sn.x), sn.y + 1, { alpha: sn.alpha });
+    });
+    // The winner's tiny flag, popping up at the finish.
+    if (this.winner !== null) {
+      const y = this.snails[this.winner].y;
+      const h = Math.round(8 * Math.min(1, (this.t - this.wonAt) * 4));
+      const { alpha } = this.snails[this.winner];
+      if (h > 0) {
+        r.rect(this.finish + 8, y - h, 1, h, '#ffffff', alpha);
+        r.rect(this.finish + 9, y - h, 3, 2, MG.flag, alpha);
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------- hollow log
+// A hollow log lying along the front of the floor. Tap it and she goes to the
+// nearer end, crawls in (rustling and bumping about inside), and pops out of
+// the other end. Sometimes a beetle or a hedgehog scuttles out of that end
+// first and runs off. None of it is ever saved.
+const CRITTER_CHANCE = 0.4;
+const CRITTER_SPEED = 45;
+const CRITTER_LIFE = 2; // seconds it's seen running off for
+
+export class HollowLog {
+  constructor(assets) {
+    this.img = assets.hollowLog;
+    this.critterImgs = assets.logCritters;
+    Object.assign(this, MUSHROOM_GROVE.log);
+    this.priority = -1; // anyone in front of it wins a tap
+    this.bump = 0; // a jolt when she knocks about inside it
+    this.critter = null; // { kind, x, y, dir, age } running off
+    this.busy = false;
+  }
+
+  get depth() {
+    return this.y;
+  }
+
+  // By the nearer end.
+  get spot() {
+    return clampToFloor(this.x + herSide(this.scene, this.x) * (this.hl + 8), this.y, this.scene.width);
+  }
+
+  hitTest(px, py) {
+    return Math.abs(px - this.x) <= this.hl + 2 && py >= this.y - 14 && py <= this.y + 2;
+  }
+
+  onTap() {
+    const { scene } = this;
+    scene.engine.audio.play('tap');
+    this.knock();
+    if (!scene.busy && !this.busy) {
+      scene.interact(this);
+    }
+  }
+
+  knock() {
+    const { tweens } = this.scene.engine;
+    tweens.cancel(this);
+    this.bump = 1;
+    tweens.to(this, { bump: 0 }, 0.3, ease.outQuad);
+  }
+
+  async use() {
+    if (this.busy) {
+      return;
+    }
+    this.busy = true;
+    const { scene } = this;
+    const { engine, girl } = scene;
+    const { tweens } = engine;
+    const side = girl.x < this.x ? -1 : 1; // the end she goes in at
+    const out = -side;
+    const critter = Math.random() < CRITTER_CHANCE ? (Math.random() < 0.5 ? 'beetle' : 'hedgehog') : null;
+    try {
+      await scene.scripted(async () => {
+        // Down on hands and knees, and in (just behind the log's front, so it hides her).
+        girl.mode = 'act';
+        girl.pose = { frame: 'reach', token: {} };
+        girl.faceToward(this.x);
+        await tweens.to(girl, { x: this.x + side * this.hl, y: this.y - 1 }, 0.3, ease.linear);
+        engine.audio.play('rustle');
+        await tweens.to(girl, { x: this.x + side * (this.hl - 6), alpha: 0 }, 0.3, ease.linear);
+        // Bumping along inside.
+        for (let i = 0; i < 3; i++) {
+          girl.x = this.x + side * (this.hl - 6) * (1 - (i + 1) / 2);
+          this.knock();
+          engine.audio.play('logknock');
+          await engine.wait(0.35);
+        }
+        if (critter) {
+          this.critter = { kind: critter, x: this.x + out * this.hl, y: this.y, dir: out, age: 0 };
+          engine.audio.play(critter === 'beetle' ? 'scuttle' : 'sniff');
+          await engine.wait(0.5);
+        }
+        // And out the other end.
+        girl.x = this.x + out * (this.hl - 6);
+        girl.facing = out;
+        engine.audio.play('rustle');
+        await tweens.to(girl, { x: this.x + out * this.hl, alpha: 1 }, 0.3, ease.linear);
+        const off = clampToFloor(this.x + out * (this.hl + 8), this.y, scene.width);
+        await tweens.to(girl, off, 0.25, ease.linear);
+        engine.audio.play('pop');
+        scene.dust(girl.x, girl.y);
+      });
+    } finally {
+      girl.alpha = 1;
+      girl.pose = null;
+      girl.mode = 'idle';
+      this.busy = false;
+    }
+    if (critter) {
+      girl.say('bang', 1.2);
+      girl.act('surprised', 0.8);
+    } else {
+      girl.say('star', 1.2);
+      girl.act('cheer', 0.8);
+      girl.hop(6);
+    }
+  }
+
+  update(dt) {
+    const c = this.critter;
+    if (!c) {
+      return;
+    }
+    c.age += dt;
+    c.x += c.dir * CRITTER_SPEED * dt;
+    if (c.age >= CRITTER_LIFE) {
+      this.critter = null;
+    }
+  }
+
+  draw(r) {
+    const { img } = this;
+    r.image(img, this.x, this.y + 1, { scaleX: 1 + this.bump * 0.03, scaleY: 1 - this.bump * 0.06 });
+    const c = this.critter;
+    if (c) {
+      const frame = Math.floor(c.age * 10) % 2 ? 'b' : 'a';
+      const alpha = Math.min(1, (CRITTER_LIFE - c.age) * 2);
+      r.image(this.critterImgs[c.kind][frame], Math.round(c.x), c.y + 2, { flipX: c.dir < 0, alpha });
+    }
+  }
+}
+
 // --------------------------------------------------------------- fairy ring
 // A ring of tiny mushrooms on the floor. Whoever stands in it (her, or a
 // friend dropped in) shrinks right down with a twinkle, so everything else

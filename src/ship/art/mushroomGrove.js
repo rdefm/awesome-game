@@ -6,7 +6,8 @@ import { MUSHROOM_GROVE, W } from '../layout.js';
 // Everything painted for the mushroom grove on Bluebell: a shady corner of
 // the meadow with giant mushrooms towering far off, glowing moss, the giant
 // mushrooms close up to bounce on, the fairy ring, the glow pond and its
-// lilies, and the shy mushroom creature.
+// lilies, the racing snails, the hollow log and what scuttles out of it, and
+// the shy mushroom creature.
 
 export const MG = {
   moss: '#2f8f6a',
@@ -21,6 +22,22 @@ export const MG = {
   waterLight: '#3a6a7a',
   lily: '#f0c8ff',
   lilyShade: '#c890e8',
+  bark: '#8a5a3a',
+  barkDark: '#5e3a24',
+  hole: '#1a1018',
+  twig: '#a07040',
+  flag: '#ffd84a',
+  snailBody: '#e8dcc0',
+  snails: [
+    { shell: '#ff8ab8', swirl: '#c85088' },
+    { shell: '#7ab8ff', swirl: '#3a78c8' },
+  ],
+  beetle: '#3a5ad8',
+  beetleDark: '#1a2a6a',
+  beetleShine: '#a8c8ff',
+  hogSpines: '#7a5a3a',
+  hogTips: '#c8a878',
+  hogFace: '#e8c8a0',
   caps: [
     { cap: '#e8505a', shade: '#b8303c', light: '#ff8a8a', spot: '#ffffff' },
     { cap: '#9a6ae8', shade: '#6e44b8', light: '#c8a8ff', spot: '#9dffd8' },
@@ -175,6 +192,86 @@ export function drawGlowLily() {
   pm.rect(5, 2, 3, 2, MG.glow);
   pm.set(6, 2, '#ffffff');
   return pm;
+}
+
+// A racing snail, facing right, sitting on its bottom row: a swirly shell
+// (pink for variant 0, blue for 1) on a soft body with two little stalks.
+// frame: 'a' (bunched up) | 'b' (stretched out, mid-crawl).
+export function drawSnail(variant = 0, frame = 'a') {
+  const k = MG.snails[variant];
+  const stretch = frame === 'b' ? 1 : 0;
+  const pm = new Pixmap(11, 8);
+  pm.rect(1 - stretch, 6, 8 + stretch * 2, 2, MG.snailBody);
+  pm.rect(7 + stretch, 4, 2, 2, MG.snailBody);
+  pm.set(8 + stretch, 2, MG.snailBody);
+  pm.set(8 + stretch, 3, MG.snailBody);
+  pm.set(9 + stretch, 2, MG.snailBody);
+  pm.set(9 + stretch, 3, MG.snailBody);
+  pm.set(9 + stretch, 1, C.outline);
+  pm.circle(4, 3.5, 3, k.shell);
+  pm.set(4, 3, k.swirl);
+  pm.hline(3, 5, 4, k.swirl);
+  pm.set(5, 2, k.swirl);
+  pm.set(3, 1, '#ffffff');
+  return pm.outline(C.outline);
+}
+
+// The hollow log, lying on its bottom row along the floor: 2 * hl long, bark
+// with moss along the top, and a dark hole at either end.
+export function drawHollowLog() {
+  const { hl } = MUSHROOM_GROVE.log;
+  const w = hl * 2 + 3;
+  const pm = new Pixmap(w, 13);
+  pm.rect(2, 2, w - 4, 10, MG.bark);
+  pm.dither(2, 8, w - 4, 4, MG.barkDark, 0.5);
+  for (const x of [7, 13, 20, 26]) {
+    pm.hline(x, x + 3, 5 + (x % 3), MG.barkDark);
+  }
+  pm.hline(3, w - 4, 2, MG.moss);
+  pm.dither(4, 1, w - 8, 2, MG.glowDeep, 0.4);
+  // The open ends: rings of pale wood round dark holes.
+  for (const x of [2, w - 3]) {
+    pm.ellipse(x, 7, 2, 5, MG.stemShade);
+    pm.ellipse(x, 7, 1, 4, MG.hole);
+  }
+  // A little mushroom growing out of the top.
+  pm.vline(hl + 4, 0, 1, MG.stem);
+  pm.hline(hl + 3, hl + 5, 0, MG.caps[0].cap);
+  return pm.outline(C.outline);
+}
+
+// A shiny little beetle, facing right, legs in or out (frame 'a' | 'b').
+export function drawBeetle(frame = 'a') {
+  const pm = new Pixmap(9, 6);
+  const out = frame === 'b' ? 1 : 0;
+  for (const x of [2, 4, 6]) {
+    pm.set(x + (x === 4 ? out : -out), 5, MG.beetleDark);
+  }
+  pm.ellipse(4, 3, 3, 2, MG.beetle);
+  pm.vline(4, 1, 4, MG.beetleDark);
+  pm.rect(7, 2, 2, 2, MG.beetleDark);
+  pm.set(3, 2, MG.beetleShine);
+  return pm.outline(C.outline);
+}
+
+// A round little hedgehog, facing right, mid-scuttle (frame 'a' | 'b').
+export function drawHedgehog(frame = 'a') {
+  const pm = new Pixmap(14, 10);
+  const step = frame === 'b' ? 1 : 0;
+  pm.rect(3 + step, 8, 2, 2, MG.hogFace);
+  pm.rect(8 - step, 8, 2, 2, MG.hogFace);
+  pm.ellipse(6, 5, 5, 3.5, MG.hogSpines);
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 11; x++) {
+      if (pm.isSet(x, y) && bayer(x, y) < 0.4) {
+        pm.set(x, y, MG.hogTips);
+      }
+    }
+  }
+  pm.ellipse(10, 6, 2.5, 2, MG.hogFace);
+  pm.set(13, 6, C.outline);
+  pm.set(10, 5, C.outline);
+  return pm.outline(C.outline);
 }
 
 // The shy mushroom creature: a little round fellow with a spotted cap and

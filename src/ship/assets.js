@@ -70,7 +70,8 @@ import {
 } from './art/townMap.js';
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import {
-  drawBounceShroom, drawFairyRing, drawGlowLily, drawGlowPond, drawMushroomCreature, drawMushroomGrove,
+  drawBeetle, drawBounceShroom, drawFairyRing, drawGlowLily, drawGlowPond, drawHedgehog, drawHollowLog,
+  drawMushroomCreature, drawMushroomGrove, drawSnail,
 } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import {
@@ -428,11 +429,18 @@ export function loadAssets() {
       ['stand', 'step', 'blink', 'belly'].map((f) => [f, drawSnowCritter(f, v)]),
     ))),
     // The mushroom grove on Bluebell: the bouncy mushrooms, the fairy ring, the
-    // glow pond and its lilies, and the shy creature.
+    // glow pond and its lilies, the racing snails, the hollow log and what
+    // scuttles out of it, and the shy creature.
     bounceShrooms: bake([drawBounceShroom(0), drawBounceShroom(1)]),
     fairyRing: bake(drawFairyRing()),
     glowPond: bake(drawGlowPond()),
     glowLily: bake(drawGlowLily()),
+    snails: [0, 1].map((v) => bake({ a: drawSnail(v, 'a'), b: drawSnail(v, 'b') })),
+    hollowLog: bake(drawHollowLog()),
+    logCritters: bake({
+      beetle: { a: drawBeetle('a'), b: drawBeetle('b') },
+      hedgehog: { a: drawHedgehog('a'), b: drawHedgehog('b') },
+    }),
     shroomCreature: bake(Object.fromEntries(
       ['idle', 'blink', 'peek', 'hide', 'dance1', 'dance2', 'wave1', 'wave2', 'hop', 'walk'].map((f) => [f, drawMushroomCreature(f)]),
     )),

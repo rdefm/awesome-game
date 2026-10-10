@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isFriend, makeCarryable } from '../kinds.js';
+import { MUSHROOM_GROVE } from '../layout.js';
 import { TALKS } from '../talks/index.js';
 import { defaultWorld, find, normalizeWorld } from '../world.js';
 import { isFriendItem } from './friends.js';
 import { Girl } from './girl.js';
-import { FairyRing, GlowPond, MAX_LILIES, MushroomCreature, Spores, TINY } from './mushroomGrove.js';
+import {
+  FairyRing, GlowPond, HollowLog, MAX_LILIES, MushroomCreature, SnailRace, Spores, TINY,
+} from './mushroomGrove.js';
+
+const RACE = MUSHROOM_GROVE.race;
 
 const assets = { shroomCreature: {}, girl: () => ({}), emotes: {}, snacks: {} };
 
@@ -307,5 +312,120 @@ describe('the glow pond', () => {
   it("isn't saved: an old save of the grove loads with nothing new in it", () => {
     const old = { placed: { bluebell: [], mushroomgrove: [] }, bag: [] };
     expect(normalizeWorld(old).placed.mushroomgrove.map((e) => e.kind)).toEqual(['shroom']);
+  });
+});
+
+describe('the snail race', () => {
+  function withRace() {
+    const s = setup(1);
+    const race = new SnailRace({});
+    race.scene = s.scene;
+    s.scene.entities.push(race);
+    const run = (seconds) => {
+      for (let t = 0; t < seconds; t += 0.05) {
+        race.update(0.05);
+      }
+    };
+    return { ...s, race, run };
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('waits at the start line until a snail is tapped', () => {
+    const { race, run } = withRace();
+    run(5);
+    expect(race.snails.map((sn) => sn.x)).toEqual([RACE.start, RACE.start]);
+    expect(race.hitTest(RACE.start, RACE.lanes[0] - 2)).toBe(true);
+    expect(race.hitTest(RACE.start, RACE.lanes[0] - 30)).toBe(false);
+  });
+
+  it('sets both off when one is cheered, and the cheered one usually wins, with a fanfare', () => {
+    const { scene, race, run } = withRace();
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    race.onTap({ x: RACE.start, y: RACE.lanes[1] - 2 });
+    expect(race.cheered).toBe(1);
+    run(1);
+    expect(race.snails.every((sn) => sn.x > RACE.start)).toBe(true);
+    run(8.5); // both over the line, not yet back at the start
+    expect(race.winner).toBe(1);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('fanfare');
+  });
+
+  it("doesn't always let the cheered one win", () => {
+    const { race, run } = withRace();
+    vi.spyOn(Math, 'random').mockReturnValue(0.95);
+    race.onTap({ x: RACE.start, y: RACE.lanes[0] - 2 });
+    run(8.5);
+    expect(race.winner).toBe(1);
+  });
+
+  it('never goes backwards, and both go back to the start line for another go', () => {
+    const { race, run } = withRace();
+    race.onTap({ x: RACE.start, y: RACE.lanes[0] - 2 });
+    let last = race.snails.map((sn) => sn.x);
+    for (let i = 0; i < 200 && race.racing; i++) {
+      run(0.05);
+      race.snails.forEach((sn, j) => expect(sn.x).toBeGreaterThanOrEqual(last[j]));
+      last = race.snails.map((sn) => sn.x);
+    }
+    expect(race.snails.every((sn) => sn.x === RACE.finish)).toBe(true);
+    run(10);
+    expect(race.racing).toBe(false);
+    expect(race.winner).toBe(null);
+    expect(race.snails.map((sn) => sn.x)).toEqual([RACE.start, RACE.start]);
+    expect(race.snails.every((sn) => sn.alpha === 1)).toBe(true);
+  });
+});
+
+describe('the hollow log', () => {
+  function withLog() {
+    const s = setup(1);
+    s.scene.scripted = (run) => run();
+    s.scene.dust = vi.fn();
+    const log = new HollowLog({ logCritters: {} });
+    log.scene = s.scene;
+    s.scene.entities.push(log);
+    return { ...s, log };
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('sends her to the nearer end', () => {
+    const { girl, log } = withLog();
+    girl.x = log.x - 60;
+    expect(log.spot.x).toBeLessThan(log.x - log.hl);
+    girl.x = log.x + 60;
+    expect(log.spot.x).toBeGreaterThan(log.x + log.hl);
+  });
+
+  it('has her crawl in one end and pop out of the other', async () => {
+    const { girl, log } = withLog();
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    girl.x = log.x - log.hl - 8;
+    girl.y = log.y;
+    await log.use();
+    expect(girl.x).toBeGreaterThan(log.x + log.hl);
+    expect(girl.alpha).toBe(1);
+    expect(girl.onFeet).toBe(true);
+    expect(log.critter).toBe(null);
+  });
+
+  it('sometimes has a beetle or a hedgehog scuttle out of the far end first, which runs off', async () => {
+    const { girl, log } = withLog();
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    girl.x = log.x + log.hl + 8;
+    girl.y = log.y;
+    await log.use();
+    expect(['beetle', 'hedgehog']).toContain(log.critter.kind);
+    expect(log.critter.dir).toBe(-1);
+    expect(girl.x).toBeLessThan(log.x - log.hl);
+    for (let t = 0; t < 5; t += 0.05) {
+      log.update(0.05);
+    }
+    expect(log.critter).toBe(null);
   });
 });
