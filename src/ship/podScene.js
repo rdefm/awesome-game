@@ -4,11 +4,13 @@ import {
 } from './entities/pod.js';
 import { IndoorScene } from './indoorScene.js';
 import { isFriend } from './kinds.js';
+import { isNight } from './night.js';
 import { loadSave, writeSave } from './save.js';
 import { find } from './world.js';
 
 // Inside the pink alien's pod on Bluebell: a cosy round room, with a
-// telescope pointing up at a window where the stars come out, a seed tray
+// telescope pointing up at a window where the stars come out (and are
+// out all along when it's night on Bluebell, see night.js), a seed tray
 // to water and watch sprout, a bubble bath, a bed nook to nap in, a pantry
 // cupboard of snacks, a kettle on a stove, a chest of drawers with little
 // things tucked away in it, a pull-cord that changes the colour of the
@@ -23,11 +25,12 @@ export class PodScene extends IndoorScene {
       outside: () => new BluebellScene(assets, { fromHouse: true }),
       fromDoor,
     });
-    const pod = normalizePod(loadSave().pod);
+    const save = loadSave();
+    const pod = normalizePod(save.pod);
     this.cord = this.add(new LightCord(assets, pod.lights));
     this.frame = this.add(new PhotoFrame(assets, pod.photo));
     this.add(new Dresser(assets));
-    this.add(new Telescope(assets));
+    this.add(new Telescope(assets, { nightOut: isNight(save) }));
     this.add(new SeedTray(assets));
     this.add(new Kettle(assets));
     this.add(new Pantry(assets));

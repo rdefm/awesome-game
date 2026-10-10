@@ -2,6 +2,7 @@ import { ease } from '../../engine/tween.js';
 import { MG } from '../art/mushroomGrove.js';
 import { offerChat } from '../chat.js';
 import { MUSHROOM_GROVE, W, spooks } from '../layout.js';
+import { softGlow } from '../night.js';
 import { SHROOM } from '../talks/shroom.js';
 import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
@@ -112,6 +113,13 @@ export class BounceShroom {
   draw(r) {
     r.image(this.img, this.x, this.y + 1, { scaleX: 1 + this.squash * 0.1, scaleY: 1 - this.squash * 0.14 });
   }
+
+  // At night its cap glows, brighter for a moment after a bounce.
+  drawGlow(r, dusk) {
+    const t = this.scene.engine.time;
+    const k = 0.22 + 0.05 * Math.sin(t * 0.9 + this.variant * 2) + 0.15 * this.squash;
+    softGlow(r, this.x, this.y - this.top * (1 - this.squash * 0.14), this.rx + 6, MG.glowDeep, dusk * k);
+  }
 }
 
 // ------------------------------------------------------------------- spores
@@ -144,6 +152,12 @@ export class Spores {
 
   pos(m, t) {
     return { x: m.x + Math.sin(t * 0.8 + m.phase) * 5, y: m.base - m.k * 70 };
+  }
+
+  // How brightly mote `m` shows at time `t`: fading in as it leaves the moss
+  // and out as it nears the treetops, and twinkling.
+  shine(m, t) {
+    return { fade: Math.min(1, m.k * 6, (1 - m.k) * 4), twinkle: 0.55 + 0.45 * Math.sin(t * 3 + m.phase * 2) };
   }
 
   nearest(px, py) {
@@ -206,8 +220,7 @@ export class Spores {
     const t = this.scene.engine.time;
     for (const m of this.motes) {
       const { x, y } = this.pos(m, t);
-      const fade = Math.min(1, m.k * 6, (1 - m.k) * 4);
-      const twinkle = 0.55 + 0.45 * Math.sin(t * 3 + m.phase * 2);
+      const { fade, twinkle } = this.shine(m, t);
       const px = Math.round(x);
       const py = Math.round(y);
       const glow = Math.max(twinkle, m.lit);
@@ -217,6 +230,17 @@ export class Spores {
         r.rect(px - 2, py, 5, 1, '#ffffff', m.lit * 0.8);
         r.rect(px, py - 2, 1, 5, '#ffffff', m.lit * 0.8);
       }
+    }
+  }
+
+  // At night they shine out brighter, each with a wider halo.
+  drawGlow(r, dusk) {
+    const t = this.scene.engine.time;
+    for (const m of this.motes) {
+      const { x, y } = this.pos(m, t);
+      const { fade, twinkle } = this.shine(m, t);
+      softGlow(r, x, y, 4, MG.glowDeep, dusk * fade * 0.5 * Math.max(twinkle, m.lit));
+      r.rect(Math.round(x), Math.round(y), 1, 1, MG.glow, dusk * fade);
     }
   }
 }
@@ -351,6 +375,22 @@ export class GlowPond {
       const pulse = 0.85 + 0.15 * Math.sin(l.age * 3);
       r.rect(Math.round(l.x) - 4, Math.round(l.y) - 5, 9, 6, MG.glowDeep, 0.2 * open * pulse);
       r.image(this.lilyImg, l.x, l.y + 1, { scaleX: 0.4 + 0.6 * open, scaleY: open, alpha: Math.min(1, open * 1.5) });
+    }
+  }
+
+  // At night the water itself glows faintly, and its glowing fish and lilies
+  // shine out brightly.
+  drawGlow(r, dusk) {
+    softGlow(r, this.x, this.y, this.rx, MG.glowDeep, dusk * 0.15);
+    for (const f of this.fish) {
+      if (f.glow > 0) {
+        const { x, y } = this.fishPos(f);
+        softGlow(r, x, y, 5, MG.glow, dusk * 0.5 * f.glow);
+      }
+    }
+    for (const l of this.lilies) {
+      const open = Math.min(1, l.age * 2, (LILY_LIFE - l.age) / 1.5);
+      softGlow(r, l.x, l.y - 2, 7, MG.lily, dusk * 0.35 * open);
     }
   }
 }
@@ -920,6 +960,13 @@ export class SporeJar {
       r.rect(Math.round(x), Math.round(y), 1, 1, MG.glow);
     }
   }
+
+  // At night the spores in it glow out through the glass.
+  drawGlow(r, dusk) {
+    if (this.here && this.fill > 0) {
+      softGlow(r, this.x, this.y - 6, 9, MG.glowDeep, dusk * 0.25 * (this.fill / LANTERN_SPORES));
+    }
+  }
 }
 
 // ----------------------------------------------------------- spore lantern
@@ -960,6 +1007,11 @@ export class SporeLantern extends Carryable {
     r.rect(cx - reach, cy - reach, reach * 2 + 1, reach * 2 + 1, MG.glowDeep, glow * 0.5);
     r.rect(cx - reach + 3, cy - reach + 3, reach * 2 - 5, reach * 2 - 5, MG.glow, glow * 0.5);
     r.image(this.img, this.x, this.y + 1, { scaleX: this.bounce, scaleY: 2 - this.bounce });
+  }
+
+  // At night it lights up everything round it.
+  drawGlow(r, dusk) {
+    softGlow(r, this.x, this.y - 7, 16 + Math.round(6 * this.pulse), MG.glow, dusk * (0.3 + 0.3 * this.pulse));
   }
 }
 

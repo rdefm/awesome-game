@@ -74,6 +74,9 @@ export const DANDELION = { x: 362, y: 121 };
 // The kite lying in the grass at the front of the far stretch (bottom-centre),
 // below the puffball burrow.
 export const KITE = { x: 304, y: 152 };
+// The moonflower on the far stretch (bottom-centre of its stem), between two
+// giant bluebells at the back, behind the picnic: tap it for night (see night.js).
+export const MOONFLOWER = { x: 418, y: 122 };
 // The little rain cloud floating low over the near end of the meadow (its
 // middle), how far either side of that it rains, where a tap catches it
 // (half its width and height), and the puddle the rain leaves on the grass

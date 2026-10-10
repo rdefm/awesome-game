@@ -15,7 +15,7 @@ import {
 } from './art/shipRooms.js';
 import {
   BABY_PUFF_COLORS, BIRD_COLORS, BUG_KINDS, BUTTERFLY_COLORS, cropTop, drawBabyPuff, drawBell, drawBird,
-  drawBluebellStem, drawDandelionFluff, drawDandelionSeed, drawDandelionStalk, drawKite, drawKiteBow, drawKiteLying, drawKiteReel, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawPicnicBasket,
+  drawBluebellStem, drawDandelionFluff, drawDandelionSeed, drawDandelionStalk, drawKite, drawKiteBow, drawKiteLying, drawKiteReel, drawStreamStone, drawBug, drawBurrow, drawBush, drawButterfly, drawCloud, drawCritter, drawFlame, drawHole, drawLocal, drawMeadow, drawMole, drawMoonflower, drawPicnicBasket,
   drawPicnicBlanket, drawPosy, drawPosyPatch, drawPuddle, drawRainCloud, drawRainbow, drawRock, drawShipExterior, drawSoilPatch, drawStream,
 } from './art/bluebell.js';
 import {
@@ -342,6 +342,8 @@ export function loadAssets() {
     streamStone: bake([drawStreamStone(), drawStreamStone(true)]),
     // The giant dandelion clock: its stalk (bald head and all), the fluff on it, and one seed.
     dandelion: bake({ stalk: drawDandelionStalk(), fluff: drawDandelionFluff(), seed: drawDandelionSeed() }),
+    // The moonflower: a bud by day, open at night.
+    moonflower: bake({ closed: drawMoonflower(), open: drawMoonflower(true) }),
     // The kite: flying, lying in the grass, a bow off its tail, and its reel of string.
     kite: bake({ fly: drawKite(), lying: drawKiteLying(), bow: drawKiteBow(), reel: drawKiteReel() }),
     // The little rain cloud (fluffy, and grey with rain), its rainbow, and the puddle it leaves.

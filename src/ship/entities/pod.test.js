@@ -204,6 +204,15 @@ describe('the telescope', () => {
     expect(played(scene, 'whoosh')).toHaveLength(1);
     expect(scope.looking).toBe(false);
   });
+
+  it("shows day in the window by day, and night when it's night out on Bluebell", async () => {
+    const { make } = setup();
+    expect(make(Telescope).sky).toBe(0);
+    const scope = make(Telescope, { nightOut: true });
+    expect(scope.sky).toBe(1);
+    await scope.use();
+    expect(scope.sky).toBe(1);
+  });
 });
 
 describe('the seed tray', () => {

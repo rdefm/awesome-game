@@ -15,7 +15,9 @@ import { loadSave, writeSave } from './save.js';
 // first), and a shy mushroom creature that hides under its cap when she
 // comes near (it lives in the world, see world.js, so that once it's her
 // friend she can take it anywhere). The ship isn't here, so the hoverbike
-// (parked on the left) is how she gets anywhere else.
+// (parked on the left) is how she gets anywhere else. When it's night on
+// Bluebell (see night.js) it's night here too, the mushrooms and spores
+// glowing brighter in the dark.
 export class MushroomGroveScene extends OutdoorScene {
   constructor(assets, opts) {
     super(assets, 'mushroomgrove', { ...opts, ship: false });

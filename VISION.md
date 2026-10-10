@@ -142,7 +142,13 @@ store.
   it bobs off downstream, out of sight, then washes up on the bank a moment
   later; drop a friend in and it paddles across to the far bank and shakes
   itself dry (either way it's saved on the bank straight away, so nothing's
-  ever lost)
+  ever lost). At the back behind the picnic stands a moonflower, a pale bud
+  by day: tap it and she touches it, it opens out wide, and dusk falls
+  slowly across Bluebell: the sky deepens, the stars come out, fireflies
+  drift blinking over the meadow and the giant bluebells glow faintly. Tap
+  it again and the sun comes up and it closes. Night is the same all over
+  Bluebell (in the grove, and in the pod's window too) and is saved, so it's
+  still night when she comes back (`night` in the save; day in older saves)
 - The mushroom grove on Bluebell (by hoverbike): a shady corner of the
   meadow under giant mushrooms. Two giant spotted mushrooms to bounce on
   (she hops up on the cap and bounces higher each time, the cap squashing
@@ -179,11 +185,15 @@ store.
   and take it anywhere, sit it in chairs, feed it snacks and give it hats.
   Tapped, it ducks under its cap in a fit of giggles, peeks out and does its
   little dance, then has a shy, whispery chat about being shy and about the
-  grove (missing the glowing moss a little when it's far from home)
+  grove (missing the glowing moss a little when it's far from home). When
+  it's night on Bluebell it's night here too, the bounce mushrooms, the
+  spores, the glow pond, the jar and any spore lantern glowing brighter in
+  the dark
 - Inside the pod: a cosy round room, ribbed like a seed pod and strung with
   little lights. A telescope pointing up at a round window: look through it
   and night falls in the window, the stars come out and twinkle, and a
-  shooting star streaks across; a seed tray on a little table to water, a
+  shooting star streaks across (when it's night outside, the window's
+  starry all along); a seed tray on a little table to water, a
   stage at a time, from seeds to shoots to leaves to tiny bluebells in
   flower (tap it in flower and the bluebells ring, she lifts one out in a
   little clay pot, then the others' seeds blow off to start again: the

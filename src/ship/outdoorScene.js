@@ -4,6 +4,7 @@ import { Girl, clampToFloor } from './entities/girl.js';
 import { Hoverbike } from './entities/hoverbike.js';
 import { ParkedShip } from './entities/outdoors.js';
 import { HOVERBIKE, PARKED_SHIP, distanceScale } from './layout.js';
+import { DUSK_FADE, drawNightShade, drawNightSky, isNight, nightFalls } from './night.js';
 import { arrivingBy, planetScene, tuneOf } from './planetScenes.js';
 import { BLOCK_INPUT, PlayScene } from './playScene.js';
 import { loadSave, writeSave } from './save.js';
@@ -18,6 +19,7 @@ const PATH_SPEED = 44; // game px per second up a house's path, at full size (sl
 // place's id (see planetScenes.js): the planet's id at its landing site.
 // Some places have a house far off at the back to visit (see `addHouse`),
 // and some a hoverbike to ride to the planet's other places (see `addBike`).
+// On Bluebell, it can be night (see night.js and `fadeNight`).
 // Subclasses add their own things, then `addGirl()` last.
 export class OutdoorScene extends PlayScene {
   // `fromShip`: she's just walked out of the door (rather than a reload).
@@ -37,6 +39,8 @@ export class OutdoorScene extends PlayScene {
     this.ship = ship ? this.add(new ParkedShip(assets)) : null;
     this.house = null;
     this.bike = null;
+    this.night = nightFalls(where) && isNight(loadSave());
+    this.dusk = this.night ? 1 : 0; // how far night has fallen (0 = broad day)
   }
 
   // A house far off at the back (a FarHouse); `inside(opts)` builds the scene
@@ -192,12 +196,32 @@ export class OutdoorScene extends PlayScene {
     girl.say('heart');
   }
 
+  // Night falls (or the sun comes up, `night` false), fading over a few
+  // seconds; it's saved straight away, so it stays wherever she goes next.
+  async fadeNight(night) {
+    this.night = night;
+    writeSave({ ...loadSave(), night });
+    await this.engine.tweens.to(this, { dusk: night ? 1 : 0 }, DUSK_FADE, ease.inOutSine);
+  }
+
   draw(r) {
+    const { dusk, width } = this;
+    const t = this.engine.time;
     this.inWorld(r, () => {
-      drawBackdrop(r, this.backdrop, this.engine.time);
+      drawBackdrop(r, this.backdrop, t);
+      drawNightSky(r, dusk, t, width);
       this.drawEntities(r);
       for (const e of this.entities) {
         e.drawOver?.(r);
+      }
+      // At night everything's dimmed, but whatever glows shines out over it.
+      if (dusk > 0) {
+        drawNightShade(r, dusk, width);
+        for (const e of this.entities) {
+          if (!e.held) {
+            e.drawGlow?.(r, dusk);
+          }
+        }
       }
       this.drawParticles(r);
     });

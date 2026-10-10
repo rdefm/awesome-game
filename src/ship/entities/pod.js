@@ -116,14 +116,16 @@ export class BubbleBath extends FriendBed {
 
 // The telescope, pointing up at the round window. Tap it and she looks
 // through it: night falls in the window, the stars come out and twinkle, a
-// shooting star streaks across, and then it's day again.
+// shooting star streaks across, and then it's day again. When it's night out
+// on Bluebell (`nightOut`, see ../night.js), the window's starry all along.
 export class Telescope extends HouseProp {
-  constructor(assets) {
+  constructor(assets, { nightOut = false } = {}) {
     super();
+    this.nightOut = nightOut ? 1 : 0;
     this.img = assets.telescope;
     this.nightSky = assets.nightSky;
     this.spot = TELESCOPE.spot;
-    this.night = 0; // 0 = day in the window, 1 = starry night
+    this.night = 0; // 0 = day in the window, 1 = starry night (while she looks)
     this.shooting = -1; // 0..1 across the window, or -1 for none
     this.looking = false;
     // Where the stars are, from the window's centre.
@@ -163,17 +165,23 @@ export class Telescope extends HouseProp {
     this.looking = false;
   }
 
+  // How starry the window is (0 = day).
+  get sky() {
+    return Math.max(this.night, this.nightOut);
+  }
+
   draw(r) {
     const { x, y, r: wr } = STAR_WINDOW;
-    if (this.night > 0) {
-      r.image(this.nightSky, x - wr, y - wr, { ax: 0, ay: 0, alpha: this.night });
+    const { sky } = this;
+    if (sky > 0) {
+      r.image(this.nightSky, x - wr, y - wr, { ax: 0, ay: 0, alpha: sky });
       const t = this.scene.engine.time;
       for (const s of this.stars) {
         const twinkle = 0.5 + 0.5 * Math.sin(t * 3 + s.phase);
-        r.pixel(x + s.x, y + s.y, '#ffffff', this.night * twinkle);
+        r.pixel(x + s.x, y + s.y, '#ffffff', sky * twinkle);
         if (twinkle > 0.8) {
-          r.pixel(x + s.x - 1, y + s.y, PD.glow, this.night * 0.5);
-          r.pixel(x + s.x + 1, y + s.y, PD.glow, this.night * 0.5);
+          r.pixel(x + s.x - 1, y + s.y, PD.glow, sky * 0.5);
+          r.pixel(x + s.x + 1, y + s.y, PD.glow, sky * 0.5);
         }
       }
     }

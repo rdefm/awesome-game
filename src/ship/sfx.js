@@ -203,6 +203,14 @@ export function defineSfx(audio) {
     s.tone({ at: t, freq: 2349, dur: 0.6, type: 'sine', vol: 0.04 });
     s.tone({ at: t + 0.15, freq: 1568, dur: 1, type: 'sine', vol: 0.07, attack: 0.02 });
   });
+  // The moonflower bringing night (a slow falling shimmer) and the sun back
+  // up (a bright rising one).
+  audio.define('dusk', (s, t) => {
+    [1568, 1319, 1047, 880, 659].forEach((f, i) => s.tone({ at: t + i * 0.16, freq: f, dur: 0.9, type: 'sine', vol: 0.06, attack: 0.08 }));
+  });
+  audio.define('dawn', (s, t) => {
+    [523, 659, 784, 1047, 1319].forEach((f, i) => s.tone({ at: t + i * 0.12, freq: f, dur: 0.7, type: 'triangle', vol: 0.06, attack: 0.04 }));
+  });
   // The hollow log in the grove: a hollow wooden knock as she bumps along
   // inside, and a beetle's quick little patter as it scuttles out.
   audio.define('logknock', (s, t) => {

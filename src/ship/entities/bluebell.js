@@ -3,6 +3,7 @@ import { BB, BUG_KINDS, STONE } from '../art/bluebell.js';
 import { POTTED } from '../art/pod.js';
 import { happened, offerChat } from '../chat.js';
 import { MEADOW_SECRETS, WALK } from '../layout.js';
+import { softGlow } from '../night.js';
 import { PINK_ALIEN } from '../talks/pinkAlien.js';
 import { PUFFBALL } from '../talks/puffball.js';
 import { Carryable } from './carryable.js';
@@ -14,7 +15,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ---------------------------------------------------------- giant bluebell
 // Tap one and its bells swing and chime. Each flower has its own note, so
-// tapping along the row plays a little tune.
+// tapping along the row plays a little tune. At night its bells glow faintly.
 export class Bluebell extends Carryable {
   // `state.v` picks both the stem shape and the note it rings.
   constructor(assets, state) {
@@ -83,6 +84,15 @@ export class Bluebell extends Carryable {
       const swing = Math.sin(this.swung * 14 + i * 1.3) * this.ring * 3 + sway;
       r.image(this.bellImg, this.x + h.x + swing, this.y + h.y, { ay: 0 });
     });
+  }
+
+  // At night its bells glow faintly (brighter while they ring).
+  drawGlow(r, dusk) {
+    const t = this.scene.engine.time;
+    const pulse = 0.18 + 0.04 * Math.sin(t * 1.1 + this.phase) + 0.2 * this.ring;
+    for (const h of this.stem.hang) {
+      softGlow(r, this.x + h.x, this.y + h.y + 3, 6, BB.bellHi, dusk * pulse);
+    }
   }
 }
 

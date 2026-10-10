@@ -889,3 +889,55 @@ export function drawLocal(frame = 'idle', hop = false) {
   }
   return pm.outline(C.outline);
 }
+
+// ---------------------------------------------------------------- moonflower
+// A tall flower with a pale twisted bud by day, which opens out wide at night
+// into a white trumpet with a yellow star in its throat (see Moonflower).
+export const MOON_PETALS = { petal: '#fbf8ff', shade: '#cfc8ee', crease: '#e2dcfa', eye: '#ffe066', eyeLight: '#fff6c0' };
+export const MOONFLOWER_H = 22; // from its foot to the top of the flower
+const MOONFLOWER_STEM = [
+  '......S......',
+  '......S......',
+  '......S......',
+  '..gg..S......',
+  '.gGGg.S......',
+  '..gGGSS......',
+  '......S......',
+  '......S..gg..',
+  '......SSGGGg.',
+  '......S.ggg..',
+  '......S......',
+  '......S......',
+  '.....SSS.....',
+];
+export function drawMoonflower(open = false) {
+  const flower = open
+    ? [
+      '....wwwww....',
+      '..wwWWWWWww..',
+      '.wWWWcWcWWWw.',
+      '.wWWWWyWWWWw.',
+      'wWcWWyYyWWcWw',
+      '.wWWWWyWWWWw.',
+      '.wWWWcWcWWWw.',
+      '..wwWWWWWww..',
+      '....wwSww....',
+    ]
+    : [
+      '.............',
+      '......w......',
+      '......W......',
+      '.....wW......',
+      '.....wWW.....',
+      '.....wWc.....',
+      '.....wWW.....',
+      '......wW.....',
+      '.....gSg.....',
+    ];
+  const pm = new Pixmap(15, MOONFLOWER_H + 2);
+  pm.grid([...flower, ...MOONFLOWER_STEM], {
+    w: MOON_PETALS.shade, W: MOON_PETALS.petal, c: MOON_PETALS.crease, y: MOON_PETALS.eye, Y: MOON_PETALS.eyeLight,
+    S: BB.stem, g: BB.grassDark, G: BB.grassLight,
+  }, 1, 1);
+  return pm.outline(C.outline);
+}
