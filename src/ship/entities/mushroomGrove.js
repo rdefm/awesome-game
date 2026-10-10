@@ -3,14 +3,15 @@ import { MG } from '../art/mushroomGrove.js';
 import { offerChat } from '../chat.js';
 import { MUSHROOM_GROVE, W, spooks } from '../layout.js';
 import { SHROOM } from '../talks/shroom.js';
+import { Carryable } from './carryable.js';
 import { hold, isFriendItem, letGo, play } from './friends.js';
 import { clampToFloor, herSide } from './girl.js';
 import { isSnack } from './items.js';
 import { Stroller } from './stroller.js';
 
 // The things at the mushroom grove on Bluebell. They all do something when
-// tapped; only the mushroom creature can ever be picked up (once it's her
-// friend).
+// tapped; only the mushroom creature (once it's her friend) and the spore
+// lanterns made in the jar can ever be picked up.
 
 // ---------------------------------------------------------- bounce mushroom
 // A giant spotted mushroom. Tap it and she hops up on the cap and bounces,
@@ -116,11 +117,13 @@ export class BounceShroom {
 // ------------------------------------------------------------------- spores
 // Glowing spores drifting up among the mushrooms, twinkling. Tap one and it
 // pops with a chime, a note and a burst of sparkles, lighting up the ones
-// near it; a new one drifts up from the moss in its place. One popped over
-// the glow `pond` blooms a lily on the water below it.
+// near it; a new one drifts up from the moss in its place. One popped near
+// the spore `jar` floats into it; one popped over the glow `pond` blooms a
+// lily on the water below it.
 export class Spores {
-  constructor(pond = null) {
+  constructor(pond = null, jar = null) {
     this.pond = pond;
+    this.jar = jar;
     this.depth = 400; // over most things
     this.priority = -2; // but anything else under the finger wins
     this.motes = Array.from({ length: 16 }, (_, i) => this.fresh(i / 16));
@@ -181,6 +184,9 @@ export class Spores {
       }
     }
     Object.assign(mote, this.fresh(0));
+    if (this.jar?.takeSpore(at)) {
+      return;
+    }
     if (this.pond?.over(at.x, at.y)) {
       this.pond.bloom(at.x);
     }
@@ -775,6 +781,185 @@ export class FairyRing {
   draw(r) {
     const { img } = this;
     r.image(img, this.x, this.y, { ax: Math.floor(img.width / 2) / img.width, ay: (img.height - this.ry - 3) / img.height });
+  }
+}
+
+// ---------------------------------------------------------------- spore jar
+// An empty glass jar standing in the grove. A spore popped near it (see
+// Spores) floats down into it and stays there, glowing; once it holds
+// LANTERN_SPORES it lights right up and turns into a spore lantern for her
+// to keep (see SporeLantern), and a while later a new empty jar turns up in
+// its place. How full it is is saved (`sporeJar` in the save).
+export const LANTERN_SPORES = 5;
+const JAR_FLOAT = 0.7; // seconds a spore takes to float in
+const NEW_JAR_AFTER = 20; // seconds
+export const LANTERN_OFFSET = { x: 14, y: 6 }; // where the lantern appears, from the jar
+
+// How many spores the jar holds, from the save (0 for old saves).
+export function normalizeJarFill(raw) {
+  return Number.isInteger(raw) && raw > 0 && raw < LANTERN_SPORES ? raw : 0;
+}
+
+export class SporeJar {
+  constructor(assets, fill = 0) {
+    this.img = assets.sporeJar;
+    Object.assign(this, MUSHROOM_GROVE.jar);
+    this.depth = this.y;
+    this.fill = normalizeJarFill(fill);
+    this.floating = []; // spores on their way in: { x, y, age } (where they were popped)
+    this.gone = 0; // seconds till a new jar turns up, once it's become a lantern
+    this.wobble = 0;
+  }
+
+  get here() {
+    return this.gone <= 0;
+  }
+
+  // The mouth of the jar, where spores drop in.
+  get mouth() {
+    return { x: this.x, y: this.y - 12 };
+  }
+
+  hitTest(px, py) {
+    return this.here && Math.abs(px - this.x) <= 7 && py >= this.y - 15 && py <= this.y + 2;
+  }
+
+  onTap() {
+    const { scene } = this;
+    scene.engine.audio.play('tap');
+    this.wobble = 1;
+    scene.sparkles(this.x, this.y - 6, 1 + this.fill);
+    scene.girl.faceToward(this.x);
+    scene.girl.say(this.fill ? 'star' : 'note', 1);
+  }
+
+  // A spore popped at `at`: if it's near and there's room, it floats in.
+  // Returns whether it did.
+  takeSpore(at) {
+    const room = this.fill + this.floating.length < LANTERN_SPORES;
+    if (!this.here || !room || Math.hypot(at.x - this.mouth.x, at.y - this.mouth.y) > this.reach) {
+      return false;
+    }
+    this.floating.push({ x: at.x, y: at.y, age: 0 });
+    return true;
+  }
+
+  floatPos(f) {
+    const k = ease.inOutSine(Math.min(1, f.age / JAR_FLOAT));
+    const { x, y } = this.mouth;
+    return { x: f.x + (x - f.x) * k + Math.sin(k * Math.PI) * 4, y: f.y + (y + 3 - f.y) * k };
+  }
+
+  update(dt) {
+    this.wobble = Math.max(0, this.wobble - dt * 2);
+    if (!this.here) {
+      this.gone -= dt;
+      if (this.here) {
+        this.scene.engine.audio.play('pop');
+        this.scene.sparkles(this.x, this.y - 6, 6);
+      }
+      return;
+    }
+    for (const f of this.floating) {
+      f.age += dt;
+    }
+    const landed = this.floating.filter((f) => f.age >= JAR_FLOAT);
+    if (landed.length === 0) {
+      return;
+    }
+    this.floating = this.floating.filter((f) => f.age < JAR_FLOAT);
+    this.fill += landed.length;
+    if (this.fill >= LANTERN_SPORES) {
+      this.light();
+    } else {
+      this.scene.engine.audio.play('plink');
+      this.scene.sparkles(this.mouth.x, this.mouth.y, 2);
+      this.scene.saveJar(this.fill);
+    }
+  }
+
+  // Full: it lights up and becomes a lantern, and the jar's gone for a while.
+  light() {
+    const { scene } = this;
+    scene.engine.audio.play('lanternlit');
+    scene.sparkles(this.x, this.y - 8, 10);
+    scene.bits(this.x, this.y - 8, 8, MG.glow);
+    // Just in front and to the side, clear of where the new jar will be.
+    scene.spawn('lantern', this.x - LANTERN_OFFSET.x, this.y + LANTERN_OFFSET.y);
+    this.fill = 0;
+    this.floating = [];
+    this.gone = NEW_JAR_AFTER;
+    scene.saveJar(0);
+    scene.girl.faceToward(this.x);
+    scene.girl.say('heart', 1.4);
+  }
+
+  draw(r) {
+    if (!this.here) {
+      return;
+    }
+    const t = this.scene.engine.time;
+    const shake = Math.round(Math.sin(t * 30) * this.wobble * 1.5);
+    r.rect(this.x - 4, this.y - 1, 9, 2, '#000000', 0.2);
+    // A soft glow round it, brighter the fuller it is.
+    if (this.fill > 0) {
+      const k = this.fill / LANTERN_SPORES;
+      r.rect(this.x - 6, this.y - 13, 13, 13, MG.glowDeep, 0.08 + 0.12 * k);
+    }
+    r.image(this.img, this.x + shake, this.y + 1);
+    // The spores inside, bobbing about.
+    for (let i = 0; i < this.fill; i++) {
+      const bob = Math.sin(t * 2 + i * 1.7);
+      const px = Math.round(this.x + shake - 2 + ((i * 3) % 5) + bob * 0.6);
+      const py = Math.round(this.y - 3 - ((i * 2) % 7) - bob);
+      r.rect(px, py, 1, 1, MG.glow, 0.7 + 0.3 * Math.sin(t * 3 + i));
+    }
+    for (const f of this.floating) {
+      const { x, y } = this.floatPos(f);
+      r.rect(Math.round(x) - 1, Math.round(y) - 1, 3, 3, MG.glowDeep, 0.35);
+      r.rect(Math.round(x), Math.round(y), 1, 1, MG.glow);
+    }
+  }
+}
+
+// ----------------------------------------------------------- spore lantern
+// A jar of glowing spores with a wire handle, made in the spore jar. It glows
+// softly wherever it's put; tap it and it pulses bright and chimes.
+export class SporeLantern extends Carryable {
+  constructor(assets, state) {
+    super(state);
+    this.img = assets.sporeLantern;
+    this.pulse = 0; // 1 just tapped, fading to 0
+  }
+
+  hitTest(px, py) {
+    return Math.abs(px - this.x) < 7 && py > this.y - 17 && py < this.y + 3;
+  }
+
+  onTap() {
+    const { engine, girl } = this.scene;
+    engine.audio.play('lanternchime');
+    this.boing(0.8);
+    this.pulse = 1;
+    this.scene.sparkles(this.x, this.y - 8, 5);
+    girl.faceToward(this.x);
+    girl.say('star', 1);
+  }
+
+  update(dt) {
+    this.pulse = Math.max(0, this.pulse - dt / 1.5);
+  }
+
+  draw(r) {
+    const t = this.scene.engine.time;
+    this.shadow(r, 10);
+    const glow = 0.12 + 0.04 * Math.sin(t * 1.5 + this.x * 0.1) + 0.25 * this.pulse;
+    const reach = 9 + Math.round(5 * this.pulse);
+    const cx = Math.round(this.x);
+    const cy = Math.round(this.y - 7);
+    r.rect(cx - reach, cy - reach, reach * 2 + 1, reach * 2 + 1, MG.glowDeep, glow * 0.5);
+    r.rect(cx - reach + 3, cy - reach + 3, reach * 2 - 5, reach * 2 - 5, MG.glow, glow * 0.5);
+    r.image(this.img, this.x, this.y + 1, { scaleX: this.bounce, scaleY: 2 - this.bounce });
   }
 }
 

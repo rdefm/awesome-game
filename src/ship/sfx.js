@@ -192,6 +192,17 @@ export function defineSfx(audio) {
   audio.define('bloom', (s, t) => {
     [1047, 1319, 1568, 2093].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, dur: 0.35, type: 'sine', vol: 0.06, attack: 0.03 }));
   });
+  // The spore jar lighting up into a lantern (a rising shimmer), and the
+  // lantern's soft chime when it's tapped.
+  audio.define('lanternlit', (s, t) => {
+    [784, 988, 1175, 1568, 1976, 2349].forEach((f, i) => s.tone({ at: t + i * 0.06, freq: f, dur: 0.5, type: 'sine', vol: 0.06, attack: 0.03 }));
+    s.noise({ at: t, dur: 0.6, filter: 'highpass', freq: 5000, vol: 0.03, attack: 0.2 });
+  });
+  audio.define('lanternchime', (s, t) => {
+    s.tone({ at: t, freq: 1175, dur: 1.2, type: 'sine', vol: 0.12, attack: 0.01 });
+    s.tone({ at: t, freq: 2349, dur: 0.6, type: 'sine', vol: 0.04 });
+    s.tone({ at: t + 0.15, freq: 1568, dur: 1, type: 'sine', vol: 0.07, attack: 0.02 });
+  });
   // The hollow log in the grove: a hollow wooden knock as she bumps along
   // inside, and a beetle's quick little patter as it scuttles out.
   audio.define('logknock', (s, t) => {

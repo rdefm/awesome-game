@@ -71,7 +71,7 @@ import {
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
 import {
   drawBeetle, drawBounceShroom, drawFairyRing, drawGlowLily, drawGlowPond, drawHedgehog, drawHollowLog,
-  drawMushroomCreature, drawMushroomGrove, drawSnail,
+  drawMushroomCreature, drawMushroomGrove, drawSnail, drawSporeJar, drawSporeLantern,
 } from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import {
@@ -430,13 +430,15 @@ export function loadAssets() {
     ))),
     // The mushroom grove on Bluebell: the bouncy mushrooms, the fairy ring, the
     // glow pond and its lilies, the racing snails, the hollow log and what
-    // scuttles out of it, and the shy creature.
+    // scuttles out of it, the spore jar and its lantern, and the shy creature.
     bounceShrooms: bake([drawBounceShroom(0), drawBounceShroom(1)]),
     fairyRing: bake(drawFairyRing()),
     glowPond: bake(drawGlowPond()),
     glowLily: bake(drawGlowLily()),
     snails: [0, 1].map((v) => bake({ a: drawSnail(v, 'a'), b: drawSnail(v, 'b') })),
     hollowLog: bake(drawHollowLog()),
+    sporeJar: bake(drawSporeJar()),
+    sporeLantern: bake(drawSporeLantern()),
     logCritters: bake({
       beetle: { a: drawBeetle('a'), b: drawBeetle('b') },
       hedgehog: { a: drawHedgehog('a'), b: drawHedgehog('b') },

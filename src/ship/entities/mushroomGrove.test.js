@@ -6,7 +6,8 @@ import { defaultWorld, find, normalizeWorld } from '../world.js';
 import { isFriendItem } from './friends.js';
 import { Girl } from './girl.js';
 import {
-  FairyRing, GlowPond, HollowLog, MAX_LILIES, MushroomCreature, SnailRace, Spores, TINY,
+  FairyRing, GlowPond, HollowLog, LANTERN_OFFSET, LANTERN_SPORES, MAX_LILIES, MushroomCreature, SnailRace, SporeJar, SporeLantern,
+  Spores, TINY, normalizeJarFill,
 } from './mushroomGrove.js';
 
 const RACE = MUSHROOM_GROVE.race;
@@ -427,5 +428,103 @@ describe('the hollow log', () => {
       log.update(0.05);
     }
     expect(log.critter).toBe(null);
+  });
+});
+
+describe('the spore jar', () => {
+  // The grove with the jar (holding `fill` spores already) and the pond in
+  // it, and the spores drifting about.
+  function withJar(fill = 0) {
+    const s = setup(1);
+    s.scene.engine.time = 0;
+    s.scene.saveJar = vi.fn();
+    s.scene.spawn = vi.fn((kind, x, y) => ({ kind, x, y }));
+    const pond = new GlowPond({});
+    const jar = new SporeJar({}, fill);
+    const spores = new Spores(pond, jar);
+    for (const e of [pond, jar, spores]) {
+      e.scene = s.scene;
+      s.scene.entities.push(e);
+    }
+    const run = (seconds) => {
+      for (let t = 0; t < seconds; t += 0.05) {
+        jar.update(0.05);
+      }
+    };
+    // Pops a spore hanging still at (x, y).
+    const pop = (x, y) => {
+      Object.assign(spores.motes[0], { x, base: y + 14, k: 0.2, phase: 0 });
+      spores.onTap({ x, y });
+    };
+    return { ...s, pond, jar, spores, run, pop };
+  }
+
+  it('remembers how full it was, and starts empty in an old save', () => {
+    expect(normalizeJarFill(undefined)).toBe(0);
+    expect(normalizeJarFill('lots')).toBe(0);
+    expect(normalizeJarFill(-1)).toBe(0);
+    expect(normalizeJarFill(LANTERN_SPORES)).toBe(0);
+    expect(normalizeJarFill(3)).toBe(3);
+    expect(withJar(3).jar.fill).toBe(3);
+  });
+
+  it('catches a spore popped near it, which floats in, and remembers it', () => {
+    const { scene, jar, run, pop } = withJar();
+    pop(jar.x + 10, jar.y - 30);
+    expect(jar.fill).toBe(0);
+    run(2);
+    expect(jar.fill).toBe(1);
+    expect(scene.saveJar).toHaveBeenCalledWith(1);
+  });
+
+  it("doesn't catch a spore popped far from it", () => {
+    const { scene, jar, pond, run, pop } = withJar();
+    pop(pond.x, pond.y - 20);
+    run(2);
+    expect(jar.fill).toBe(0);
+    expect(scene.saveJar).not.toHaveBeenCalled();
+  });
+
+  it(`glows and turns into a lantern at ${LANTERN_SPORES} spores, and a new empty jar turns up after a while`, () => {
+    const { scene, jar, run, pop } = withJar(LANTERN_SPORES - 2);
+    // Three popped at once: only as many as it has room for float in.
+    for (let i = 0; i < 3; i++) {
+      pop(jar.x, jar.y - 30);
+    }
+    run(2);
+    expect(scene.spawn).toHaveBeenCalledTimes(1);
+    expect(scene.spawn).toHaveBeenCalledWith('lantern', jar.x - LANTERN_OFFSET.x, jar.y + LANTERN_OFFSET.y);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('lanternlit');
+    expect(scene.saveJar).toHaveBeenLastCalledWith(0);
+    expect(jar.here).toBe(false);
+    expect(jar.hitTest(jar.x, jar.y - 6)).toBe(false);
+    // No catching spores while it's gone.
+    pop(jar.x, jar.y - 30);
+    run(2);
+    expect(jar.fill).toBe(0);
+    run(60);
+    expect(jar.here).toBe(true);
+    expect(jar.fill).toBe(0);
+    expect(jar.hitTest(jar.x, jar.y - 6)).toBe(true);
+  });
+});
+
+describe('the spore lantern', () => {
+  it('is a carryable thing (not a friend) she can take anywhere', () => {
+    expect(isFriend('lantern')).toBe(false);
+    expect(makeCarryable(assets, { id: 'lantern0', kind: 'lantern', x: 100, y: 140 })).toBeInstanceOf(SporeLantern);
+  });
+
+  it('pulses and chimes when tapped, then settles back to a soft glow', () => {
+    const { scene } = setup(1);
+    const lantern = new SporeLantern(assets, { id: 'lantern0', kind: 'lantern', x: 100, y: 140 });
+    lantern.scene = scene;
+    lantern.onTap();
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('lanternchime');
+    expect(lantern.pulse).toBeGreaterThan(0);
+    for (let t = 0; t < 5; t += 0.05) {
+      lantern.update(0.05);
+    }
+    expect(lantern.pulse).toBe(0);
   });
 });

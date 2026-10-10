@@ -210,6 +210,9 @@ export const MUSHROOM_GROVE = {
   // The hollow log, lying along the front of the floor: (x, y) the middle of
   // its bottom, `hl` from the middle to either open end.
   log: { x: 158, y: 151, hl: 15 },
+  // The spore jar, standing on the floor past the second bounce mushroom:
+  // spores popped within `reach` of it float in.
+  jar: { x: 232, y: 130, reach: 36 },
 };
 
 // Whether she's close enough to (x, y) that the shy creature there hides.

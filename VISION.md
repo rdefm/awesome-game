@@ -152,8 +152,13 @@ store.
   spread and glowing fish light up and dart about, slowing and fading out
   again, and pop a spore over it and a glowing water-lily blooms on the
   surface for a while, then closes up and fades (nothing about the pond is
-  saved); a fairy ring of tiny mushrooms on the floor: tap it and she steps
-  inside with a twinkle and shrinks right down tiny, so everything round her
+  saved); an empty glass jar standing on the floor: pop spores near it and
+  they float down into it and glow there, and when it holds five it lights
+  right up into a spore lantern to keep (how full the jar is is saved). The
+  lantern is a carryable like any other (into the bag, anywhere she likes):
+  it glows softly wherever it's put, and tapped it pulses bright and chimes.
+  A while after, a new empty jar turns up in its place; a fairy ring of tiny
+  mushrooms on the floor: tap it and she steps inside with a twinkle and shrinks right down tiny, so everything round her
   looks giant and her steps squeak; tap it again (or anywhere outside it)
   and she hops out and grows back with a pop. A friend dropped in shrinks
   too, and grows back when it's picked up. Being tiny is never saved:

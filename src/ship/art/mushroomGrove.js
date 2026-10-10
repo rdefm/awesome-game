@@ -6,8 +6,8 @@ import { MUSHROOM_GROVE, W } from '../layout.js';
 // Everything painted for the mushroom grove on Bluebell: a shady corner of
 // the meadow with giant mushrooms towering far off, glowing moss, the giant
 // mushrooms close up to bounce on, the fairy ring, the glow pond and its
-// lilies, the racing snails, the hollow log and what scuttles out of it, and
-// the shy mushroom creature.
+// lilies, the racing snails, the hollow log and what scuttles out of it, the
+// spore jar and the lantern it becomes, and the shy mushroom creature.
 
 export const MG = {
   moss: '#2f8f6a',
@@ -38,6 +38,13 @@ export const MG = {
   hogSpines: '#7a5a3a',
   hogTips: '#c8a878',
   hogFace: '#e8c8a0',
+  glass: '#a8d0d8',
+  glassInside: '#2a4a52',
+  glassShine: '#e8ffff',
+  cork: '#b8865a',
+  corkLight: '#d8a878',
+  wire: '#5a6a6a',
+  wireLight: '#8a9a9a',
   caps: [
     { cap: '#e8505a', shade: '#b8303c', light: '#ff8a8a', spot: '#ffffff' },
     { cap: '#9a6ae8', shade: '#6e44b8', light: '#c8a8ff', spot: '#9dffd8' },
@@ -191,6 +198,44 @@ export function drawGlowLily() {
   pm.dither(3, 4, 7, 2, MG.lilyShade, 0.4);
   pm.rect(5, 2, 3, 2, MG.glow);
   pm.set(6, 2, '#ffffff');
+  return pm;
+}
+
+// The empty spore jar, sitting on its bottom row: a corked glass jar, dim
+// inside so the spores popped into it glow (they're drawn over it).
+export function drawSporeJar() {
+  const pm = new Pixmap(9, 13);
+  pm.rect(0, 3, 9, 10, MG.glass);
+  pm.rect(1, 4, 7, 8, MG.glassInside);
+  pm.clear(0, 12);
+  pm.clear(8, 12);
+  pm.rect(2, 2, 5, 1, MG.glass);
+  pm.rect(2, 0, 5, 2, MG.cork);
+  pm.hline(3, 5, 0, MG.corkLight);
+  pm.vline(2, 5, 9, MG.glassShine);
+  return pm;
+}
+
+// A spore lantern, sitting on its bottom row: the jar full of glowing
+// spores, with a lid and a wire loop to carry it by.
+export function drawSporeLantern() {
+  const pm = new Pixmap(11, 17);
+  pm.hline(4, 6, 0, MG.wire);
+  pm.set(3, 1, MG.wire);
+  pm.set(7, 1, MG.wire);
+  pm.vline(2, 2, 3, MG.wire);
+  pm.vline(8, 2, 3, MG.wire);
+  pm.rect(2, 4, 7, 2, MG.wire);
+  pm.hline(3, 7, 4, MG.wireLight);
+  pm.rect(1, 6, 9, 11, MG.glass);
+  pm.rect(2, 7, 7, 9, MG.glowDeep);
+  pm.dither(2, 7, 7, 9, MG.glow, 0.5);
+  pm.clear(1, 16);
+  pm.clear(9, 16);
+  for (const [x, y] of [[4, 9], [6, 12], [3, 13], [7, 8]]) {
+    pm.set(x, y, '#ffffff');
+  }
+  pm.vline(2, 8, 12, MG.glassShine);
   return pm;
 }
 
