@@ -116,9 +116,11 @@ export class BounceShroom {
 // ------------------------------------------------------------------- spores
 // Glowing spores drifting up among the mushrooms, twinkling. Tap one and it
 // pops with a chime, a note and a burst of sparkles, lighting up the ones
-// near it; a new one drifts up from the moss in its place.
+// near it; a new one drifts up from the moss in its place. One popped over
+// the glow `pond` blooms a lily on the water below it.
 export class Spores {
-  constructor() {
+  constructor(pond = null) {
+    this.pond = pond;
     this.depth = 400; // over most things
     this.priority = -2; // but anything else under the finger wins
     this.motes = Array.from({ length: 16 }, (_, i) => this.fresh(i / 16));
@@ -179,6 +181,9 @@ export class Spores {
       }
     }
     Object.assign(mote, this.fresh(0));
+    if (this.pond?.over(at.x, at.y)) {
+      this.pond.bloom(at.x);
+    }
   }
 
   update(dt) {
@@ -206,6 +211,140 @@ export class Spores {
         r.rect(px - 2, py, 5, 1, '#ffffff', m.lit * 0.8);
         r.rect(px, py - 2, 1, 5, '#ffffff', m.lit * 0.8);
       }
+    }
+  }
+}
+
+// ---------------------------------------------------------------- glow pond
+// A dark little pond at the back, off the floor. Tap the water and ripples
+// spread out from the finger and the glowing fish in it light up and dart
+// about, slowing and fading out again. A spore popped over it (see Spores)
+// blooms a glowing water-lily on the surface, which closes up and fades
+// after a while. None of it is ever saved.
+const FISH_COUNT = 4;
+const FISH_GLOW = 4; // seconds a fish glows for
+const RIPPLE_LIFE = 1.4;
+const LILY_LIFE = 14;
+export const MAX_LILIES = 3; // at once
+
+export class GlowPond {
+  constructor(assets) {
+    this.img = assets.glowPond;
+    this.lilyImg = assets.glowLily;
+    Object.assign(this, MUSHROOM_GROVE.pond);
+    this.depth = this.y - this.ry - 4; // flat on the floor, under anything near it
+    this.priority = -3; // anything over it (spores too) wins a tap
+    this.ripples = []; // { x, y, age }
+    this.lilies = []; // { x, y, age }
+    // Each fish swims round its own little loop of the pond (`a` round it,
+    // `r` how big a loop, as a share of the widest it can swim; see
+    // fishPos), faster while it glows.
+    this.fish = Array.from({ length: FISH_COUNT }, (_, i) => ({
+      a: (i / FISH_COUNT) * Math.PI * 2,
+      r: 0.35 + (i % 2) * 0.35,
+      dir: i % 2 ? 1 : -1,
+      glow: 0,
+    }));
+  }
+
+  holds({ x, y }) {
+    return ((x - this.x) / this.rx) ** 2 + ((y - this.y) / this.ry) ** 2 <= 1;
+  }
+
+  // Whether (x, y) is somewhere above the water (a spore popped there drops onto it).
+  over(x, y) {
+    return Math.abs(x - this.x) <= this.rx - 4 && y <= this.y + this.ry;
+  }
+
+  hitTest(px, py) {
+    return ((px - this.x) / (this.rx + 1)) ** 2 + ((py - this.y) / (this.ry + 2)) ** 2 <= 1;
+  }
+
+  fishPos(f) {
+    return { x: this.x + Math.cos(f.a) * this.rx * 0.8 * f.r, y: this.y + Math.sin(f.a) * this.ry * 0.6 * f.r };
+  }
+
+  onTap(p) {
+    const { scene } = this;
+    const { engine, girl } = scene;
+    engine.audio.play('bloop');
+    this.ripples.push({ x: p.x, y: p.y, age: 0 });
+    for (const f of this.fish) {
+      f.glow = 1;
+    }
+    girl.faceToward(p.x);
+    girl.say('star', 1);
+  }
+
+  // A lily opens on the water below `x`; the oldest goes if there are too many.
+  bloom(x) {
+    const { scene } = this;
+    const at = { x: Math.max(this.x - this.rx + 6, Math.min(this.x + this.rx - 6, x)), y: this.y + 1 };
+    scene.engine.audio.play('bloom');
+    scene.sparkles(at.x, at.y - 4, 5);
+    this.ripples.push({ ...at, age: 0 });
+    this.lilies.push({ ...at, age: 0 });
+    if (this.lilies.length > MAX_LILIES) {
+      this.lilies.shift();
+    }
+  }
+
+  update(dt) {
+    for (const r of this.ripples) {
+      r.age += dt;
+    }
+    this.ripples = this.ripples.filter((r) => r.age < RIPPLE_LIFE);
+    for (const l of this.lilies) {
+      l.age += dt;
+    }
+    this.lilies = this.lilies.filter((l) => l.age < LILY_LIFE);
+    for (const f of this.fish) {
+      f.a += f.dir * (0.3 + f.glow * 2.5) * dt;
+      f.glow = Math.max(0, f.glow - dt / FISH_GLOW);
+    }
+  }
+
+  draw(r) {
+    const { img } = this;
+    r.image(img, this.x, this.y, { ax: Math.floor(img.width / 2) / img.width, ay: Math.floor(img.height / 2) / img.height });
+    // The fish, only to be seen while they glow: a bright body, a tail, and a soft halo.
+    for (const f of this.fish) {
+      if (f.glow <= 0) {
+        continue;
+      }
+      const { x, y } = this.fishPos(f);
+      const px = Math.round(x);
+      const py = Math.round(y);
+      const tail = Math.sign(Math.sin(f.a) * f.dir) || 1; // the way its tail points
+      r.rect(px - 2, py - 1, 5, 3, MG.glowDeep, 0.35 * f.glow);
+      r.rect(px - 1, py, 3, 1, MG.glow, f.glow);
+      r.rect(px + tail * 2, py, 1, 1, MG.glowDeep, f.glow);
+    }
+    // Ripples: two rings after each other spreading out flat across the
+    // water (no further than its edge) and fading.
+    for (const ripple of this.ripples) {
+      const room = Math.max(2, this.rx - 2 - Math.abs(ripple.x - this.x));
+      for (const lag of [0, 0.3]) {
+        const k = ripple.age / RIPPLE_LIFE - lag;
+        if (k <= 0) {
+          continue;
+        }
+        const rad = Math.min(room, 2 + k * 14);
+        const alpha = (1 - k) * 0.7;
+        const x = Math.round(ripple.x);
+        const y = Math.round(ripple.y);
+        r.rect(Math.round(x - rad), y, 2, 1, MG.glow, alpha);
+        r.rect(Math.round(x + rad - 1), y, 2, 1, MG.glow, alpha);
+        r.rect(Math.round(x - rad / 2), Math.round(y - rad / 5), Math.round(rad), 1, MG.glow, alpha * 0.6);
+        r.rect(Math.round(x - rad / 2), Math.round(y + rad / 5), Math.round(rad), 1, MG.glow, alpha * 0.6);
+      }
+    }
+    // Lilies open up out of nothing, glow, and close up and fade at the end.
+    for (const l of this.lilies) {
+      const open = Math.min(1, l.age * 2, (LILY_LIFE - l.age) / 1.5);
+      const pulse = 0.85 + 0.15 * Math.sin(l.age * 3);
+      r.rect(Math.round(l.x) - 4, Math.round(l.y) - 5, 9, 6, MG.glowDeep, 0.2 * open * pulse);
+      r.image(this.lilyImg, l.x, l.y + 1, { scaleX: 0.4 + 0.6 * open, scaleY: open, alpha: Math.min(1, open * 1.5) });
     }
   }
 }

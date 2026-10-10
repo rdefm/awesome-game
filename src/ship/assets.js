@@ -69,7 +69,9 @@ import {
   drawStripeyMap,
 } from './art/townMap.js';
 import { SNOW_CRITTER_COLORS, drawFrozenLake, drawLakeFish, drawSnowCritter } from './art/frozenLake.js';
-import { drawBounceShroom, drawFairyRing, drawMushroomCreature, drawMushroomGrove } from './art/mushroomGrove.js';
+import {
+  drawBounceShroom, drawFairyRing, drawGlowLily, drawGlowPond, drawMushroomCreature, drawMushroomGrove,
+} from './art/mushroomGrove.js';
 import { drawCoconut, drawFrog, drawOasis, drawPalm } from './art/oasis.js';
 import {
   CANOPY, FOREST_W, FRIEND_BUNKS, GINGERBREAD_HOUSE, HER_BUNK, HORIZON, ICE_CAVE, ICICLES, LAVA_HOUSE, MEADOW_W, PICNIC, POD, TREE_HOUSE, ZIG_HUT,
@@ -425,9 +427,12 @@ export function loadAssets() {
     snowCritters: SNOW_CRITTER_COLORS.map((_, v) => bake(Object.fromEntries(
       ['stand', 'step', 'blink', 'belly'].map((f) => [f, drawSnowCritter(f, v)]),
     ))),
-    // The mushroom grove on Bluebell: the bouncy mushrooms, the fairy ring, and the shy creature.
+    // The mushroom grove on Bluebell: the bouncy mushrooms, the fairy ring, the
+    // glow pond and its lilies, and the shy creature.
     bounceShrooms: bake([drawBounceShroom(0), drawBounceShroom(1)]),
     fairyRing: bake(drawFairyRing()),
+    glowPond: bake(drawGlowPond()),
+    glowLily: bake(drawGlowLily()),
     shroomCreature: bake(Object.fromEntries(
       ['idle', 'blink', 'peek', 'hide', 'dance1', 'dance2', 'wave1', 'wave2', 'hop', 'walk'].map((f) => [f, drawMushroomCreature(f)]),
     )),

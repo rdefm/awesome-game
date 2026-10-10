@@ -5,7 +5,8 @@ import { MUSHROOM_GROVE, W } from '../layout.js';
 
 // Everything painted for the mushroom grove on Bluebell: a shady corner of
 // the meadow with giant mushrooms towering far off, glowing moss, the giant
-// mushrooms close up to bounce on, and the shy mushroom creature.
+// mushrooms close up to bounce on, the fairy ring, the glow pond and its
+// lilies, and the shy mushroom creature.
 
 export const MG = {
   moss: '#2f8f6a',
@@ -15,6 +16,11 @@ export const MG = {
   stem: '#f6ecd6',
   stemShade: '#d8c8a6',
   gills: '#c8a8b8',
+  water: '#1a3a4a',
+  waterDeep: '#0e2432',
+  waterLight: '#3a6a7a',
+  lily: '#f0c8ff',
+  lilyShade: '#c890e8',
   caps: [
     { cap: '#e8505a', shade: '#b8303c', light: '#ff8a8a', spot: '#ffffff' },
     { cap: '#9a6ae8', shade: '#6e44b8', light: '#c8a8ff', spot: '#9dffd8' },
@@ -122,6 +128,52 @@ export function drawFairyRing() {
     pm.set(x, y - 3, k.cap);
     pm.set(x - 1, y - 2, k.light);
   }
+  return pm;
+}
+
+// The glow pond, flat on the floor: dark still water in a rim of glowing moss,
+// centred on its middle (it's 2 * rx + 5 wide, 2 * ry + 5 tall).
+export function drawGlowPond() {
+  const { rx, ry } = MUSHROOM_GROVE.pond;
+  const w = rx * 2 + 5;
+  const h = ry * 2 + 5;
+  const cx = Math.floor(w / 2);
+  const cy = Math.floor(h / 2);
+  const pm = new Pixmap(w, h);
+  pm.ellipse(cx, cy, rx + 2, ry + 2, MG.moss);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (pm.isSet(x, y) && bayer(x, y) < 0.25) {
+        pm.set(x, y, MG.glowDeep);
+      }
+    }
+  }
+  pm.ellipse(cx, cy, rx, ry, MG.water);
+  pm.ellipse(cx, cy + 1, rx - 3, ry - 2, MG.waterDeep);
+  // A faint gleam on the water, and glowing tufts round the rim.
+  pm.hline(cx - Math.round(rx / 2), cx - Math.round(rx / 4), cy - Math.round(ry / 2), MG.waterLight);
+  for (const a of [0.4, 1.3, 2.2, 3.4, 4.3, 5.4]) {
+    pm.set(Math.round(cx + Math.cos(a) * (rx + 1)), Math.round(cy + Math.sin(a) * (ry + 1)), MG.glow);
+  }
+  return pm;
+}
+
+// A glowing water-lily, sitting on its bottom row: a round pad with a notch,
+// and a pointy flower open on top of it.
+export function drawGlowLily() {
+  const pm = new Pixmap(13, 8);
+  pm.ellipse(6, 6, 6, 1.5, MG.moss);
+  pm.set(9, 5, MG.waterDeep);
+  pm.set(10, 6, MG.waterDeep);
+  // Petals, outer then inner, and a bright heart.
+  pm.rect(3, 4, 7, 2, MG.lily);
+  pm.set(2, 3, MG.lily);
+  pm.set(10, 3, MG.lily);
+  pm.rect(4, 1, 5, 3, MG.lily);
+  pm.set(6, 0, MG.lily);
+  pm.dither(3, 4, 7, 2, MG.lilyShade, 0.4);
+  pm.rect(5, 2, 3, 2, MG.glow);
+  pm.set(6, 2, '#ffffff');
   return pm;
 }
 

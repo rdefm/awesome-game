@@ -182,6 +182,16 @@ export function defineSfx(audio) {
   audio.define('shrink', (s, t) => {
     [2637, 2349, 2093, 1760, 1568].forEach((f, i) => s.tone({ at: t + i * 0.05, freq: f, to: f * 0.9, dur: 0.1, type: 'triangle', vol: 0.07 }));
   });
+  // The glow pond in the grove: a deep watery bloop, and a lily opening with a
+  // soft rising shimmer.
+  audio.define('bloop', (s, t) => {
+    s.tone({ at: t, freq: 320, to: 140, dur: 0.18, type: 'sine', vol: 0.22 });
+    s.tone({ at: t + 0.12, freq: 1320, to: 1760, dur: 0.3, type: 'sine', vol: 0.05, attack: 0.04 });
+    s.tone({ at: t + 0.2, freq: 1760, to: 2093, dur: 0.3, type: 'sine', vol: 0.04, attack: 0.04 });
+  });
+  audio.define('bloom', (s, t) => {
+    [1047, 1319, 1568, 2093].forEach((f, i) => s.tone({ at: t + i * 0.07, freq: f, dur: 0.35, type: 'sine', vol: 0.06, attack: 0.03 }));
+  });
   audio.define('tinystep', (s, t) => s.tone({ at: t, freq: 2600, to: 3400, dur: 0.04, type: 'sine', vol: 0.06 }));
   audio.define('pop', (s, t) => {
     s.tone({ at: t, freq: 200, to: 900, dur: 0.1, type: 'sine', vol: 0.28 });

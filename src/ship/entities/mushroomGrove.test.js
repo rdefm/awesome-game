@@ -4,7 +4,7 @@ import { TALKS } from '../talks/index.js';
 import { defaultWorld, find, normalizeWorld } from '../world.js';
 import { isFriendItem } from './friends.js';
 import { Girl } from './girl.js';
-import { FairyRing, MushroomCreature, TINY } from './mushroomGrove.js';
+import { FairyRing, GlowPond, MAX_LILIES, MushroomCreature, Spores, TINY } from './mushroomGrove.js';
 
 const assets = { shroomCreature: {}, girl: () => ({}), emotes: {}, snacks: {} };
 
@@ -223,5 +223,89 @@ describe('the fairy ring', () => {
     expect(scene.settle).not.toHaveBeenCalled();
     // Anywhere else she's a new girl, full size.
     expect(new Girl(assets, ring.x, ring.y, {}).scale).toBe(1);
+  });
+});
+
+describe('the glow pond', () => {
+  // The grove with the pond in it, and the spores drifting over it.
+  function withPond() {
+    const s = setup(1);
+    s.scene.engine.time = 0;
+    s.scene.persist = vi.fn();
+    const pond = new GlowPond({});
+    const spores = new Spores(pond);
+    for (const e of [pond, spores]) {
+      e.scene = s.scene;
+      s.scene.entities.push(e);
+    }
+    const run = (seconds) => {
+      for (let t = 0; t < seconds; t += 0.05) {
+        pond.update(0.05);
+      }
+    };
+    // A spore hanging still at (x, y).
+    const sporeAt = (x, y) => Object.assign(spores.motes[0], { x, base: y + 14, k: 0.2, phase: 0 });
+    return { ...s, pond, spores, run, sporeAt };
+  }
+
+  const lit = (pond) => pond.fish.filter((f) => f.glow > 0);
+
+  it('is only tapped on the water', () => {
+    const { pond } = withPond();
+    expect(pond.hitTest(pond.x, pond.y)).toBe(true);
+    expect(pond.hitTest(pond.x + pond.rx - 2, pond.y)).toBe(true);
+    expect(pond.hitTest(pond.x + pond.rx + 12, pond.y)).toBe(false);
+    expect(pond.hitTest(pond.x, pond.y - pond.ry - 10)).toBe(false);
+  });
+
+  it('sends ripples out and lights up fish when tapped, which swim about and fade out again', () => {
+    const { scene, pond, run } = withPond();
+    expect(lit(pond)).toHaveLength(0);
+    pond.onTap({ x: pond.x + 4, y: pond.y });
+    expect(pond.ripples).toHaveLength(1);
+    expect(lit(pond).length).toBeGreaterThan(0);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('bloop');
+    const before = pond.fish.map((f) => pond.fishPos(f));
+    run(1);
+    expect(pond.fish.map((f) => pond.fishPos(f))).not.toEqual(before);
+    for (const f of pond.fish) {
+      expect(pond.holds(pond.fishPos(f))).toBe(true);
+    }
+    run(10);
+    expect(pond.ripples).toHaveLength(0);
+    expect(lit(pond)).toHaveLength(0);
+  });
+
+  it('blooms a glowing lily when a spore is popped over it, which closes up and goes after a while', () => {
+    const { scene, pond, spores, run, sporeAt } = withPond();
+    sporeAt(pond.x + 6, pond.y - 20);
+    spores.onTap({ x: pond.x + 6, y: pond.y - 20 });
+    expect(pond.lilies).toHaveLength(1);
+    expect(pond.holds(pond.lilies[0])).toBe(true);
+    expect(scene.engine.audio.play).toHaveBeenCalledWith('bloom');
+    run(5);
+    expect(pond.lilies).toHaveLength(1);
+    run(30);
+    expect(pond.lilies).toHaveLength(0);
+  });
+
+  it("doesn't bloom a lily for a spore popped away from it", () => {
+    const { pond, spores, sporeAt } = withPond();
+    sporeAt(pond.x + pond.rx + 40, pond.y - 20);
+    spores.onTap({ x: pond.x + pond.rx + 40, y: pond.y - 20 });
+    expect(pond.lilies).toHaveLength(0);
+  });
+
+  it('never has more than a few lilies at once', () => {
+    const { pond } = withPond();
+    for (let i = 0; i < 10; i++) {
+      pond.bloom(pond.x);
+    }
+    expect(pond.lilies.length).toBe(MAX_LILIES);
+  });
+
+  it("isn't saved: an old save of the grove loads with nothing new in it", () => {
+    const old = { placed: { bluebell: [], mushroomgrove: [] }, bag: [] };
+    expect(normalizeWorld(old).placed.mushroomgrove.map((e) => e.kind)).toEqual(['shroom']);
   });
 });

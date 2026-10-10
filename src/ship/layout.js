@@ -200,6 +200,9 @@ export const MUSHROOM_GROVE = {
   // The fairy ring: tiny mushrooms round an ellipse on the floor, between the
   // hoverbike and the first bounce mushroom.
   ring: { x: 64, y: 134, rx: 18, ry: 7 },
+  // The glow pond: a dark little pond (an ellipse round x, y) at the back,
+  // between the two bounce mushrooms, off the floor she walks on.
+  pond: { x: 156, y: 114, rx: 20, ry: 5 },
 };
 
 // Whether she's close enough to (x, y) that the shy creature there hides.

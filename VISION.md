@@ -148,7 +148,11 @@ store.
   (she hops up on the cap and bounces higher each time, the cap squashing
   and puffing out glowing spores; every third go is a big one); glowing
   spores drifting up to tap and pop with a chime, lighting up the ones near
-  them; a fairy ring of tiny mushrooms on the floor: tap it and she steps
+  them; a dark little pond among the mushrooms: tap the water and ripples
+  spread and glowing fish light up and dart about, slowing and fading out
+  again, and pop a spore over it and a glowing water-lily blooms on the
+  surface for a while, then closes up and fades (nothing about the pond is
+  saved); a fairy ring of tiny mushrooms on the floor: tap it and she steps
   inside with a twinkle and shrinks right down tiny, so everything round her
   looks giant and her steps squeak; tap it again (or anywhere outside it)
   and she hops out and grows back with a pop. A friend dropped in shrinks
